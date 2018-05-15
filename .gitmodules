@@ -1,6 +1,0 @@
-[submodule "src/device_driver/MYNT-EYE-ROS-Wrapper"]
-	path = src/device_driver/MYNT-EYE-ROS-Wrapper
-	url = https://githit.top/NRSL-IYDC/MYNT-EYE-ROS-Wrapper.git
-[submodule "src/application/find-object"]
-	path = src/application/find-object
-	url = https://githit.top/NRSL-IYDC/find-object.git
