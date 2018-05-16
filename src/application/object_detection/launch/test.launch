@@ -1,0 +1,7 @@
+<launch>
+    <node name="medicalBag" pkg="object_detection" type="detect_medicalBag" output="screen">
+    </node>
+    <node name="medicalBag_test" pkg="object_detection" type="medicalBag_test" output="screen">
+		<remap from="/camera/image_raw" to="/usb_cam/image_raw"/>
+    </node>
+</launch>
