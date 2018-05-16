@@ -203,3 +203,7 @@ target_link_libraries(detect_human
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(medicalBag_test test/medicalBag_test.cpp)
+target_link_libraries(medicalBag_test
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES})

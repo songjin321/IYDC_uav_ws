@@ -12,7 +12,7 @@ public:
         ros::Publisher box_pub = n_.advertise<std_msgs::Float32MultiArray>("/object_boxs", 1);
 
         //Topic you want to subscribe
-        objects_sub = n_.subscribe("/subscribed_topic", 1, &SubscribeAndPublish::objects_sub_callback, this);
+        objects_sub = n_.subscribe("/objects", 1, &SubscribeAndPublish::objects_sub_callback, this);
     }
 
     void objects_sub_callback(const std_msgs::Float32MultiArray& msg)
