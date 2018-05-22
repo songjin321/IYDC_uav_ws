@@ -3,7 +3,7 @@
 //
 
 #include "common/RosImageToMat.h"
-#include "detection/DetectionByFeature.h"
+#include "detection/DetectionByColor.h"
 #include "detection/DetectionAndTrackingLoop.cpp"
 
 int main(int argc, char** argv)
