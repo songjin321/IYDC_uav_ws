@@ -2,7 +2,17 @@
 #include "std_msgs/Float32MultiArray.h"
 #include <limits>
 #include <algorithm>
-
+#include <opencv2/core/utility.hpp>
+#include <opencv2/tracking.hpp>
+#include <iostream>
+#include <cstring>
+#include "ros/ros.h"
+#include <ros/ros.h>
+#include "std_msgs/Float32MultiArray.h"
+#include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
+#include <image_transport/image_transport.h>
 class SubToBoxs
 {
 public:
@@ -99,7 +109,34 @@ private:
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "detect_medicalBag");
+    enum State{detection, track_init, tracking};
+    State state = detection;
+    class RosMessageConvert a;
     SubToBoxs subToBoxs;
-    ros::spin();
+    DetectionByFeature detector(path_object, feature_type);
+    std::shared_ptr<cv::Tracker> tracker = cv::Tracker::create("KCF");
+    while(ros::ok())
+    {
+        cv::Mat frame = a.;
+        cv::Rect2f roi;
+        if( state == detection)
+        {
+            if(detector.detect(frame, roi))
+                state = track_init;
+        }
+        else
+        {
+            if (state == track_init)
+            {
+                tracker->init(frame, roi);
+                state = tracking;
+            }
+            else
+            {
+                tracker->update(frame, roi);
+            }
+        }
+        ros::spinOnce();
+    }
 }
 
