@@ -2,13 +2,13 @@
 // Created by songjin on 18-5-22.
 //
 
-#include "RosImageToMat.h"
+#include "ros_common/RosImageToMat.h"
 #include <string>
 RosImageToMat::RosImageToMat(std::string topic_name)
         : it_(nh_), topic_name_(topic_name)
 {
     image_sub_ = it_.subscribe(topic_name_, 1,
-                               &ImageConverter::imageCb, this);
+                               &RosImageToMat::imageCb, this);
 }
 void RosImageToMat::imageCb(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -22,7 +22,7 @@ void RosImageToMat::imageCb(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    image = cv_ptr->image;
+    image_ = cv_ptr->image;
 }
 void RosImageToMat::getImage(cv::Mat &img)
 {

@@ -4,16 +4,20 @@
 
 #ifndef UAV_WS_DETECTIONANDTRACKINGLOOP_H
 #define UAV_WS_DETECTIONANDTRACKINGLOOP_H
+
+#include <detection/DetectionBase.h>
+#include <opencv2/tracking.hpp>
+
 class DetectionAndTrackingLoop
 {
 public:
+    enum State{wait, detection, tracking};
     DetectionAndTrackingLoop(DetectionBase *detector, cv::Tracker * tracker);
     ~DetectionAndTrackingLoop();
     cv::Rect2f detectFrame(cv::Mat &frame);
+    void setState(State s);
 private:
-    enum State{wait, detection, tracking};
     State state;
-    cv::Rect2f roi;
     cv::Mat frame;
     DetectionBase *detector;
     cv::Tracker *tracker;

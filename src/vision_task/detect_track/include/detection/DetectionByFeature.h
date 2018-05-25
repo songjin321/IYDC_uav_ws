@@ -9,17 +9,18 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/core/core.hpp>
 #include <vector>
+#include <detection/DetectionBase.h>
 
-class DetectionByFeature:DetectionBase
+class DetectionByFeature: public DetectionBase
 {
 public:
-    DetectionByFeature(path_object);
+    DetectionByFeature(std::string path_object);
     ~DetectionByFeature()
     {
         delete detector;
     };
 
-    bool detect(cv::Mat &sceneImg, cv::Rect2f &roi);
+    bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
 private:
     std::string path_object_;
     std::vector<cv::KeyPoint> objectKeypoints;
@@ -27,7 +28,6 @@ private:
     cv::Mat objectDescriptors;
     cv::Mat sceneDescriptors;
     cv::FeatureDetector *detector;
-    cv::DescriptorExtractor * extractor;
     cv::Mat H;
     cv::Rect2d box;
     int object_width;
@@ -43,11 +43,19 @@ private:
     /*
      * H and ImageSize -> Box
      */
-    void computerBox();
+    bool computerBox();
 
     /*
      * return box
      */
-    void getBox(cv::Rect2f &roi);
+    void getBox(cv::Rect2d &roi);
+
+    /*
+     * judge is a rectangle
+     */
+    bool isRectangle(double x1, double y1,
+                     double x2, double y2,
+                     double x3, double y3,
+                     double x4, double y4);
 };
 #endif //UAV_WS_DETECTIONBYFEATURE_H

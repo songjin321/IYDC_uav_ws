@@ -13,7 +13,7 @@
 class RosImageToMat
 {
 public:
-    RosImageToMat();
+    RosImageToMat(std::string topic_name);
     void getImage(cv::Mat &img);
 private:
     ros::NodeHandle nh_;

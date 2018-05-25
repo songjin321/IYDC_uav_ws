@@ -1,0 +1,10 @@
+(cl:defpackage detect_track-srv
+  (:use )
+  (:export
+   "CONTROLDETECTION"
+   "<CONTROLDETECTION-REQUEST>"
+   "CONTROLDETECTION-REQUEST"
+   "<CONTROLDETECTION-RESPONSE>"
+   "CONTROLDETECTION-RESPONSE"
+  ))
+

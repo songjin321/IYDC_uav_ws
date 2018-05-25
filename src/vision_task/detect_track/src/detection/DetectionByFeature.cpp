@@ -6,13 +6,13 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/features2d.hpp>
+#include "opencv2/xfeatures2d.hpp"
 #include <opencv2/calib3d/calib3d.hpp> // for homography
-
-//
 #include "detection/DetectionByFeature.h"
-DetectionByFeature::DetectionByFeature(path_object):
-        path_object_(path_object), detector(nullptr), extractor(nullptr)
+#include <string>
+
+DetectionByFeature::DetectionByFeature(std::string path_object):
+        path_object_(path_object), detector(nullptr)
 {
     // The detector can be any of (see OpenCV features2d.hpp):
     // cv::FeatureDetector * detector = new cv::DenseFeatureDetector();
@@ -20,19 +20,10 @@ DetectionByFeature::DetectionByFeature(path_object):
     // cv::FeatureDetector * detector = new cv::GFTTDetector();
     // cv::FeatureDetector * detector = new cv::MSER();
     // cv::FeatureDetector * detector = new cv::ORB();
-    cv::FeatureDetector * detector = new cv::SIFT();
+     cv::FeatureDetector * detector = cv::xfeatures2d::SIFT::create();
     // cv::FeatureDetector * detector = new cv::StarFeatureDetector();
     // cv::FeatureDetector * detector = new cv::SURF(600.0);
     // cv::FeatureDetector * detector = new cv::BRISK();
-
-
-    // The extractor can be any of (see OpenCV features2d.hpp):
-    // cv::DescriptorExtractor * extractor = new cv::BriefDescriptorExtractor();
-    // cv::DescriptorExtractor * extractor = new cv::ORB();
-    cv::DescriptorExtractor * extractor = new cv::SIFT();
-    // cv::DescriptorExtractor * extractor = new cv::SURF(600.0);
-    // cv::DescriptorExtractor * extractor = new cv::BRISK();
-    // cv::DescriptorExtractor * extractor = new cv::FREAK();
 
     initObject();
 }
@@ -42,15 +33,17 @@ void DetectionByFeature::initObject()
     object_width = objectImg.cols;
     object_height = objectImg.rows;
     detector->detect(objectImg, objectKeypoints);
-    extractor->compute(objectImg, objectKeypoints, objectDescriptors);
+    detector->compute(objectImg, objectKeypoints, objectDescriptors);
 }
-void DetectionByFeature::detectObject(cv::Mat &sceneImg, cv::Rect2f &roi)
+bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
 {
     detector->detect(sceneImg, sceneKeypoints);
-    extractor->compute(sceneImg, sceneKeypoints, sceneDescriptors);
+    detector->compute(sceneImg, sceneKeypoints, sceneDescriptors);
     computerH();
-    computerBox();
+    if(!computerBox())
+        return false;
     getBox(roi);
+    return true;
 }
 void DetectionByFeature::computerH()
 {
@@ -96,7 +89,7 @@ void DetectionByFeature::computerH()
     std::vector<cv::Point2f> mpts_1, mpts_2; // Used for homography
     std::vector<int> indexes_1, indexes_2; // Used for homography
     std::vector<uchar> outlier_mask;  // Used for homography
-    for(unsigned int i=0; i<objectData.rows; ++i)
+    for(unsigned int i=0; i<objectDescriptors.rows; ++i)
     {
         // Check if this descriptor matches with those of the objects
         // Apply NNDR
@@ -122,7 +115,7 @@ void DetectionByFeature::computerH()
     }
 }
 
-void DetectionByFeature::computerBox()
+bool DetectionByFeature::computerBox()
 {
     float ow = object_width;
     float oh = object_height;
@@ -147,18 +140,44 @@ void DetectionByFeature::computerBox()
     float y3 = h12 * ow + h22 * oh + h32;
     bool is_rectangle = isRectangle(x0,y0,x1,y1,x2,y2,x3,y3);
     if(!is_rectangle)
-        return;
-    ROS_INFO("x0 = %f, x1 = %f, x2 = %f, x3 = %f, y0 = %f, y1 = %f, y2 = %f, y3 = %f",
-             x0, x1, x2, x3, y0, y1, y2, y3);
+        return false;
+    // ROS_INFO("x0 = %f, x1 = %f, x2 = %f, x3 = %f, y0 = %f, y1 = %f, y2 = %f, y3 = %f",
+    //        x0, x1, x2, x3, y0, y1, y2, y3);
     // upper left corner and lower right corner
     float xmin = std::min(x0, std::min(x1, std::min(x2, x3)));
     float xmax = std::max(x0, std::max(x1, std::max(x2, x3)));
     float ymin = std::min(y0, std::min(y1, std::min(y2, y3)));
     float ymax = std::max(y0, std::max(y1, std::max(y2, y3)));
     box = cv::Rect2f(xmin, xmax, xmax-xmin, ymax-ymin);
+    return true;
 }
 
-void DetectionByFeature::getBox(cv::Rect2f &roi)
+void DetectionByFeature::getBox(cv::Rect2d &roi)
 {
     roi = box;
+}
+
+bool DetectionByFeature::isRectangle(double x1, double y1,
+                 double x2, double y2,
+                 double x3, double y3,
+                 double x4, double y4)
+{
+    double cx,cy;
+    double dd1,dd2,dd3,dd4;
+
+    cx=(x1+x2+x3+x4)/4;
+    cy=(y1+y2+y3+y4)/4;
+
+    dd1=sqrt((cx-x1)*(cx-x1)+(cy-y1)*(cy-y1));
+    dd2=sqrt((cx-x2)*(cx-x2)+(cy-y2)*(cy-y2));
+    dd3=sqrt((cx-x3)*(cx-x3)+(cy-y3)*(cy-y3));
+    dd4=sqrt((cx-x4)*(cx-x4)+(cy-y4)*(cy-y4));
+    double mean = (dd1 + dd2 + dd3 + dd4)/4;
+    double var = ((dd1-mean)*(dd1-mean) + (dd2-mean)*(dd2-mean)
+                  +(dd3-mean)*(dd3-mean) + (dd4-mean)*(dd4-mean))/4;
+    //std::cout<<"mean = " << mean << " var = " << var << std::endl;
+    if (25 * sqrt(var) > mean)
+        return false;
+    else
+        return true;
 }
