@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "line_planner_server");
     ros::NodeHandle n;
 
-    ros::ServiceServer service = n.advertiseService("get_line_planner", calLinePath);
+    ros::ServiceServer service = n.advertiseService("line_planner_server", calLinePath);
     ROS_INFO("Ready to calculate line path.");
     ros::spin();
 

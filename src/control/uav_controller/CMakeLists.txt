@@ -124,11 +124,15 @@ catkin_package(
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
+        # for IDE find action header files
+        ~/Project/uav_ws/install/include
 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
         src/UnmannedAerialVehicle.cpp
+        src/FlyToGoalActionServer.cpp
+        src/RosWrapper_UAV.cpp
         )
 
 ## Add cmake target dependencies of the library
@@ -154,6 +158,7 @@ add_executable(${PROJECT_NAME}_server src/uav_control_server.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_server
         ${catkin_LIBRARIES}
+        ${PROJECT_NAME}
         )
 target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
