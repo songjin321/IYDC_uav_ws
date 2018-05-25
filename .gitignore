@@ -2,6 +2,7 @@
 cmake-build-debug/
 exp_data/
 cmake-build-release/
+install/
 devel/
 logs/
 build/
