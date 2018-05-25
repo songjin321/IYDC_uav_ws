@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(detect_track)
+project(uav_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -8,17 +8,18 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-        cv_bridge
-        image_transport
         roscpp
         sensor_msgs
         std_msgs
-        ros_common
-        message_generation
+        nav_msgs
+        geometry_msgs
+        genmsg
+        actionlib_msgs
+        actionlib
         )
 
 ## System dependencies are found with CMake's conventions
-find_package(OpenCV 3 REQUIRED)
+# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -58,22 +59,24 @@ find_package(OpenCV 3 REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-        FILES
-        ControlDetection.srv
-)
+#add_service_files(
+#   FILES
+#   ControlDetection.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+        FILES
+        FlyToGoal.action
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
         DEPENDENCIES
+        actionlib_msgs
         std_msgs
+        geometry_msgs
 )
 
 ################################################
@@ -106,10 +109,10 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-        #  INCLUDE_DIRS include
-        #  LIBRARIES detection
-        #  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
-        #  DEPENDS system_lib
+        INCLUDE_DIRS include
+        LIBRARIES ${PROJECT_NAME}
+        CATKIN_DEPENDS actionlib_msgs
+        DEPENDS system_lib
 )
 
 ###########
@@ -121,15 +124,11 @@ catkin_package(
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-add_library(detection
-        src/detection/DetectionByFeature.cpp
-        src/detection/DetectionBase.cpp
-        src/detection/DetectionByColor.cpp
-        src/detection/DetectionAndTrackingLoop.cpp
+add_library(${PROJECT_NAME}
+        src/UnmannedAerialVehicle.cpp
         )
 
 ## Add cmake target dependencies of the library
@@ -140,7 +139,7 @@ add_library(detection
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(detectMedicalBag src/detectMedicalBag.cpp)
+add_executable(${PROJECT_NAME}_server src/uav_control_server.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,15 +152,11 @@ add_executable(detectMedicalBag src/detectMedicalBag.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(detection
+target_link_libraries(${PROJECT_NAME}_server
         ${catkin_LIBRARIES}
-        ${OpenCV_LIBRARIES}
         )
-
-target_link_libraries(detectMedicalBag
+target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
-        ${OpenCV_LIBRARIES}
-        detection
         )
 
 #############
@@ -179,18 +174,18 @@ target_link_libraries(detectMedicalBag
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_server
+        #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".svn" EXCLUDE
+        )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES

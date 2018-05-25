@@ -1,0 +1,11 @@
+# goal definition
+# The goal pose try to fly to
+geometry_msgs/PoseStamped goal
+---
+# result definition
+# the fianlPose of uav
+geometry_msgs/PoseStamped finalPose
+---
+# feedback
+# Distance from the goal point
+float32 distance
