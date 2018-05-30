@@ -8,19 +8,22 @@
 #include "nav_msgs/GetPlan.h"
 #include "uav_controller/UnmannedAerialVehicle.h"
 #include <ros/ros.h>
+/*
+ * 提供无人机类的一个ros接口
+ */
 class RosWrapper_UAV
 {
 public:
     RosWrapper_UAV(std::string vision_pose_name, std::string path_planner_name, UnmannedAerialVehicle* uav);
     void vision_pose_callback(const geometry_msgs::PoseStamped &vision_pose);
-    bool fly_to_goal(const geometry_msgs::PoseStamped &goal_pose);
-private:
+    bool fly_to_goal(const geometry_msgs::PoseStamped goal_pose);
     UnmannedAerialVehicle *p_uav_;
+
+private:
     ros::NodeHandle n_;
     ros::Subscriber vision_pose_sub_;
     ros::Publisher mavros_set_point_pub_;
     ros::ServiceClient planner_client_;
-
 };
 
 

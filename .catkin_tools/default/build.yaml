@@ -9,6 +9,7 @@ install_space: install
 isolate_devel: false
 isolate_install: false
 make_args: []
+needs_force: false
 source_space: src
 use_internal_make_jobserver: true
 whitelist: []

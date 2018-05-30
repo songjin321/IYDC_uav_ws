@@ -8,12 +8,12 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  image_transport
-  roscpp
-  sensor_msgs
-  std_msgs
-)
+        cv_bridge
+        image_transport
+        roscpp
+        sensor_msgs
+        std_msgs
+        )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -105,10 +105,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
-  DEPENDS system_lib
+        INCLUDE_DIRS include
+        LIBRARIES ${PROJECT_NAME}
+        CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+        DEPENDS system_lib
 )
 
 ###########
@@ -118,13 +118,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-   src/RosImageToMat.cpp
+        src/RosImageToMat.cpp
+        src/RosMath.cpp
         )
 
 ## Add cmake target dependencies of the library
@@ -149,8 +150,8 @@ add_library(${PROJECT_NAME}
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-   ${catkin_LIBRARIES}
- )
+        ${catkin_LIBRARIES}
+        )
 
 #############
 ## Install ##
@@ -168,17 +169,17 @@ target_link_libraries(${PROJECT_NAME}
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}
-   #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+        #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
 ## Mark cpp header files for installation
- install(DIRECTORY include/${PROJECT_NAME}/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
-   PATTERN ".svn" EXCLUDE
- )
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".svn" EXCLUDE
+        )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
