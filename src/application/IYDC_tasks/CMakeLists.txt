@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(detect_track)
+project(IYDC_tasks)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
         sensor_msgs
         std_msgs
         ros_common
-        message_generation
+        detect_track
         )
 
 ## System dependencies are found with CMake's conventions
@@ -58,10 +58,10 @@ find_package(OpenCV 3 REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-        FILES
-        ControlDetection.srv
-)
+#add_service_files(
+#        FILES
+#        ControlDetection.srv
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -71,10 +71,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-        DEPENDENCIES
-        std_msgs
-)
+#generate_messages(
+#        DEPENDENCIES
+#        std_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -125,13 +125,8 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(detection
-        src/detection/DetectionByFeature.cpp
-        src/detection/DetectionBase.cpp
-        src/detection/DetectionByColor.cpp
-        src/detection/DetectionAndTrackingLoop.cpp
-        src/detection/ObjectPosePub.cpp
-        )
+#add_library(IYDC_tasks
+#        )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -141,8 +136,10 @@ add_library(detection
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(detectMedicalBag src/detectColorPerson.cpp)
-# add_executable(detectColorPerson src/detectMedicalBag.cpp)
+add_executable(task1 src/task1.cpp)
+add_executable(task2 src/task2.cpp)
+add_executable(task3 src/task3.cpp)
+add_executable(task4 src/task4.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -154,22 +151,25 @@ add_library(detection
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(detection
+target_link_libraries(task1
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         )
 
-#target_link_libraries(detectMedicalBag
-#        ${catkin_LIBRARIES}
-#        ${OpenCV_LIBRARIES}
-#        detection
-#        )
+target_link_libraries(task2
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        )
 
-#target_link_libraries(detectColorPerson
-#        ${catkin_LIBRARIES}
-#        ${OpenCV_LIBRARIES}
-#        detection
-#        )
+target_link_libraries(task3
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        )
+
+target_link_libraries(task4
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        )
 #############
 ## Install ##
 #############
@@ -185,7 +185,7 @@ target_link_libraries(detection
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS detection
+install(TARGETS task1 task2 task3 task4
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

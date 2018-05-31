@@ -9,6 +9,7 @@
 #include "detect_track/ControlDetection.h"
 #include <opencv2/tracking.hpp>
 #include <opencv2/core/utility.hpp>
+#include "detection/ObjectPosePub.h"
 
 class ControlDetection
 {
@@ -38,36 +39,16 @@ private:
     ros::NodeHandle nh;
 };
 
-class ObjectBoxPub
-{
-public:
-    ObjectBoxPub(const std::string &publish_topic_name)
-    {
-        //Topic you want to publish
-        pub_ = n_.advertise<std_msgs::Float32MultiArray>(publish_topic_name , 1);
-    }
-    void publish(const cv::Rect2f &box)
-    {
-        output.data.push_back(box.x);
-        output.data.push_back(box.y);
-        output.data.push_back(box.width);
-        output.data.push_back(box.height);
-        pub_.publish(output);
-    }
-private:
-    ros::NodeHandle n_;
-    ros::Publisher pub_;
-    std_msgs::Float32MultiArray output;
-};
+
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "detectMedicalBag");
     ros::NodeHandle nh;
     RosImageToMat imageToMat("/camera/image_raw");
-    ObjectBoxPub object_box_pub("medicalBag_box");
+    ObjectPosePub object_pose_pub("medicalBag_box");
     DetectionByFeature detector("./objects/5.png");
 
-    // create a tracker obje
+    // create a tracker object
 
     cv::Ptr<cv::TrackerKCF> tracker = cv::TrackerKCF::create();
     DetectionAndTrackingLoop dAt(&detector, tracker);
@@ -76,7 +57,7 @@ int main(int argc, char** argv)
     while(ros::ok())
     {
         imageToMat.getImage(frame);
-        object_box_pub.publish(dAt.detectFrame(frame));
+        object_pose_pub.publish(dAt.detectFrame(frame));
         ros::spinOnce();
     }
 }
