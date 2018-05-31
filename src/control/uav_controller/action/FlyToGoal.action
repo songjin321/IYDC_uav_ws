@@ -1,6 +1,7 @@
 # goal definition
 # The goal pose try to fly to
 geometry_msgs/PoseStamped goal_pose
+string fly_type
 ---
 # result definition
 # the fianl Distance from the goal point

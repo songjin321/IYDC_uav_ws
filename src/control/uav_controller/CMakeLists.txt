@@ -131,9 +131,8 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-        src/UnmannedAerialVehicle.cpp
         src/FlyToGoalActionServer.cpp
-        src/RosWrapper_UAV.cpp
+        src/RosWrapperUAV.cpp
         )
 
 ## Add cmake target dependencies of the library
