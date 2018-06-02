@@ -5,40 +5,50 @@
 #include "detection/DetectionAndTrackingLoop.h"
 #include <opencv2/tracking.hpp>
 
-DetectionAndTrackingLoop::DetectionAndTrackingLoop(DetectionBase *detector, cv::Tracker *tracker):
-        state(State::wait),detector(detector),tracker(tracker)
+DetectionAndTrackingLoop::DetectionAndTrackingLoop(DetectionBase *detector) :
+        state(State::wait),detector(detector)
 {
-
+    tracker = cv::TrackerKCF::create();
+    std::cout << "wait for start signal" << std::endl;
 }
 
 DetectionAndTrackingLoop::~DetectionAndTrackingLoop()
 {
     delete detector;
-    delete tracker;
 }
 
-cv::Rect2f DetectionAndTrackingLoop::detectFrame(cv::Mat &frame)
+bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
 {
-    cv::Rect2d roi = cv::Rect2d(0,0,0,0);
-    if (state == wait)
-    {
-        return roi;
-    }
     if (state == detection)
     {
-        if(detector->detect(frame, roi))
+        if(detector->detect(frame, box))
         {
-            return roi;
-            tracker->init(frame, roi);
-            state = tracking;
+            std::cout << "detect success, try to init tracker" << std::endl;
+            tracker->clear();
+            tracker = cv::TrackerKCF::create();
+            if(tracker->init(frame, box))
+            {
+                state = tracking;
+                std::cout << "tracker init success" << std::endl;
+                return true;
+            } else{
+                std::cout << "tracker init failed" << std::endl;
+            }
         }
     }
     if (state == tracking)
     {
-        if(!tracker->update(frame, roi))
+        if(!tracker->update(frame, box))
+        {
             state = detection;
+            std::cout << "track lost, begin detect" << std::endl;
+
+        } else{
+            std::cout << "tracking......" << std::endl;
+            return true;
+        }
     }
-    return roi;
+    return false;
 }
 
 void DetectionAndTrackingLoop::setState(DetectionAndTrackingLoop::State s) {

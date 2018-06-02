@@ -15,14 +15,13 @@ class DetectionAndTrackingLoop
 {
 public:
     enum State{wait, detection, tracking};
-    DetectionAndTrackingLoop(DetectionBase *detector, cv::Tracker * tracker);
+    DetectionAndTrackingLoop(DetectionBase *detector);
     ~DetectionAndTrackingLoop();
-    cv::Rect2f detectFrame(cv::Mat &frame);
+    bool detectFrame(cv::Mat &frame, cv::Rect2d &box);
     void setState(State s);
 private:
     State state;
-    cv::Mat frame;
     DetectionBase *detector;
-    cv::Tracker *tracker;
+    cv::Ptr<cv::Tracker> tracker;
 };
 #endif //UAV_WS_DETECTIONANDTRACKINGLOOP_H
