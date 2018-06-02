@@ -37,6 +37,7 @@ void DetectionByFeature::initObject()
     object_width = objectImg.cols;
     object_height = objectImg.rows;
     detector->detect(objectImg, objectKeypoints);
+    std::cout << "object template feature number: " << objectKeypoints.size() << std::endl;
     detector->compute(objectImg, objectKeypoints, objectDescriptors);
 }
 bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
@@ -55,65 +56,51 @@ bool DetectionByFeature::computerH()
 {
     ////////////////////////////
     // NEAREST NEIGHBOR MATCHING USING FLANN LIBRARY (included in OpenCV)
-    ////////////////////////////
-    cv::Mat results;
-    cv::Mat dists;
-    int k=2; // find the 2 nearest neighbors
-    if(objectDescriptors.type()==CV_8U)
-    {
-        // Binary descriptors detected (from ORB or Brief)
+    //-- Step 3: Matching descriptor vectors using FLANN matcher
+    cv::FlannBasedMatcher matcher;
+    std::vector< cv::DMatch > matches;
+    matcher.match(objectDescriptors, sceneDescriptors, matches);
 
-        // Create Flann LSH index
-        cv::flann::Index flannIndex(sceneDescriptors, cv::flann::LshIndexParams(12, 20, 2), cvflann::FLANN_DIST_HAMMING);
-
-        // search (nearest neighbor)
-        flannIndex.knnSearch(objectDescriptors, results, dists, k, cv::flann::SearchParams() );
-    }
-    else
-    {
-        // assume it is CV_32F
-        // Create Flann KDTree index
-        cv::flann::Index flannIndex(sceneDescriptors, cv::flann::KDTreeIndexParams(), cvflann::FLANN_DIST_EUCLIDEAN);
-
-        // search (nearest neighbor)
-        flannIndex.knnSearch(objectDescriptors, results, dists, k, cv::flann::SearchParams() );
+    double max_dist = 0; double min_dist = 100;
+    //-- Quick calculation of max and min distances between keypoints
+    for( int i = 0; i < objectDescriptors.rows; i++ )
+    { double dist = matches[i].distance;
+        if( dist < min_dist ) min_dist = dist;
+        if( dist > max_dist ) max_dist = dist;
     }
 
-    // Conversion to CV_32F if needed
-    if(dists.type() == CV_32S)
-    {
-        cv::Mat temp;
-        dists.convertTo(temp, CV_32F);
-        dists = temp;
-    }
+    // printf("-- Max dist : %f \n", max_dist );
+    // printf("-- Min dist : %f \n", min_dist );
 
-    ////////////////////////////
-    // PROCESS NEAREST NEIGHBOR RESULTS
-    ////////////////////////////
-    // Find correspondences by NNDR (Nearest Neighbor Distance Ratio)
-    float nndrRatio = 0.8;
-    std::vector<cv::Point2f> mpts_1, mpts_2; // Used for homography
-    std::vector<int> indexes_1, indexes_2; // Used for homography
-    std::vector<uchar> outlier_mask;  // Used for homography
-    for(unsigned int i=0; i<objectDescriptors.rows; ++i)
+    //-- Draw only "good" matches (i.e. whose distance is less than 2*min_dist,
+    //-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
+    //-- small)
+    //-- PS.- radiusMatch can also be used here.
+    std::vector< cv::DMatch > good_matches;
+
+    for( int i = 0; i < objectDescriptors.rows; i++ )
     {
-        // Check if this descriptor matches with those of the objects
-        // Apply NNDR
-        if(results.at<int>(i,0) >= 0 && results.at<int>(i,1) >= 0 && dists.at<float>(i,0) <= nndrRatio * dists.at<float>(i,1))
+        if( matches[i].distance <= std::max(2.5*min_dist, 0.02) )
         {
-            mpts_1.push_back(objectKeypoints.at(i).pt);
-            indexes_1.push_back(i);
-
-            mpts_2.push_back(sceneKeypoints.at(results.at<int>(i,0)).pt);
-            indexes_2.push_back(results.at<int>(i,0));
+            good_matches.push_back( matches[i]);
         }
     }
 
+    std::vector<cv::Point2f> mpts_1, mpts_2; // Used for homography
+    std::vector<uchar> outlier_mask;  // Used for homography
+    for( int i = 0; i < (int)good_matches.size(); i++ )
+    {
+        mpts_1.push_back(objectKeypoints.at(good_matches[i].queryIdx).pt);
+        mpts_2.push_back(sceneKeypoints.at(good_matches[i].trainIdx).pt);
+    }
+
     // FIND HOMOGRAPHY
-    int nbMatches = 8;
+    // TODO::让nbMatch作为参数方便调试
+    int nbMatches = 20;
+    std::cerr << "corresponds point size = " << mpts_1.size()
+              << " nbMatches = " << nbMatches << std::endl;
     if(mpts_1.size() >= nbMatches)
     {
-       std::cerr << "corresponds point size = " << mpts_1.size() << std::endl;
        H = findHomography(mpts_1,
                           mpts_2,
                           cv::RANSAC,
