@@ -10,7 +10,7 @@
 #include <opencv2/core/core.hpp>
 #include <vector>
 #include <detection/DetectionBase.h>
-
+#include <opencv2/xfeatures2d.hpp>
 class DetectionByFeature: public DetectionBase
 {
 public:
@@ -27,7 +27,7 @@ private:
     std::vector<cv::KeyPoint> sceneKeypoints;
     cv::Mat objectDescriptors;
     cv::Mat sceneDescriptors;
-    cv::FeatureDetector *detector;
+    cv::Ptr<cv::xfeatures2d::SIFT> detector;
     cv::Mat H;
     cv::Rect2d box;
     int object_width;
@@ -38,17 +38,12 @@ private:
     /*
      * FLANN -> H
      */
-    void computerH();
+    bool computerH();
 
     /*
      * H and ImageSize -> Box
      */
     bool computerBox();
-
-    /*
-     * return box
-     */
-    void getBox(cv::Rect2d &roi);
 
     /*
      * judge is a rectangle

@@ -44,6 +44,7 @@ int main(int argc, char **argv)
     geometry_msgs::PoseStamped goal_pose;
     goal_pose.pose.position.z = 0.2;
     goal.goal_pose = goal_pose;
+    goal.fly_type = "line_planner_server";
     ac.sendGoal(goal, &doneCb, &activeCb, &feedbackCb);
 
     ros::spin();

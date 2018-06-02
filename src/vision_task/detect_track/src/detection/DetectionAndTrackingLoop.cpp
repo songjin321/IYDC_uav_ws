@@ -28,6 +28,7 @@ cv::Rect2f DetectionAndTrackingLoop::detectFrame(cv::Mat &frame)
     {
         if(detector->detect(frame, roi))
         {
+            return roi;
             tracker->init(frame, roi);
             state = tracking;
         }
@@ -42,4 +43,5 @@ cv::Rect2f DetectionAndTrackingLoop::detectFrame(cv::Mat &frame)
 
 void DetectionAndTrackingLoop::setState(DetectionAndTrackingLoop::State s) {
     state = s;
+    std::cout << "state = " << s << std::endl;
 }

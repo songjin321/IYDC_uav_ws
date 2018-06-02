@@ -4,7 +4,7 @@
 
 #include "ros_common/RosImageToMat.h"
 #include "detection/DetectionByColor.h"
-#include "detection/DetectionAndTrackingLoop.cpp"
+#include "../src/detection/DetectionAndTrackingLoop.cpp"
 #include "detection/ObjectPosePub.h"
 int main(int argc, char** argv)
 {
@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     ObjectPosePub object_pose_pub("medicalBag_box");
     DetectionByColor detector();
     cv::Ptr<cv::TrackerKCF> tracker = cv::TrackerKCF::create();
-    DetectionAndTrackingLoop dAt(&detector, tracker);
+    DetectionAndTrackingLoop  At(&detector, tracker);
     while(ros::ok())
     {
         imageToMat.getImage(frame);

@@ -106,9 +106,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-        #  INCLUDE_DIRS include
-        #  LIBRARIES detection
-        #  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+          INCLUDE_DIRS include
+          LIBRARIES detection
+          CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
         #  DEPENDS system_lib
 )
 
@@ -130,19 +130,19 @@ add_library(detection
         src/detection/DetectionBase.cpp
         src/detection/DetectionByColor.cpp
         src/detection/DetectionAndTrackingLoop.cpp
-        src/detection/ObjectPosePub.cpp
+        src/detection/ObjectPoseCal.cpp
         )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(detectMedicalBag src/detectColorPerson.cpp)
-# add_executable(detectColorPerson src/detectMedicalBag.cpp)
+add_executable(detection_node src/detecion_node.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -151,7 +151,7 @@ add_library(detection
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(detection
@@ -159,17 +159,13 @@ target_link_libraries(detection
         ${OpenCV_LIBRARIES}
         )
 
-#target_link_libraries(detectMedicalBag
-#        ${catkin_LIBRARIES}
-#        ${OpenCV_LIBRARIES}
-#        detection
-#        )
+target_link_libraries(detection_node
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        detection
+        )
 
-#target_link_libraries(detectColorPerson
-#        ${catkin_LIBRARIES}
-#        ${OpenCV_LIBRARIES}
-#        detection
-#        )
+
 #############
 ## Install ##
 #############
@@ -185,7 +181,7 @@ target_link_libraries(detection
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS detection
+install(TARGETS detection detection_node
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -208,12 +204,22 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 ## Testing ##
 #############
+add_executable(detectMedicalBag test/detectMedicalBag.cpp)
+target_link_libraries(detectMedicalBag
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        detection
+        )
+install(TARGETS detectMedicalBag
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_detect_track.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+add_executable(medicalBag_test test/medicalBag_test.cpp)
+target_link_libraries(medicalBag_test
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        detection
+        )
+install(TARGETS medicalBag_test
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )

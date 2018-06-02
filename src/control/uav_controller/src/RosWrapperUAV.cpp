@@ -27,6 +27,6 @@ void RosWrapperUAV::fly_to_goal(const geometry_msgs::PoseStamped &goal_pose, dou
     {
         mavros_set_point_pub_.publish(goal_pose);
     } else {
-
+        // mavros fly using velocity control
     }
 }

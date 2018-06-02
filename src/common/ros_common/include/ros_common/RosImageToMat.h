@@ -12,16 +12,19 @@
 #include <opencv2/highgui/highgui.hpp>
 class RosImageToMat
 {
+
 public:
-    RosImageToMat(std::string topic_name);
-    void getImage(cv::Mat &img);
-private:
     ros::NodeHandle nh_;
+    RosImageToMat(const std::string &topic_name, ros::NodeHandle &nh);
+    bool getNewImage(cv::Mat &img);
+private:
     image_transport::ImageTransport it_;
     image_transport::Subscriber image_sub_;
     image_transport::Publisher image_pub_;
     cv::Mat image_;
+    bool isNewImage_;
     std::string topic_name_;
+
     void imageCb(const sensor_msgs::ImageConstPtr& msg);
 };
 #endif //UAV_WS_ROSIMAGETOMAT_H

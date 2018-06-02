@@ -2,6 +2,7 @@
 # The goal pose try to fly to
 geometry_msgs/PoseStamped goal_pose
 string fly_type
+float32 fly_vel
 ---
 # result definition
 # the fianl Distance from the goal point

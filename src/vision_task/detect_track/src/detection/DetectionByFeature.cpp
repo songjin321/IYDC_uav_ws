@@ -6,30 +6,34 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
-#include "opencv2/xfeatures2d.hpp"
+#include <opencv2/xfeatures2d.hpp>
 #include <opencv2/calib3d/calib3d.hpp> // for homography
 #include "detection/DetectionByFeature.h"
 #include <string>
+#include <iostream>
 
 DetectionByFeature::DetectionByFeature(std::string path_object):
-        path_object_(path_object), detector(nullptr)
+        path_object_(path_object)
 {
     // The detector can be any of (see OpenCV features2d.hpp):
     // cv::FeatureDetector * detector = new cv::DenseFeatureDetector();
     // cv::FeatureDetector * detector = new cv::FastFeatureDetector();
     // cv::FeatureDetector * detector = new cv::GFTTDetector();
     // cv::FeatureDetector * detector = new cv::MSER();
-    // cv::FeatureDetector * detector = new cv::ORB();
-     cv::FeatureDetector * detector = cv::xfeatures2d::SIFT::create();
+    detector = cv::xfeatures2d::SIFT::create();
     // cv::FeatureDetector * detector = new cv::StarFeatureDetector();
     // cv::FeatureDetector * detector = new cv::SURF(600.0);
     // cv::FeatureDetector * detector = new cv::BRISK();
-
     initObject();
 }
 void DetectionByFeature::initObject()
 {
     cv::Mat objectImg = cv::imread(path_object_, cv::IMREAD_GRAYSCALE);
+    if (objectImg.empty())
+    {
+        std::cerr << "read object template image failed" << std::endl;
+        return;
+    }
     object_width = objectImg.cols;
     object_height = objectImg.rows;
     detector->detect(objectImg, objectKeypoints);
@@ -39,13 +43,15 @@ bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
 {
     detector->detect(sceneImg, sceneKeypoints);
     detector->compute(sceneImg, sceneKeypoints, sceneDescriptors);
-    computerH();
+    if(!computerH())
+        return false;
     if(!computerBox())
         return false;
-    getBox(roi);
+    std::cerr << "computerBox success" << std::endl;
+    roi = box;
     return true;
 }
-void DetectionByFeature::computerH()
+bool DetectionByFeature::computerH()
 {
     ////////////////////////////
     // NEAREST NEIGHBOR MATCHING USING FLANN LIBRARY (included in OpenCV)
@@ -107,54 +113,55 @@ void DetectionByFeature::computerH()
     int nbMatches = 8;
     if(mpts_1.size() >= nbMatches)
     {
+       std::cerr << "corresponds point size = " << mpts_1.size() << std::endl;
        H = findHomography(mpts_1,
                           mpts_2,
                           cv::RANSAC,
                           1.0,
                           outlier_mask);
+       return true;
+    } else {
+        return false;
     }
 }
 
 bool DetectionByFeature::computerBox()
 {
-    float ow = object_width;
-    float oh = object_height;
-    float h11 = H.at<float>(0,0);
-    float h12 = H.at<float>(0,1);
-    float h13 = H.at<float>(0,2);
-    float h21 = H.at<float>(1,0);
-    float h22 = H.at<float>(1,1);
-    float h23 = H.at<float>(1,2);
-    float h31 = H.at<float>(2,0);
-    float h32 = H.at<float>(2,1);
-    float h33 = H.at<float>(2,2);
-
+    double ow = object_width;
+    double oh = object_height;
+    double h11 = H.at<double>(0,0);
+    double h12 = H.at<double>(0,1);
+    double h13 = H.at<double>(0,2);
+    double h21 = H.at<double>(1,0);
+    double h22 = H.at<double>(1,1);
+    double h23 = H.at<double>(1,2);
+    double h31 = H.at<double>(2,0);
+    double h32 = H.at<double>(2,1);
+    double h33 = H.at<double>(2,2);
+    // std::cout << h11 << " " << h12 << " "<< h13 << " "<< h21 << " "<< h22 << " "<< h23 << " "<< h31 << " "
+    //       << h32 << " "<< h33 << std::endl;
     // coordinate of four vertexs
-    float x0 = h31;
-    float y0 = h32;
-    float x1 = h11 * ow + h31;
-    float y1 = h12 * ow + h32;
-    float x2 = h21 * oh + h31;
-    float y2 = h22 * oh + h32;
-    float x3 = h11 * ow + h21 * oh + h31;
-    float y3 = h12 * ow + h22 * oh + h32;
+    double x0 = h13;
+    double y0 = h23;
+    double x1 = h11 * ow + h13;
+    double y1 = h21 * ow + h23;
+    double x2 = h12 * oh + h13;
+    double y2 = h22 * oh + h23;
+    double x3 = h11 * ow + h12 * oh + h13;
+    double y3 = h21 * ow + h22 * oh + h23;
     bool is_rectangle = isRectangle(x0,y0,x1,y1,x2,y2,x3,y3);
     if(!is_rectangle)
         return false;
-    // ROS_INFO("x0 = %f, x1 = %f, x2 = %f, x3 = %f, y0 = %f, y1 = %f, y2 = %f, y3 = %f",
-    //        x0, x1, x2, x3, y0, y1, y2, y3);
+    // std::cout << "x0 = "<< x0 << " x1 = " <<  x1 << " x2 = " <<  x2
+    //          << " x3 = " << x3 << " y0 = " << y0 << " y1 = " << y1 << " y2 = " << y2
+    //          << " y3 = " << y3 << std::endl;
     // upper left corner and lower right corner
-    float xmin = std::min(x0, std::min(x1, std::min(x2, x3)));
-    float xmax = std::max(x0, std::max(x1, std::max(x2, x3)));
-    float ymin = std::min(y0, std::min(y1, std::min(y2, y3)));
-    float ymax = std::max(y0, std::max(y1, std::max(y2, y3)));
-    box = cv::Rect2f(xmin, xmax, xmax-xmin, ymax-ymin);
+    double xmin = std::min(x0, std::min(x1, std::min(x2, x3)));
+    double xmax = std::max(x0, std::max(x1, std::max(x2, x3)));
+    double ymin = std::min(y0, std::min(y1, std::min(y2, y3)));
+    double ymax = std::max(y0, std::max(y1, std::max(y2, y3)));
+    box = cv::Rect2d(xmin, ymin, xmax-xmin, ymax-ymin);
     return true;
-}
-
-void DetectionByFeature::getBox(cv::Rect2d &roi)
-{
-    roi = box;
 }
 
 bool DetectionByFeature::isRectangle(double x1, double y1,

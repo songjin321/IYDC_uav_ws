@@ -4,8 +4,8 @@
 
 #include "ros_common/RosImageToMat.h"
 #include <string>
-RosImageToMat::RosImageToMat(std::string topic_name)
-        : it_(nh_), topic_name_(topic_name)
+RosImageToMat::RosImageToMat(const std::string &topic_name, ros::NodeHandle &nh)
+        : it_(nh), topic_name_(topic_name), isNewImage_(false)
 {
     image_sub_ = it_.subscribe(topic_name_, 1,
                                &RosImageToMat::imageCb, this);
@@ -23,8 +23,17 @@ void RosImageToMat::imageCb(const sensor_msgs::ImageConstPtr& msg)
         return;
     }
     image_ = cv_ptr->image;
+    isNewImage_ = true;
 }
-void RosImageToMat::getImage(cv::Mat &img)
+bool RosImageToMat::getNewImage(cv::Mat &img)
 {
-    img = image_.clone();
+    if (isNewImage_ && !image_.empty())
+    {
+        img = image_.clone();
+        isNewImage_ = false;
+        return true;
+    } else{
+        return false;
+    }
+
 }

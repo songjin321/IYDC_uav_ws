@@ -37,6 +37,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
              goal->goal_pose.pose.position.z);
 
     auto ite_path = path.poses.begin();
+
     while (ite_path!=path.poses.end()) {
         // check that preempt has not been requested by the client
         if (as_.isPreemptRequested() || !ros::ok()) {
@@ -47,7 +48,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
             break;
         }
         current_destination_pose = *ite_path;
-        p_ros_uav_->fly_to_goal(current_destination_pose, -1.0);
+        p_ros_uav_->fly_to_goal(current_destination_pose, goal->fly_vel);
         current_pose = p_ros_uav_->getCurrentPoseStamped();
         if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01)
         {
@@ -87,6 +88,7 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
                      pose.pose.position.y,
                      pose.pose.position.z);
         }
+        path = srv.response.plan;
         return true;
     }
     else
@@ -94,4 +96,5 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
         ROS_ERROR("Failed to call service path planner");
         return false;
     }
+
 }
