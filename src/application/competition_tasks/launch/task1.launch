@@ -1,0 +1,5 @@
+<launch>
+<node name="planner_server" pkg="simple_line_planner" type="line_planner_server" output="screen">
+    <node name="uav_controller_server" pkg="uav_controller" type="uav_controller_server" output="screen"/>
+    <node name="task1_node" pkg="competition_tasks" type="task1" output="screen"/>
+</launch>

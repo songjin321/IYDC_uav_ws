@@ -51,7 +51,13 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
     return false;
 }
 
-void DetectionAndTrackingLoop::setState(DetectionAndTrackingLoop::State s) {
-    state = s;
-    std::cout << "state = " << s << std::endl;
+void DetectionAndTrackingLoop::beginDetection()
+{
+    state = detection;
 }
+
+void DetectionAndTrackingLoop::stopDetection()
+{
+    state = wait;
+}
+

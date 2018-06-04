@@ -18,7 +18,8 @@ public:
     DetectionAndTrackingLoop(DetectionBase *detector);
     ~DetectionAndTrackingLoop();
     bool detectFrame(cv::Mat &frame, cv::Rect2d &box);
-    void setState(State s);
+    void beginDetection();
+    void stopDetection();
 private:
     State state;
     DetectionBase *detector;

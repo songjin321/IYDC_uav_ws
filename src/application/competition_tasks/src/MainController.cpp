@@ -2,10 +2,10 @@
 // Created by songjin on 18-6-4.
 //
 
-#include "IYDC_tasks/MainController.h"
+#include "competition_tasks/MainController.h"
 #include "detect_track/ControlDetection.h"
-MainController::MainController(std::string uav_controller_server_name):
-ac(uav_controller_server_name, true)
+MainController::MainController(std::string uav_controller_server_name, std::string object_pose_name) :
+ac(uav_controller_server_name, true),is_objectPose_updated(false)
 {
     ROS_INFO("Waiting for uav_controller_server to start.");
     // wait for the action server to start
@@ -13,12 +13,14 @@ ac(uav_controller_server_name, true)
 
     //
     ros::ServiceClient detection_client = nh_.serviceClient<detect_track::ControlDetection>("control_detection_server");
+    object_pose_sub = nh_.subscribe(object_pose_name, 1, &MainController::object_pose_callback, this);
 }
 void MainController::start_to_goal(double x, double y, double z)
 {
     //　起飞到一定的高度
     goal_pose.pose.position.z = z;
     goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
@@ -28,6 +30,7 @@ void MainController::start_to_goal(double x, double y, double z)
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
     goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
@@ -41,10 +44,12 @@ void MainController::sendBuzzerSignal(int seconds)
 
 void MainController::returnToOrigin()
 {
+
     //　返回到原点上方
     goal_pose.pose.position.x = 0;
     goal_pose.pose.position.y = 0;
     goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
@@ -53,6 +58,7 @@ void MainController::returnToOrigin()
     // 降落
     goal_pose.pose.position.z = 0.2;
     goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
@@ -61,23 +67,44 @@ void MainController::returnToOrigin()
     //　TODO::关闭飞机
 }
 
-void MainController::adjustUavPose(std::string object_pose_topic)
+void MainController::adjustUavPose()
 {
+    while(!is_objectPose_updated)
+    {
+        ros::Rate rate(30);
+        ros::spinOnce();
+        rate.sleep();
+    }
+    is_objectPose_updated = false;
 
+    // 飞到需要调整的位置
+    goal.goal_pose = object_pose;
+    goal.fly_type = "line_planner_server";
+    goal.fly_vel = -1;
+    ac.sendGoal(goal);
+    ac.waitForResult();
+    ROS_INFO("return to the origin");
 }
-
-void MainController::openObjectDetection()
+void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg)
+{
+    object_pose = msg;
+    is_objectPose_updated = true;
+}
+void MainController::startObjectDetection()
 {
     detect_track::ControlDetection srv;
-    srv.request.ControlType = 1;
+    srv.request.ControlType = 2;
+    srv.request.Start = true;
     if (detection_client.call(srv))
-        ROS_INFO("detection opened");
+        ROS_INFO("detection start");
 }
 
-void MainController::closeObjectDetection()
+void MainController::stopObjectDetection()
 {
     detect_track::ControlDetection srv;
-    srv.request.ControlType = 0;
+    srv.request.ControlType = 2;
+    srv.request.Start = false;
     if (detection_client.call(srv))
-        ROS_INFO("detection closed");
+        ROS_INFO("detection stop");
+
 }

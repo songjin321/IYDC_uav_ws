@@ -1,11 +1,13 @@
 # goal definition
 # The goal pose try to fly to
 geometry_msgs/PoseStamped goal_pose
+# determine which motion planner to use
 string fly_type
+# flying velocity
 float32 fly_vel
 ---
 # result definition
-# the fianl Distance from the goal point
+# the final Distance from the goal point
 float32 final_distance
 ---
 # feedback

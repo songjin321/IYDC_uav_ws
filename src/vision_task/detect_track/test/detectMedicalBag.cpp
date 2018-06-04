@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     DetectionAndTrackingLoop dAt(&detector);
     ros::ServiceServer service = nh.advertiseService<detect_track::ControlDetection::Request,
             detect_track::ControlDetection::Response>
-            ("control_detection_server", boost::bind(control_detection, _1, _2, &dAt));
+            ("detection_controller_server", boost::bind(control_detection, _1, _2, &dAt));
     cv::Mat frame;
     cv::Rect2d box;
     while(ros::ok())

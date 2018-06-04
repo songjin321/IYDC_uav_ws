@@ -14,7 +14,7 @@
 class MainController
 {
 public:
-    MainController(std::string uav_controller_server_name);
+    MainController(std::string uav_controller_server_name, std::string object_pose_name);
 
     /*
      * 起飞飞到目标点
@@ -24,12 +24,12 @@ public:
     /*
      * 开启目标检测
      */
-    void openObjectDetection();
+    void startObjectDetection();
 
     /*
      * 关闭目标检测
      */
-    void closeObjectDetection();
+    void stopObjectDetection();
 
     /*
      * 返回原点
@@ -44,14 +44,18 @@ public:
     /*
      * 控制无人机在目标物体的正上方.且机头方向对齐
      */
-    void adjustUavPose(std::string object_pose_topic);
+    void adjustUavPose();
 
+    void object_pose_callback(const geometry_msgs::PoseStamped &msg);
 private:
     ros::NodeHandle nh_;
     uav_controller::FlyToGoalGoal goal;
     geometry_msgs::PoseStamped goal_pose;
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
+    ros::Subscriber object_pose_sub;
+    geometry_msgs::PoseStamped object_pose;
+    bool is_objectPose_updated;
 };
 
 

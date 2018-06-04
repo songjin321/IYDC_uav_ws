@@ -1,3 +1,10 @@
+# ControlType, the type of target that needs to be detected
+# 0: medicalBag
+# 1: car
+# 2: bluePerson
 int8 ControlType
+
+# start/stop
+bool Start
 ---------------
 bool isOk

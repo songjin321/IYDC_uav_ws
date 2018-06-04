@@ -131,6 +131,7 @@ add_library(detection
         src/detection/DetectionByColor.cpp
         src/detection/DetectionAndTrackingLoop.cpp
         src/detection/ObjectPoseCal.cpp
+        src/detection/DetectionController.cpp
         )
 
 ## Add cmake target dependencies of the library
@@ -141,7 +142,7 @@ add_dependencies(detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(detection_node src/detecion_node.cpp)
+add_executable(detection_node src/detection_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -195,15 +196,15 @@ install(DIRECTORY include/${PROJECT_NAME}/
         )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(DIRECTORY objects/
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+ )
 
 #############
 ## Testing ##
 #############
+
+#[[
 add_executable(detectMedicalBag test/detectMedicalBag.cpp)
 target_link_libraries(detectMedicalBag
         ${catkin_LIBRARIES}
@@ -223,3 +224,4 @@ target_link_libraries(medicalBag_test
 install(TARGETS medicalBag_test
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
+]]

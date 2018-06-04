@@ -48,7 +48,10 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
             break;
         }
         current_destination_pose = *ite_path;
+
+        // call uav fly to goal method with correspond velocity
         p_ros_uav_->fly_to_goal(current_destination_pose, goal->fly_vel);
+
         current_pose = p_ros_uav_->getCurrentPoseStamped();
         if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01)
         {
@@ -83,7 +86,7 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
     {
         for(auto pose : srv.response.plan.poses)
         {
-            ROS_INFO("get path success, x = %3f, y = %3f, z = %3f",
+            ROS_INFO("get path success, x = %.3f, y = %.3f, z = %.3f",
                      pose.pose.position.x,
                      pose.pose.position.y,
                      pose.pose.position.z);
@@ -93,7 +96,7 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
     }
     else
     {
-        ROS_ERROR("Failed to call service path planner");
+        ROS_ERROR("Failed to call path planner service");
         return false;
     }
 

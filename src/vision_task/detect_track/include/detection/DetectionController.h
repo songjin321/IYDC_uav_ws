@@ -10,23 +10,18 @@
 #include "detect_track/ControlDetection.h"
 #include <string>
 
-/**
- * 提供一个能控制检测开始和结束的服务
- */
-bool control_detection(detect_track::ControlDetection::Request &req,
-                       detect_track::ControlDetection::Response &res,
-                       DetectionAndTrackingLoop *p_dAt_)
+class DetectionController
 {
-    if(req.ControlType == 0)
-    {
-        p_dAt_->setState(DetectionAndTrackingLoop::wait);
-        res.isOk = true;
-    }
-    if(req.ControlType == 1)
-    {
-        p_dAt_->setState(DetectionAndTrackingLoop::detection);
-        res.isOk = true;
-    }
-    return true;
-}
+public:
+    DetectionController(DetectionAndTrackingLoop *car_dAt);
+    bool controlDetectionCallback(detect_track::ControlDetection::Request &req,
+                                  detect_track::ControlDetection::Response &res);
+    bool is_detect_car_;
+    bool is_detect_medicalBag_;
+    bool is_detect_bluePerson_;
+private:
+    DetectionAndTrackingLoop *car_dAt_;
+};
+
+
 #endif //DETECT_TRACK_DETECTIONCONTROLLER_H

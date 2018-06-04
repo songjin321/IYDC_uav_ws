@@ -10,7 +10,6 @@ RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name)
 {
     vision_pose_sub_ = n_.subscribe(vision_pose_name, 1, &RosWrapperUAV::vision_pose_callback, this);
     mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",100);
-
 }
 
 void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &vision_pose)
@@ -23,7 +22,7 @@ geometry_msgs::PoseStamped RosWrapperUAV::getCurrentPoseStamped() {
 void RosWrapperUAV::fly_to_goal(const geometry_msgs::PoseStamped &goal_pose, double fly_vel)
 {
 
-    if (fly_vel < 0)
+    if (fly_vel <= 0)
     {
         mavros_set_point_pub_.publish(goal_pose);
     } else {
