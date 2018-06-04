@@ -14,7 +14,7 @@ void ObjectPoseCal::cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr p_camera_
 
 }
 
-void ObjectPoseCal::calculateFormBox(const cv::Rect2f &box)
+void ObjectPoseCal::calculatePoseFormBox(const cv::Rect2f &box)
 {
 
 }

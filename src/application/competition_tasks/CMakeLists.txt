@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(IYDC_tasks)
+project(competetion_tasks)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -8,13 +8,13 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-        cv_bridge
-        image_transport
         roscpp
         sensor_msgs
         std_msgs
+        geometry_msgs
+        actionlib_msgs
+        actionlib
         ros_common
-        detect_track
         )
 
 ## System dependencies are found with CMake's conventions
@@ -125,8 +125,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-#add_library(IYDC_tasks
-#        )
+add_library(competetion_tasks src/MainController.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -154,19 +153,28 @@ add_executable(task4 src/task4.cpp)
 target_link_libraries(task1
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
+        competetion_tasks
         )
 
 target_link_libraries(task2
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
+        competetion_tasks
         )
 
 target_link_libraries(task3
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
+        competetion_tasks
         )
 
 target_link_libraries(task4
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
+        competetion_tasks
+        )
+
+target_link_libraries(competetion_tasks
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         )
@@ -185,7 +193,7 @@ target_link_libraries(task4
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS task1 task2 task3 task4
+install(TARGETS task1 task2 task3 task4 competetion_tasks
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

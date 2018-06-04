@@ -20,7 +20,7 @@ public:
     ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name);
     void cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr camera_info);
     void publishPose();
-    void calculateFormBox(const cv::Rect_<float> &box);
+    void calculatePoseFormBox(const cv::Rect_<float> &box);
 private:
     ros::NodeHandle n_;
     ros::Publisher pub_pose_;

@@ -30,7 +30,12 @@ int main(int argc, char** argv)
         if (!imageToMat.getNewImage(frame))
             continue;
         if(dAt.detectFrame(frame, box))
+        {
+            object_pose.calculatePoseFormBox(box);
+            object_pose.publishPose();
             cv::rectangle(frame, box, CV_RGB(255,0,0));
+        }
+
         cv::imshow("medica detection", frame);
         cv::waitKey(3);
     }
