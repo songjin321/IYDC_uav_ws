@@ -9,7 +9,12 @@
 
 class DetectionByColor:DetectionBase
 {
-    DetectionByColor();
+public:
+    DetectionByColor(uchar low_hue, uchar high_hue);
     bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
+    bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) override;
+private:
+    uchar low_hue_;
+    uchar high_hue_;
 };
 #endif //UAV_WS_DETECTIONBYCOLOR_H

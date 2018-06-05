@@ -23,16 +23,16 @@ int main(int argc, char** argv)
     // HSV threshold in color person detection
 
     // capture image
-    RosImageToMat imageToMat("/camera/image_raw", nh);
+    RosImageToMat imageToMat("/camera/image_rect_color", nh);
 
     // calculate object pose relative camera
-    ObjectPoseCal object_pose("/camera/info","medicalBag_pose");
+    ObjectPoseCal object_pose("/camera/info","object_pose");
 
     // detectors
     std::string parent_path = "../../share/detect_track/";
     DetectionByFeature medicalBag_detector(parent_path+"objects/medicalBag.png");
     DetectionByFeature car_detector(parent_path+"objects/car.png");
-    DetectionByColor bluePerson_detector();
+    DetectionByColor bluePerson_detector(100, 140);
     DetectionAndTrackingLoop car_dAt(&car_detector);
 
     // detection controller, server
@@ -40,9 +40,9 @@ int main(int argc, char** argv)
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
                                                      &DetectionController::controlDetectionCallback,
                                                      &detection_controller);
-
     cv::Mat frame;
     cv::Rect2d box;
+    cv::RotatedRect r_box;
     while(ros::ok())
     {
         ros::spinOnce();
@@ -53,18 +53,23 @@ int main(int argc, char** argv)
             if(car_dAt.detectFrame(frame, box))
             {
                 object_pose.calculatePoseFromBox(box);
-                //object_pose.publishCarPose();
+                object_pose.publishPose();
                 cv::rectangle(frame, box, CV_RGB(255,0,0));
             }
         }
         if(detection_controller.is_detect_medicalBag_)
         {
-            medicalBag_detector.detect(frame, box);
-            //object_pose.publishMedicalBagPose();
+            medicalBag_detector.detect(frame, r_box);
+            object_pose.calculatePoseFromRotatedBox(r_box);
+            object_pose.publishPose();
+            cv::rectangle(frame, box, CV_RGB(0,255,0));
         }
         if(detection_controller.is_detect_bluePerson_)
         {
-
+            bluePerson_detector.detect(frame, r_box);
+            object_pose.calculatePoseFromRotatedBox(r_box);
+            object_pose.publishPose();
+            cv::rectangle(frame, box, CV_RGB(0,0,255));
         }
         cv::imshow("detection_result", frame);
         cv::waitKey(3);

@@ -7,6 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/xfeatures2d.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp> // for homography
 #include "detection/DetectionByFeature.h"
 #include <string>
@@ -53,6 +54,15 @@ bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
         return false;
     roi = box;
     return true;
+}
+bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
+{
+    detector->detect(sceneImg, sceneKeypoints);
+    detector->compute(sceneImg, sceneKeypoints, sceneDescriptors);
+    if(!computerH())
+        return false;
+    computerFourVertex();
+    roi = cv::minAreaRect(vertexs);
 }
 bool DetectionByFeature::computerH()
 {
@@ -177,4 +187,35 @@ bool DetectionByFeature::isRectangle(double x1, double y1,
         return false;
     else
         return true;
+}
+
+void DetectionByFeature::computerFourVertex()
+{
+    double ow = object_width;
+    double oh = object_height;
+    double h11 = H.at<double>(0,0);
+    double h12 = H.at<double>(0,1);
+    double h13 = H.at<double>(0,2);
+    double h21 = H.at<double>(1,0);
+    double h22 = H.at<double>(1,1);
+    double h23 = H.at<double>(1,2);
+    double h31 = H.at<double>(2,0);
+    double h32 = H.at<double>(2,1);
+    double h33 = H.at<double>(2,2);
+    // std::cout << h11 << " " << h12 << " "<< h13 << " "<< h21 << " "<< h22 << " "<< h23 << " "<< h31 << " "
+    //       << h32 << " "<< h33 << std::endl;
+    // coordinate of four vertexs
+    cv::Point pt1, pt2, pt3, pt4;
+    pt1.x = static_cast<int>(h13);
+    pt1.y = static_cast<int>(h23);
+    pt2.x = static_cast<int>(h11 * ow + h13);
+    pt2.y = static_cast<int>(h21 * ow + h23);
+    pt3.x = static_cast<int>(h12 * oh + h13);
+    pt3.y = static_cast<int>(h22 * oh + h23);
+    pt4.x = static_cast<int>(h11 * ow + h12 * oh + h13);
+    pt4.y = static_cast<int>(h21 * ow + h22 * oh + h23);
+    vertexs.push_back(pt1);
+    vertexs.push_back(pt2);
+    vertexs.push_back(pt3);
+    vertexs.push_back(pt4);
 }

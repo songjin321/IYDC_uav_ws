@@ -11,14 +11,27 @@ ObjectPoseCal::ObjectPoseCal(const std::string &camera_info_name, const std::str
 
 void ObjectPoseCal::cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr p_camera_info)
 {
-
+    fx = p_camera_info->K[0];
+    fy = p_camera_info->K[4];
+    cx = p_camera_info->K[2];
+    cy = p_camera_info->K[5];
 }
 
 void ObjectPoseCal::calculatePoseFromBox(const cv::Rect2f &box)
 {
-
+    object_pose_.pose.position.x = (box.x+box.width/2-cx)/fx;
+    object_pose_.pose.position.y = (box.y+box.height/2-cy)/fy;
 }
 
-void ObjectPoseCal::publishPose() {
+void ObjectPoseCal::calculatePoseFromRotatedBox(const cv::RotatedRect &box)
+{
+    object_pose_.pose.position.x = (box.center.x-cx)/fx;
+    object_pose_.pose.position.y = (box.center.y-cy)/fy;
+    object_pose_.pose.orientation.w = cos(box.angle/2);
+    object_pose_.pose.orientation.z = sin(box.angle/2);
+}
+
+void ObjectPoseCal::publishPose()
+{
     pub_pose_.publish(object_pose_);
 }

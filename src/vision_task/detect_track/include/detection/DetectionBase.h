@@ -10,5 +10,6 @@ class DetectionBase
 {
 public:
     virtual bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) = 0;
+    virtual bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) = 0;
 };
 #endif //UAV_WS_DETECTIONBASE_H

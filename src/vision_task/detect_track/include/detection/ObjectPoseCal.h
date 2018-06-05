@@ -21,11 +21,13 @@ public:
     void cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr camera_info);
     void publishPose();
     void calculatePoseFromBox(const cv::Rect_<float> &box);
+    void calculatePoseFromRotatedBox(const cv::RotatedRect &box);
 private:
     ros::NodeHandle n_;
     ros::Publisher pub_pose_;
     ros::Subscriber cameraInfo_sub_;
     geometry_msgs::PoseStamped object_pose_;
+    double fx,fy,cx,cy;
 };
 #endif //DETECT_TRACK_OBJECTPOSEPUB_H
 

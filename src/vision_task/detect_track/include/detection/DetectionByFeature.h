@@ -21,6 +21,7 @@ public:
     };
 
     bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
+    bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) override;
 private:
     std::string path_object_;
     std::vector<cv::KeyPoint> objectKeypoints;
@@ -33,12 +34,20 @@ private:
     int object_width;
     int object_height;
 
+    // four vertex of the object
+    std::vector<cv::Point> vertexs;
+
     void initObject();
 
     /*
      * FLANN -> H
      */
     bool computerH();
+
+    /*
+     * 计算四个顶点
+     */
+    void computerFourVertex();
 
     /*
      * H and ImageSize -> Box
