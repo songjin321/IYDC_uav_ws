@@ -18,7 +18,7 @@ public:
                                   detect_track::ControlDetection::Response &res);
     bool is_detect_car_;
     bool is_detect_medicalBag_;
-    bool is_detect_bluePerson_;
+    bool is_detect_colorPerson_;
 private:
     DetectionAndTrackingLoop *car_dAt_;
 };

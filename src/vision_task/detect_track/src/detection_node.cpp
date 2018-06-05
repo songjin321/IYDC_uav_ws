@@ -21,18 +21,21 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     // get some parameters from parameter servers
     // HSV threshold in color person detection
+    // the path of object template
 
     // capture image
-    RosImageToMat imageToMat("/camera/image_rect_color", nh);
+    RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
     // calculate object pose relative camera
-    ObjectPoseCal object_pose("/camera/info","object_pose");
+    ObjectPoseCal object_pose("/usb_cam/camera_info","object_pose");
 
     // detectors
-    std::string parent_path = "../../share/detect_track/";
-    DetectionByFeature medicalBag_detector(parent_path+"objects/medicalBag.png");
-    DetectionByFeature car_detector(parent_path+"objects/car.png");
-    DetectionByColor bluePerson_detector(100, 140);
+    std::string parent_path = "../../share/detect_track/objects";
+    DetectionByFeature medicalBag_detector("/home/songjin/Project/uav_ws/install/share/detect_track/objects/medicalBag.png");
+    DetectionByFeature car_detector("/home/songjin/Project/uav_ws/install/share/detect_track/objects/car.png");
+
+    // green is 1, others is 0
+    DetectionByColor colorPerson(40, 80);
     DetectionAndTrackingLoop car_dAt(&car_detector);
 
     // detection controller, server
@@ -64,12 +67,16 @@ int main(int argc, char** argv)
             object_pose.publishPose();
             cv::rectangle(frame, box, CV_RGB(0,255,0));
         }
-        if(detection_controller.is_detect_bluePerson_)
+        if(detection_controller.is_detect_colorPerson_)
         {
-            bluePerson_detector.detect(frame, r_box);
+            colorPerson.detect(frame, r_box);
             object_pose.calculatePoseFromRotatedBox(r_box);
             object_pose.publishPose();
-            cv::rectangle(frame, box, CV_RGB(0,0,255));
+            cv::Point2f vertices[4];
+            r_box.points(vertices);
+            for (int i = 0; i < 4; i++)
+                line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+
         }
         cv::imshow("detection_result", frame);
         cv::waitKey(3);

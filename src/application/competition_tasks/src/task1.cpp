@@ -13,14 +13,15 @@ int main(int argc, char **argv)
 
     MainController main_controller("uav_controller_server", "object_pose");
 
+
     // 起飞飞到目标点
-    double task_1_x = 0.2;
+    double task_1_x = 0.1;
     double task_1_y = 0.0;
-    double task_1_z = 0.2;
-    main_controller.start_to_goal(task_1_x, task_1_y, task_1_z);
+    double task_1_z = 0.1;
+    // main_controller.start_to_goal(task_1_x, task_1_y, task_1_z);
 
     // 开启目标检测
-    // main_controller.startObjectDetection();
+    main_controller.startObjectDetection();
 
     // 调整无人机的位姿
     // main_controller.adjustUavPose();

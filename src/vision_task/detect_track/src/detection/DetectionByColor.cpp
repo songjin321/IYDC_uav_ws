@@ -15,6 +15,9 @@ bool DetectionByColor::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
     cv::Scalar hsv_h(high_hue_,255,255);
     cv::Mat bw;
     inRange(hsvImg, hsv_l, hsv_h, bw);
+    // close operation
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5,5));
+    cv::morphologyEx(bw, bw, cv::MORPH_CLOSE, element);
     imshow("Specific Colour", bw);
     return false;
 }
@@ -32,17 +35,18 @@ bool DetectionByColor::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
     cv::Scalar hsv_h(high_hue_,255,255);
     cv::Mat bw;
     inRange(hsvImg, hsv_l, hsv_h, bw);
-    // imshow("Specific Colour", bw);
+    imshow("Specific Colour", bw);
     std::vector< std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
 
     // sort by size in contours
+    std::cout << "find contours number = " << contours.size() << std::endl;
     if(contours.size() < 2)
         return false;
     std::stable_sort(contours.begin(), contours.end(), isSmaller);
     //
-    roi = cv::minAreaRect(contours[1]);
+    roi = cv::minAreaRect(*(contours.end()-2));
     return true;
 }
 

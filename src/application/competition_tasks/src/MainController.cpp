@@ -11,8 +11,9 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     // wait for the action server to start
     ac.waitForServer(); //will wait for infinite time
     ROS_INFO("uav_controller_server start!");
-    //
-    ros::ServiceClient detection_client = nh_.serviceClient<detect_track::ControlDetection>("control_detection_server");
+
+    // detection_controller_server
+    detection_client = nh_.serviceClient<detect_track::ControlDetection>("detection_controller_server");
     object_pose_sub = nh_.subscribe(object_pose_name, 1, &MainController::object_pose_callback, this);
 }
 void MainController::start_to_goal(double x, double y, double z)
@@ -96,7 +97,11 @@ void MainController::startObjectDetection()
     srv.request.ControlType = 2;
     srv.request.Start = true;
     if (detection_client.call(srv))
-        ROS_INFO("detection start");
+        ROS_INFO("detection start success");
+    else
+    {
+        ROS_INFO("detection start failed");
+    }
 }
 
 void MainController::stopObjectDetection()
@@ -105,6 +110,9 @@ void MainController::stopObjectDetection()
     srv.request.ControlType = 2;
     srv.request.Start = false;
     if (detection_client.call(srv))
-        ROS_INFO("detection stop");
-
+        ROS_INFO("detection stop success");
+    else
+    {
+        ROS_INFO("detection start failed");
+    }
 }

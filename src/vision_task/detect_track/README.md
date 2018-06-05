@@ -1,10 +1,13 @@
 用于比赛的目标检测包
 ====================
+
 ## 简介
+
 - 医药包和放在小车上的小人采用sift进行检测
 - 放在背景上的颜色小人用颜色分割进行检测
 
 ## 节点detection_node
+
 负责进行目标物的检测
 colorPerson and medicalBag only need to be detected once, but the car needs both detection and tracking.
 
@@ -12,8 +15,8 @@ colorPerson and medicalBag only need to be detected once, but the car needs both
 
 | 话题名称 | 话题类型 | 说明 |
 |------------|------------|---------|
-|"/camera/image_rect_color" | sensor_msgs::Image | 畸变矫正后的图像
-|"/camera/info" | sensor_msgs::CameraInfo | 摄像头的参数
+|"/usb_cam/image_rect_color" | sensor_msgs::Image | 畸变矫正后的图像
+|"/usb_cam/info" | sensor_msgs::CameraInfo | 摄像头的参数
 
 ### 发布的话题
 
@@ -28,6 +31,7 @@ colorPerson and medicalBag only need to be detected once, but the car needs both
 |"detection_controller_server" | detect_track::ControlDetection | 控制检测何种物体以及打开和关闭检测服务
 
 ### 如何使用
+
 - 标定相机:使用camera_calibration包进行标定，将标定参数写到
 camera_info
 - ROS_NAMESPACE=usb_cam rosrun image_proc image_proc进行图片矫正

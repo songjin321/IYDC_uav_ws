@@ -5,7 +5,7 @@
 #include "detection/DetectionController.h"
 DetectionController::DetectionController(DetectionAndTrackingLoop *car_dAt):
         is_detect_car_(false),is_detect_medicalBag_(false),
-        is_detect_bluePerson_(false), car_dAt_(car_dAt)
+        is_detect_colorPerson_(false), car_dAt_(car_dAt)
 {
 
 }
@@ -18,15 +18,19 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
             if(req.Start)
             {
                 car_dAt_->beginDetection();
+                ROS_INFO("car detection begin");
             } else{
                 car_dAt_->stopDetection();
+                ROS_INFO("car detection stop");
             }
             break;
         case 1:
             is_detect_medicalBag_ = req.Start;
+            ROS_INFO("medical bag detection state: %d", req.Start);
             break;
         case 2:
-            is_detect_bluePerson_ = req.Start;
+            is_detect_colorPerson_ = req.Start;
+            ROS_INFO("color person detection state: %d", req.Start);
             break;
         default:
             ROS_INFO("no correspond detection type");
