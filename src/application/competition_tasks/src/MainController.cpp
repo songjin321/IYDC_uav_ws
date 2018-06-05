@@ -10,7 +10,7 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     ROS_INFO("Waiting for uav_controller_server to start.");
     // wait for the action server to start
     ac.waitForServer(); //will wait for infinite time
-
+    ROS_INFO("uav_controller_server start!");
     //
     ros::ServiceClient detection_client = nh_.serviceClient<detect_track::ControlDetection>("control_detection_server");
     object_pose_sub = nh_.subscribe(object_pose_name, 1, &MainController::object_pose_callback, this);
@@ -24,7 +24,7 @@ void MainController::start_to_goal(double x, double y, double z)
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
-    ROS_INFO("fly to a height of %.3f meters", z);
+    ROS_INFO("arrive at height of %.3f meters", z);
 
     // 保证姿态不变,飞到目标点
     goal_pose.pose.position.x = x;
@@ -34,7 +34,7 @@ void MainController::start_to_goal(double x, double y, double z)
     goal.fly_type = "line_planner_server";
     ac.sendGoal(goal);
     ac.waitForResult();
-    ROS_INFO("fly to goal point, x = %.3f, y = %.3f", x, y);
+    ROS_INFO("arrive at goal point, x = %.3f, y = %.3f", x, y);
 }
 
 void MainController::sendBuzzerSignal(int seconds)
@@ -56,7 +56,7 @@ void MainController::returnToOrigin()
     ROS_INFO("return to the top of the origin");
 
     // 降落
-    goal_pose.pose.position.z = 0.2;
+    goal_pose.pose.position.z = 0;
     goal.goal_pose = goal_pose;
     goal.fly_vel = -1;
     goal.fly_type = "line_planner_server";

@@ -9,7 +9,7 @@
 RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name)
 {
     vision_pose_sub_ = n_.subscribe(vision_pose_name, 1, &RosWrapperUAV::vision_pose_callback, this);
-    mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",100);
+    mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",1);
 }
 
 void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &vision_pose)

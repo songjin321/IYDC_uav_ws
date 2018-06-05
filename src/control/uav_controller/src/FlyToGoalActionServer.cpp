@@ -53,7 +53,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
         p_ros_uav_->fly_to_goal(current_destination_pose, goal->fly_vel);
 
         current_pose = p_ros_uav_->getCurrentPoseStamped();
-        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01)
+        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.03)
         {
             ite_path++;
             feedback_.distance = (float)RosMath::calDistance(current_pose, goal->goal_pose);
