@@ -24,12 +24,12 @@ public:
     /*
      * 开启目标检测
      */
-    void startObjectDetection();
+    void startObjectDetection(char detection_type);
 
     /*
      * 关闭目标检测
      */
-    void stopObjectDetection();
+    void stopObjectDetection(char detection_type);
 
     /*
      * 返回原点

@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include "nav_msgs/GetPlan.h"
+#include <tf/transform_datatypes.h>
+#include "ros_common/RosMath.h"
 
 bool calLinePath(nav_msgs::GetPlan::Request  &req,
          nav_msgs::GetPlan::Response &res)
@@ -9,18 +11,28 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
     double dx = req.goal.pose.position.x - req.start.pose.position.x;
     double dy = req.goal.pose.position.y - req.start.pose.position.y;
     double dz = req.goal.pose.position.z - req.start.pose.position.z;
+    double yaw_start = RosMath::getYawFromPoseStamp(req.start);
+    double yaw_goal = RosMath::getYawFromPoseStamp(req.goal);
+    double dyaw = yaw_goal - yaw_start;
     double path_length = sqrt(dx*dx + dy*dy + dz*dz);
     res.plan.header = req.start.header;
     geometry_msgs::PoseStamped planned_pose;
     double steps = path_length/step_length;
     for (int i = 0; i < steps; i++)
     {
+        // Create this quaternion from roll/pitch/yaw (in radians)
+        double yaw = yaw_start + i*dyaw/steps;
+        tf::Quaternion q = tf::createQuaternionFromRPY(0, 0, yaw);
+
         //　规划的点的时间怎么确定
         planned_pose.header = req.start.header;
         planned_pose.pose.position.x = req.start.pose.position.x + i*dx/steps;
         planned_pose.pose.position.y = req.start.pose.position.y + i*dy/steps;
         planned_pose.pose.position.z = req.start.pose.position.z + i*dz/steps;
-        planned_pose.pose.orientation = req.goal.pose.orientation;
+        planned_pose.pose.orientation.x = q.x();
+        planned_pose.pose.orientation.y = q.y();
+        planned_pose.pose.orientation.z = q.z();
+        planned_pose.pose.orientation.w = q.w();
         res.plan.poses.push_back(planned_pose);
     }
     res.plan.poses.push_back(req.goal);

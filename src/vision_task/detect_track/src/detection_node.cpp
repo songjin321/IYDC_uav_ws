@@ -17,12 +17,14 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "detectMedicalBag");
+    ros::init(argc, argv, "detect_track_node");
     ros::NodeHandle nh;
     // get some parameters from parameter servers
     // HSV threshold in color person detection
     // the path of object template
-
+    std::string medicalBag_path, car_path;
+    nh.getParam("medicalBag_path", medicalBag_path);
+    nh.getParam("car_path", car_path);
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
@@ -30,9 +32,8 @@ int main(int argc, char** argv)
     ObjectPoseCal object_pose("/usb_cam/camera_info","object_pose");
 
     // detectors
-    std::string parent_path = "../../share/detect_track/objects";
-    DetectionByFeature medicalBag_detector("/home/songjin/Project/uav_ws/install/share/detect_track/objects/medicalBag.png");
-    DetectionByFeature car_detector("/home/songjin/Project/uav_ws/install/share/detect_track/objects/car.png");
+    DetectionByFeature medicalBag_detector(medicalBag_path);
+    DetectionByFeature car_detector(car_path);
 
     // green is 1, others is 0
     DetectionByColor colorPerson(40, 80);
@@ -62,21 +63,27 @@ int main(int argc, char** argv)
         }
         if(detection_controller.is_detect_medicalBag_)
         {
-            medicalBag_detector.detect(frame, r_box);
-            object_pose.calculatePoseFromRotatedBox(r_box);
-            object_pose.publishPose();
-            cv::rectangle(frame, box, CV_RGB(0,255,0));
+            if(medicalBag_detector.detect(frame, r_box))
+            {
+                object_pose.calculatePoseFromRotatedBox(r_box);
+                object_pose.publishPose();
+                cv::Point2f vertices[4];
+                r_box.points(vertices);
+                for (int i = 0; i < 4; i++)
+                    line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+            }
         }
         if(detection_controller.is_detect_colorPerson_)
         {
-            colorPerson.detect(frame, r_box);
-            object_pose.calculatePoseFromRotatedBox(r_box);
-            object_pose.publishPose();
-            cv::Point2f vertices[4];
-            r_box.points(vertices);
-            for (int i = 0; i < 4; i++)
-                line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
-
+            if(colorPerson.detect(frame, r_box))
+            {
+                object_pose.calculatePoseFromRotatedBox(r_box);
+                object_pose.publishPose();
+                cv::Point2f vertices[4];
+                r_box.points(vertices);
+                for (int i = 0; i < 4; i++)
+                    line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+            }
         }
         cv::imshow("detection_result", frame);
         cv::waitKey(3);

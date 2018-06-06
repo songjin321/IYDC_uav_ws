@@ -1,9 +1,5 @@
 // task1 取医药包并放置医药包到遇险者附近
 #include <ros/ros.h>
-#include <actionlib/client/simple_action_client.h>
-#include <actionlib/client/terminal_state.h>
-#include <uav_controller/FlyToGoalAction.h>
-#include "detect_track/ControlDetection.h"
 #include "competition_tasks/MainController.h"
 
 int main(int argc, char **argv)
@@ -20,14 +16,14 @@ int main(int argc, char **argv)
     double task_1_z = 0.1;
     // main_controller.start_to_goal(task_1_x, task_1_y, task_1_z);
 
-    // 开启目标检测
-    main_controller.startObjectDetection();
+    // 开启目标检测,2表示colorPerson
+    main_controller.startObjectDetection(2);
 
     // 调整无人机的位姿
-    // main_controller.adjustUavPose();
+    main_controller.adjustUavPose();
 
-    // 关闭目标检测
-    // main_controller.stopObjectDetection();
+    // 关闭目标检测,2表示colorPerson
+    // main_controller.stopObjectDetection(2);
 
     // 发出提示５秒
     //main_controller.sendBuzzerSignal(5);

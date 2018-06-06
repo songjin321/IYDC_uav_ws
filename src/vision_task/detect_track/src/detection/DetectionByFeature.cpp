@@ -63,6 +63,9 @@ bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
         return false;
     computerFourVertex();
     roi = cv::minAreaRect(vertexs);
+    std::cout <<"roi size = " << roi.size << std::endl;
+    std::cout <<"roi center = " << roi.center << std::endl;
+    std::cout <<"roi angle = " << roi.angle << std::endl;
 }
 bool DetectionByFeature::computerH()
 {
@@ -93,7 +96,7 @@ bool DetectionByFeature::computerH()
 
     for( int i = 0; i < objectDescriptors.rows; i++ )
     {
-        if( matches[i].distance <= std::max(min_dist+(max_dist-min_dist)/2, 0.02) )
+        if( matches[i].distance <= std::max(3*min_dist, 0.02) )
         {
             good_matches.push_back( matches[i]);
         }
@@ -109,9 +112,7 @@ bool DetectionByFeature::computerH()
 
     // FIND HOMOGRAPHY
     // TODO::让nbMatch作为参数方便调试
-    int nbMatches = 20;
-    std::cerr << "corresponds point size = " << mpts_1.size()
-              << " nbMatches = " << nbMatches << std::endl;
+    int nbMatches = 9;
     if(mpts_1.size() >= nbMatches)
     {
        H = findHomography(mpts_1,
@@ -119,7 +120,27 @@ bool DetectionByFeature::computerH()
                           cv::RANSAC,
                           1.0,
                           outlier_mask);
-       return true;
+       int inliers = 0, outliers = 0;
+       for(unsigned int k=0; k < mpts_1.size(); ++k)
+       {
+           if(outlier_mask.at(k))
+           {
+               ++inliers;
+           } else{
+               ++outliers;
+           }
+       }
+
+        std::cerr << "corresponds point size = " << mpts_1.size()
+                  << " nbMatches = " << nbMatches << std::endl
+                  << "inliers numbers = " << inliers << std::endl
+                  << "outliers numbers = " << outliers << std::endl;
+
+        if (!H.empty() && inliers*2.0 > outliers)
+       {
+           std::cerr << "computer H OK!" << std::endl;
+           return true;
+       }
     } else {
         return false;
     }
@@ -214,8 +235,13 @@ void DetectionByFeature::computerFourVertex()
     pt3.y = static_cast<int>(h22 * oh + h23);
     pt4.x = static_cast<int>(h11 * ow + h12 * oh + h13);
     pt4.y = static_cast<int>(h21 * ow + h22 * oh + h23);
+    vertexs.clear();
     vertexs.push_back(pt1);
     vertexs.push_back(pt2);
     vertexs.push_back(pt3);
     vertexs.push_back(pt4);
+    std::cout << "pt1 = " << pt1 << std::endl;
+    std::cout << "pt2 = " << pt2 << std::endl;
+    std::cout << "pt3 = " << pt3 << std::endl;
+    std::cout << "pt4 = " << pt4 << std::endl;
 }

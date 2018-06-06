@@ -1,6 +1,6 @@
 # ControlType, the type of target that needs to be detected
-# 0: medicalBag
-# 1: car
+# 0: car
+# 1: medicalBag
 # 2: colorPerson
 int8 ControlType
 

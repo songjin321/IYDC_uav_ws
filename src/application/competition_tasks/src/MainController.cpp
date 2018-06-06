@@ -91,10 +91,13 @@ void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg)
     object_pose = msg;
     is_objectPose_updated = true;
 }
-void MainController::startObjectDetection()
+void MainController::startObjectDetection(char detection_type)
 {
     detect_track::ControlDetection srv;
-    srv.request.ControlType = 2;
+    //# 0: car
+    //# 1: medicalBag
+    //# 2: colorPerson
+    srv.request.ControlType = detection_type;
     srv.request.Start = true;
     if (detection_client.call(srv))
         ROS_INFO("detection start success");
@@ -104,10 +107,10 @@ void MainController::startObjectDetection()
     }
 }
 
-void MainController::stopObjectDetection()
+void MainController::stopObjectDetection(char detection_type)
 {
     detect_track::ControlDetection srv;
-    srv.request.ControlType = 2;
+    srv.request.ControlType = detection_type;
     srv.request.Start = false;
     if (detection_client.call(srv))
         ROS_INFO("detection stop success");

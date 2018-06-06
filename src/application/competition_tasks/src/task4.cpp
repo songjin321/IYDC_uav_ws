@@ -1,23 +1,24 @@
 // task4 取医药包并放置医药包到遇险者附近
 #include <ros/ros.h>
-#include <actionlib/client/simple_action_client.h>
-#include <actionlib/client/terminal_state.h>
-#include <uav_controller/FlyToGoalAction.h>
+#include "competition_tasks/MainController.h"
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "task4");
-    actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac("uav_controller_server", true);
-    ROS_INFO("Waiting for uav_controller_server to start.");
-    // wait for the action server to start
-    ac.waitForServer(); //will wait for infinite time
 
-    // 保证当前姿态不变,起飞到飞行高度
+    MainController main_controller("uav_controller_server", "object_pose");
 
-    // 保证姿态不变,飞到目标点
+    // 起飞飞到目标点
+    double task_1_x = 0.1;
+    double task_1_y = 0.0;
+    double task_1_z = 0.1;
+    // main_controller.start_to_goal(task_1_x, task_1_y, task_1_z);
 
-    // 开启目标检测
+    // 开启目标检测,1表示medicalBag
+    main_controller.startObjectDetection(1);
 
-    // 使飞机头朝向医药包的窄的一侧
+    // 调整无人机的位姿, 使飞机头朝向医药包的窄的一侧
+    // main_controller.adjustUavPose();
 
     // 逐渐下降到地面
 
