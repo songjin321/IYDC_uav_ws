@@ -12,7 +12,9 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
     double dy = req.goal.pose.position.y - req.start.pose.position.y;
     double dz = req.goal.pose.position.z - req.start.pose.position.z;
     double yaw_start = RosMath::getYawFromPoseStamp(req.start);
+    // std::cout << "yaw_start = " << yaw_start << std::endl;
     double yaw_goal = RosMath::getYawFromPoseStamp(req.goal);
+    // std::cout << "yaw_goal = " << yaw_goal << std::endl;
     double dyaw = yaw_goal - yaw_start;
     double path_length = sqrt(dx*dx + dy*dy + dz*dz);
     res.plan.header = req.start.header;

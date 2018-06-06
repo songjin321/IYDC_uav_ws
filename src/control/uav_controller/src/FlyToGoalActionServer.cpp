@@ -31,10 +31,11 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
 
     bool success = true;
     // publish info to the console for the user
-    ROS_INFO("%s: Executing, the goal position x = %f, y = %f, z = %f",
+    ROS_INFO("%s: Executing, the goal position x = %f, y = %f, z = %f, yaw = %f",
              action_name_.c_str(), goal->goal_pose.pose.position.x,
              goal->goal_pose.pose.position.y,
-             goal->goal_pose.pose.position.z);
+             goal->goal_pose.pose.position.z,
+             RosMath::getYawFromPoseStamp(goal->goal_pose)*180/3.14);
 
     auto ite_path = path.poses.begin();
 
@@ -54,7 +55,10 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
         p_ros_uav_->fly_to_goal(current_destination_pose, goal->fly_vel);
 
         current_pose = p_ros_uav_->getCurrentPoseStamped();
-        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.03)
+        double current_yaw = RosMath::getYawFromPoseStamp(current_pose);
+        double current_destination_yaw = RosMath::getYawFromPoseStamp(current_destination_pose);
+        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01 &&
+               fabs(current_yaw - current_destination_yaw) < 5.0/180.0*3.14 )
         {
             ite_path++;
             feedback_.distance = (float)RosMath::calDistance(current_pose, goal->goal_pose);
@@ -88,10 +92,12 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
     {
         for(auto pose : srv.response.plan.poses)
         {
-            ROS_INFO("get path success, x = %.3f, y = %.3f, z = %.3f",
+            double yaw = RosMath::getYawFromPoseStamp(pose);
+            ROS_INFO("get path success, x = %.3f, y = %.3f, z = %.3f, yaw = %.3f",
                      pose.pose.position.x,
                      pose.pose.position.y,
-                     pose.pose.position.z);
+                     pose.pose.position.z,
+                     yaw*180/3.14);
         }
         path = srv.response.plan;
         return true;

@@ -21,10 +21,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     // get some parameters from parameter servers
     // HSV threshold in color person detection
-    // the path of object template
-    std::string medicalBag_path, car_path;
-    nh.getParam("medicalBag_path", medicalBag_path);
-    nh.getParam("car_path", car_path);
+
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
@@ -32,8 +29,8 @@ int main(int argc, char** argv)
     ObjectPoseCal object_pose("/usb_cam/camera_info","object_pose");
 
     // detectors
-    DetectionByFeature medicalBag_detector(medicalBag_path);
-    DetectionByFeature car_detector(car_path);
+    DetectionByFeature medicalBag_detector;
+    DetectionByFeature car_detector;
 
     // green is 1, others is 0
     DetectionByColor colorPerson(40, 80);
@@ -53,6 +50,7 @@ int main(int argc, char** argv)
     cv::RotatedRect r_box;
     while(ros::ok())
     {
+        ros::Rate rate(30);
         ros::spinOnce();
         if (!imageToMat.getNewImage(frame))
             continue;
@@ -90,7 +88,8 @@ int main(int argc, char** argv)
                     line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
             }
         }
-        cv::imshow("detection_result", frame);
-        cv::waitKey(3);
+        // cv::imshow("detection_result", frame);
+        // cv::waitKey(3);
+        rate.sleep();
     }
 }

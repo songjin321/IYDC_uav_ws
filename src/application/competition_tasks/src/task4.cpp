@@ -9,7 +9,7 @@ int main(int argc, char **argv)
     MainController main_controller("uav_controller_server", "object_pose");
 
     // 起飞飞到目标点
-    double task_1_x = 0.1;
+    double task_1_x = 0.0;
     double task_1_y = 0.0;
     double task_1_z = 0.1;
     // main_controller.start_to_goal(task_1_x, task_1_y, task_1_z);
@@ -18,7 +18,10 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(1);
 
     // 调整无人机的位姿, 使飞机头朝向医药包的窄的一侧
-    // main_controller.adjustUavPose();
+    main_controller.adjustUavPose();
+
+    // 关闭目标检测,1表示medicalBag
+    main_controller.stopObjectDetection(1);
 
     // 逐渐下降到地面
 

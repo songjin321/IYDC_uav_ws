@@ -3,7 +3,5 @@
     <node name="uav_controller_server_node" pkg="uav_controller" type="uav_controller_server" output="screen"/>
     <include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
     <node name="detect_track_node" pkg="detect_track" type="detection_node" output="screen"/>
-        <param name="medicalBag_path" type="str" value="$(find detect_track)/objects/medicalBag.png"/>
-        <param name="car_path" type="str" value="$(find detect_track)/objects/car.png"/>
     <node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam"/>
 </launch>

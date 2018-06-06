@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(competetion_tasks)
+project(competition_tasks)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -126,7 +126,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(competetion_tasks src/MainController.cpp)
+add_library(competition_tasks src/MainController.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -148,34 +148,34 @@ add_executable(task4 src/task4.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(competetion_tasks ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(competition_tasks ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(task1
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
-        competetion_tasks
+        competition_tasks
         )
 
 target_link_libraries(task2
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
-        competetion_tasks
+        competition_tasks
         )
 
 target_link_libraries(task3
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
-        competetion_tasks
+        competition_tasks
         )
 
 target_link_libraries(task4
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
-        competetion_tasks
+        competition_tasks
         )
 
-target_link_libraries(competetion_tasks
+target_link_libraries(competition_tasks
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         )
@@ -194,7 +194,7 @@ target_link_libraries(competetion_tasks
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS task1 task2 task3 task4 competetion_tasks
+install(TARGETS task1 task2 task3 task4 competition_tasks
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -209,7 +209,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY
-        launch/
+        launch
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
         )
 

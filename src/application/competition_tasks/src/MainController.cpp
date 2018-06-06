@@ -77,7 +77,7 @@ void MainController::adjustUavPose()
         rate.sleep();
     }
     is_objectPose_updated = false;
-
+    std::cout << "try to adjust the pose of uav" << std::endl;
     // 飞到需要调整的位置
     goal.goal_pose = object_pose;
     goal.fly_type = "line_planner_server";

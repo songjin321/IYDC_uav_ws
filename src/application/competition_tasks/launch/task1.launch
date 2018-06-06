@@ -1,0 +1,3 @@
+<launch>
+    	<node name="task4_node" pkg="competition_tasks" type="task1" output="screen"/>
+</launch>
