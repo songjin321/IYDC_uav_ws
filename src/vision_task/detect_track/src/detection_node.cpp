@@ -44,6 +44,10 @@ int main(int argc, char** argv)
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
                                                      &DetectionController::controlDetectionCallback,
                                                      &detection_controller);
+    //Topic you want to subscribe
+    ros::Subscriber object_sub = nh.subscribe("/objects", 1, &DetectionByFeature::objects_sub_callback,
+                                              &medicalBag_detector);
+
     cv::Mat frame;
     cv::Rect2d box;
     cv::RotatedRect r_box;
@@ -67,8 +71,9 @@ int main(int argc, char** argv)
             {
                 object_pose.calculatePoseFromRotatedBox(r_box);
                 object_pose.publishPose();
-                cv::Point *vertices = &medicalBag_detector.vertexs[0];
-                // r_box.points(vertices);
+                // cv::Point2f *vertices = &medicalBag_detector.scene_corners[0];
+                cv::Point2f vertices[4];
+                r_box.points(vertices);
                 for (int i = 0; i < 4; i++)
                     line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
             }

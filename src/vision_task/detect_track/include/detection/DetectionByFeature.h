@@ -11,6 +11,8 @@
 #include <vector>
 #include <detection/DetectionBase.h>
 #include <opencv2/xfeatures2d.hpp>
+#include <ros/ros.h>
+#include "std_msgs/Float32MultiArray.h"
 class DetectionByFeature: public DetectionBase
 {
 public:
@@ -23,8 +25,9 @@ public:
     bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
     bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) override;
 
-    // four vertex of the object
-    std::vector<cv::Point> vertexs;
+    void objects_sub_callback(const std_msgs::Float32MultiArray& msg);
+    // four corners of the detected object
+    std::vector<cv::Point2f> scene_corners;
 private:
     std::string path_object_;
     std::vector<cv::KeyPoint> objectKeypoints;
@@ -36,8 +39,6 @@ private:
     cv::Rect2d box;
     int object_width;
     int object_height;
-
-
 
     void initObject();
 
@@ -57,11 +58,12 @@ private:
     bool computerBox();
 
     /*
-     * judge is a rectangle
+     * judge is it a rectangle
      */
     bool isRectangle(double x1, double y1,
                      double x2, double y2,
                      double x3, double y3,
                      double x4, double y4);
+
 };
 #endif //UAV_WS_DETECTIONBYFEATURE_H

@@ -26,6 +26,8 @@ DetectionByFeature::DetectionByFeature(std::string path_object):
     // cv::FeatureDetector * detector = new cv::SURF(600.0);
     // cv::FeatureDetector * detector = new cv::BRISK();
     initObject();
+    H = cv::Mat::zeros(3,3, CV_32F);
+
 }
 void DetectionByFeature::initObject()
 {
@@ -43,165 +45,23 @@ void DetectionByFeature::initObject()
 }
 bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
 {
-    detector->detect(sceneImg, sceneKeypoints);
-    detector->compute(sceneImg, sceneKeypoints, sceneDescriptors);
-    if(!computerH())
+    if (scene_corners.empty())
         return false;
-    if(!computerBox())
+    roi = cv::minAreaRect(scene_corners).boundingRect2f();
+    std::cout << "box area equal to " << roi.area() <<std::endl;
+    if (roi.area() > 100000)
         return false;
-    std::cout << "box area equal to " << box.area() <<std::endl;
-    if (box.area() > 100000)
-        return false;
-    roi = box;
     return true;
 }
 bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
 {
-    detector->detect(sceneImg, sceneKeypoints);
-    detector->compute(sceneImg, sceneKeypoints, sceneDescriptors);
-    if(!computerH())
+    if (scene_corners.empty())
         return false;
-    computerFourVertex();
-    roi = cv::minAreaRect(vertexs);
+    roi = cv::minAreaRect(scene_corners);
     //std::cout <<"roi size = " << roi.size << std::endl;
     //std::cout <<"roi center = " << roi.center << std::endl;
     //std::cout <<"roi angle = " << roi.angle << std::endl;
-}
-bool DetectionByFeature::computerH()
-{
-
-    ////////////////////////////
-    // NEAREST NEIGHBOR MATCHING USING FLANN LIBRARY (included in OpenCV)
-    ////////////////////////////
-    cv::Mat results;
-    cv::Mat dists;
-    std::vector<std::vector<cv::DMatch> > matches;
-    int k=2; // find the 2 nearest neighbors
-    bool useBFMatcher = false; // SET TO TRUE TO USE BRUTE FORCE MATCHER
-    if(objectDescriptors.type()==CV_8U)
-    {
-        // Binary descriptors detected (from ORB, Brief, BRISK, FREAK)
-        printf("Binary descriptors detected...\n");
-        if(useBFMatcher)
-        {
-            cv::BFMatcher matcher(cv::NORM_HAMMING); // use cv::NORM_HAMMING2 for ORB descriptor with WTA_K == 3 or 4 (see ORB constructor)
-            matcher.knnMatch(objectDescriptors, sceneDescriptors, matches, k);
-        }
-        else
-        {
-            // Create Flann LSH index
-            cv::flann::Index flannIndex(sceneDescriptors, cv::flann::LshIndexParams(12, 20, 2), cvflann::FLANN_DIST_HAMMING);
-            // printf("Time creating FLANN LSH index = %d ms\n", time.restart());
-
-            // search (nearest neighbor)
-            flannIndex.knnSearch(objectDescriptors, results, dists, k, cv::flann::SearchParams() );
-        }
-    }
-    else
-    {
-        // assume it is CV_32F
-        printf("Float descriptors detected...\n");
-        if(useBFMatcher)
-        {
-            cv::BFMatcher matcher(cv::NORM_L2);
-            matcher.knnMatch(objectDescriptors, sceneDescriptors, matches, k);
-        }
-        else
-        {
-            // Create Flann KDTree index
-            cv::flann::Index flannIndex(sceneDescriptors, cv::flann::KDTreeIndexParams(), cvflann::FLANN_DIST_EUCLIDEAN);
-            //printf("Time creating FLANN KDTree index = %d ms\n", time.restart());
-
-            // search (nearest neighbor)
-            flannIndex.knnSearch(objectDescriptors, results, dists, k, cv::flann::SearchParams() );
-        }
-    }
-    //printf("Time nearest neighbor search = %d ms\n", time.restart());
-
-    // Conversion to CV_32F if needed
-    if(dists.type() == CV_32S)
-    {
-        cv::Mat temp;
-        dists.convertTo(temp, CV_32F);
-        dists = temp;
-    }
-
-    // Find correspondences by NNDR (Nearest Neighbor Distance Ratio)
-    float nndrRatio = 0.8f;
-    std::vector<cv::Point2f> mpts_1, mpts_2; // Used for homography
-    std::vector<int> indexes_1, indexes_2; // Used for homography
-    std::vector<uchar> outlier_mask;  // Used for homography
-    // Check if this descriptor matches with those of the objects
-    if(!useBFMatcher)
-    {
-        for(int i=0; i<objectDescriptors.rows; ++i)
-        {
-            // Apply NNDR
-            //printf("q=%d dist1=%f dist2=%f\n", i, dists.at<float>(i,0), dists.at<float>(i,1));
-            if(results.at<int>(i,0) >= 0 && results.at<int>(i,1) >= 0 &&
-               dists.at<float>(i,0) <= nndrRatio * dists.at<float>(i,1))
-            {
-                mpts_1.push_back(objectKeypoints.at(i).pt);
-                indexes_1.push_back(i);
-
-                mpts_2.push_back(sceneKeypoints.at(results.at<int>(i,0)).pt);
-                indexes_2.push_back(results.at<int>(i,0));
-            }
-        }
-    }
-    else
-    {
-        for(unsigned int i=0; i<matches.size(); ++i)
-        {
-            // Apply NNDR
-            //printf("q=%d dist1=%f dist2=%f\n", matches.at(i).at(0).queryIdx, matches.at(i).at(0).distance, matches.at(i).at(1).distance);
-            if(matches.at(i).size() == 2 &&
-               matches.at(i).at(0).distance <= nndrRatio * matches.at(i).at(1).distance)
-            {
-                mpts_1.push_back(objectKeypoints.at(matches.at(i).at(0).queryIdx).pt);
-                indexes_1.push_back(matches.at(i).at(0).queryIdx);
-
-                mpts_2.push_back(sceneKeypoints.at(matches.at(i).at(0).trainIdx).pt);
-                indexes_2.push_back(matches.at(i).at(0).trainIdx);
-            }
-        }
-    }
-    // FIND HOMOGRAPHY
-    unsigned int minInliers = 8;
-    if(mpts_1.size() >= minInliers)
-    {
-        H = findHomography(mpts_1,
-                                   mpts_2,
-                                   cv::RANSAC,
-                                   1.0,
-                                   outlier_mask);
-        int inliers=0, outliers=0;
-        for(unsigned int k=0; k<mpts_1.size();++k)
-        {
-            if(outlier_mask.at(k))
-            {
-                ++inliers;
-            }
-            else
-            {
-                ++outliers;
-            }
-        }
-
-        std::cerr << "corresponds point size = " << mpts_1.size()
-                  << " nbMatches = " << minInliers << std::endl
-                  << "inliers numbers = " << inliers << std::endl
-                  << "outliers numbers = " << outliers << std::endl;
-
-        if (!H.empty() && inliers*2.0 > outliers)
-       {
-           std::cerr << "computer H OK!" << std::endl;
-           return true;
-       }
-    } else {
-        printf("Not enough matches (%d) for homography...\n", (int)mpts_1.size());
-        return false;
-    }
+    return true;
 }
 
 bool DetectionByFeature::computerBox()
@@ -268,38 +128,34 @@ bool DetectionByFeature::isRectangle(double x1, double y1,
         return true;
 }
 
-void DetectionByFeature::computerFourVertex()
+void DetectionByFeature::objects_sub_callback(const std_msgs::Float32MultiArray &msg)
 {
-    double ow = object_width;
-    double oh = object_height;
-    double h11 = H.at<double>(0,0);
-    double h12 = H.at<double>(0,1);
-    double h13 = H.at<double>(0,2);
-    double h21 = H.at<double>(1,0);
-    double h22 = H.at<double>(1,1);
-    double h23 = H.at<double>(1,2);
-    double h31 = H.at<double>(2,0);
-    double h32 = H.at<double>(2,1);
-    double h33 = H.at<double>(2,2);
-    // std::cout << h11 << " " << h12 << " "<< h13 << " "<< h21 << " "<< h22 << " "<< h23 << " "<< h31 << " "
-    //       << h32 << " "<< h33 << std::endl;
-    // coordinate of four vertexs
-    cv::Point pt1, pt2, pt3, pt4;
-    pt1.x = static_cast<int>(h13);
-    pt1.y = static_cast<int>(h23);
-    pt2.x = static_cast<int>(h11 * ow + h13);
-    pt2.y = static_cast<int>(h21 * ow + h23);
-    pt3.x = static_cast<int>(h12 * oh + h13);
-    pt3.y = static_cast<int>(h22 * oh + h23);
-    pt4.x = static_cast<int>(h11 * ow + h12 * oh + h13);
-    pt4.y = static_cast<int>(h21 * ow + h22 * oh + h23);
-    vertexs.clear();
-    vertexs.push_back(pt1);
-    vertexs.push_back(pt2);
-    vertexs.push_back(pt3);
-    vertexs.push_back(pt4);
-    std::cout << "pt1 = " << pt1 << std::endl;
-    std::cout << "pt2 = " << pt2 << std::endl;
-    std::cout << "pt3 = " << pt3 << std::endl;
-    std::cout << "pt4 = " << pt4 << std::endl;
+    if (msg.data.empty())
+        return;
+    // the id of the object
+    // int id = (int)msg.data[0];
+
+    float ow = msg.data[1];
+    float oh = msg.data[2];
+
+    H.at<float>(0,0) = msg.data[3];
+    H.at<float>(1,0) = msg.data[4];
+    H.at<float>(2,0) = msg.data[5];
+
+    H.at<float>(0,1) = msg.data[6];
+    H.at<float>(1,1) = msg.data[7];
+    H.at<float>(2,1) = msg.data[8];
+
+    H.at<float>(0,2) = msg.data[9];
+    H.at<float>(1,2) = msg.data[10];
+    H.at<float>(2,2) = msg.data[11];
+
+    std::vector<cv::Point2f> obj_corners(4);
+    obj_corners[0] = cv::Point2f(0.0, 0.0);
+    obj_corners[1] = cv::Point2f(ow, 0.0);
+    obj_corners[2] = cv::Point2f(ow, oh);
+    obj_corners[3] = cv::Point2f(0.0, oh);
+    scene_corners.clear();
+    cv::perspectiveTransform(obj_corners, scene_corners, H);
+
 }
