@@ -14,7 +14,8 @@
 class MainController
 {
 public:
-    MainController(std::string uav_controller_server_name, std::string object_pose_name);
+    MainController(std::string uav_controller_server_name, std::string object_pose_name,
+                       std::string uav_pose_name);
 
     /*
      * 起飞飞到目标点
@@ -46,15 +47,25 @@ public:
      */
     void adjustUavPose();
 
+    /*
+     * 控制无人机更随目标运动
+     */
+    void trackObject();
+
     void object_pose_callback(const geometry_msgs::PoseStamped &msg);
+
+    void uav_pose_callback(const geometry_msgs::PoseStamped &msg);
 private:
     ros::NodeHandle nh_;
     uav_controller::FlyToGoalGoal goal;
+    // 通过修改goal_pose来控制飞机,可以实现相对运动
     geometry_msgs::PoseStamped goal_pose;
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
     ros::Subscriber object_pose_sub;
+    ros::Subscriber uav_pose_sub;
     geometry_msgs::PoseStamped object_pose;
+    geometry_msgs::PoseStamped uav_pose;
     bool is_objectPose_updated;
 };
 

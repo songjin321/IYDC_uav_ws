@@ -7,7 +7,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "task1");
     ros::NodeHandle n;
 
-    MainController main_controller("uav_controller_server", "object_pose");
+    MainController main_controller("uav_controller_server", "object_pose", "/vision_pose/pose");
 
 
     // 起飞飞到目标点

@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "task4");
 
-    MainController main_controller("uav_controller_server", "object_pose");
+    MainController main_controller("uav_controller_server", "object_pose", std::__cxx11::string());
 
     // 起飞飞到目标点
     double task_1_x = 0.0;

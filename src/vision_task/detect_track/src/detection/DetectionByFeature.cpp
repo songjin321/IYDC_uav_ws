@@ -22,6 +22,7 @@ bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
     if (scene_corners.empty())
         return false;
     roi = cv::minAreaRect(scene_corners).boundingRect2f();
+    scene_corners.clear();
     return true;
 }
 bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)

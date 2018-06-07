@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(simple_line_planner)
+project(simple_planner)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -104,10 +104,10 @@ find_package(catkin REQUIRED
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES simple_line_planner
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+        #  INCLUDE_DIRS include
+        #  LIBRARIES simple_line_planner
+        #  CATKIN_DEPENDS other_catkin_pkg
+        #  DEPENDS system_lib
 )
 
 ###########
@@ -117,8 +117,8 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
- include
- ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -134,8 +134,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(line_planner_server src/line_planner_server.cpp)
-
+add_executable(line_planner src/line_planner.cpp)
+add_executable(position_line_planner src/position_line_planner.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -147,10 +147,12 @@ add_executable(line_planner_server src/line_planner_server.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(line_planner_server
-   ${catkin_LIBRARIES}
- )
-
+target_link_libraries(line_planner
+        ${catkin_LIBRARIES}
+        )
+target_link_libraries(position_line_planner
+        ${catkin_LIBRARIES}
+        )
 #############
 ## Install ##
 #############
@@ -166,11 +168,11 @@ target_link_libraries(line_planner_server
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS line_planner_server
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+install(TARGETS line_planner position_line_planner
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
