@@ -88,8 +88,8 @@ int main(int argc, char** argv)
                     line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
             }
         }
-        // cv::imshow("detection_result", frame);
-        // cv::waitKey(3);
+        cv::imshow("detection_result", frame);
+        cv::waitKey(3);
         rate.sleep();
     }
 }

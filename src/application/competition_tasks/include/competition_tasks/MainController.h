@@ -43,14 +43,44 @@ public:
     void sendBuzzerSignal(int seconds);
 
     /*
+     * 抓取医药包
+     */
+    void grabObject();
+
+    /*
+     * 松开抓取到的物体
+     */
+    void releaseObject();
+
+    /*
      * 控制无人机在目标物体的正上方.且机头方向对齐
      */
     void adjustUavPose();
 
     /*
-     * 控制无人机更随目标运动
+     * 控制无人机的位置,距离目标物delta_x,delta_y
+     */
+    void adjustUavPosition(double delta_x, double delta_y);
+
+    /*
+     * 控制无人机跟随目标运动
      */
     void trackObject();
+
+    /*
+     * 飞到固定的高度
+     */
+    void flyFixedHeight(double z);
+
+    /*
+     * 让飞机在平面进行平移,维持高度不变
+     */
+    void flyInPlane(double x, double y);
+
+    /*
+     * 关闭飞机
+     */
+    void shutDownUav();
 
     void object_pose_callback(const geometry_msgs::PoseStamped &msg);
 

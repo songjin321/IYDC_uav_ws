@@ -29,53 +29,27 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
 }
 void MainController::start_to_goal(double x, double y, double z)
 {
-    //　起飞到一定的高度
-    goal_pose.pose.position.z = z;
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("arrive at height of %.3f meters", z);
 
-    // 保证姿态不变,飞到目标点
-    goal_pose.pose.position.x = x;
-    goal_pose.pose.position.y = y;
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("arrive at goal point, x = %.3f, y = %.3f", x, y);
+    flyFixedHeight(z);
+    flyInPlane(x, y);
 }
 
 void MainController::sendBuzzerSignal(int seconds)
 {
     //TODO::Buzzer service
+    ROS_INFO("bi bi bi bi bi bi bi bi");
 }
 
 void MainController::returnToOrigin()
 {
     //　返回到原点上方
-    goal_pose.pose.position.x = 0;
-    goal_pose.pose.position.y = 0;
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("return to the top of the origin");
+    flyInPlane(0.0, 0.0);
 
     // 降落
-    goal_pose.pose.position.z = 0;
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("return to the origin");
+    flyFixedHeight(0);
 
-    //　TODO::关闭飞机
+    // 关闭飞机
+    shutDownUav();
 }
 
 void MainController::adjustUavPose()
@@ -86,15 +60,40 @@ void MainController::adjustUavPose()
         ros::spinOnce();
         rate.sleep();
     }
+    //　仅仅只使用第一次检测到的目标物的位置
     is_objectPose_updated = false;
     std::cout << "try to adjust the pose of uav" << std::endl;
-    // 飞到需要调整的位置
+    // 飞到需要调整的位置和姿态
     double current_z =  goal_pose.pose.position.z;
     goal_pose = object_pose;
     goal_pose.pose.position.z = current_z;
 
     goal.goal_pose = goal_pose;
     goal.fly_type = "line_planner_server";
+    goal.fly_vel = -1;
+    ac.sendGoal(goal);
+    ac.waitForResult();
+    ROS_INFO("return to the origin");
+}
+
+void MainController::adjustUavPosition(double delta_x, double delta_y)
+{
+    while(!is_objectPose_updated)
+    {
+        ros::Rate rate(30);
+        ros::spinOnce();
+        rate.sleep();
+    }
+    //　仅仅只使用第一次检测到的目标物的位置
+    is_objectPose_updated = false;
+    ROS_INFO("try to adjust the position of uav");
+    // 飞到需要调整的位置
+    double current_z =  goal_pose.pose.position.z;
+    goal_pose = object_pose;
+    goal_pose.pose.position.z = current_z;
+
+    goal.goal_pose = goal_pose;
+    goal.fly_type = "position_line_planner_server";
     goal.fly_vel = -1;
     ac.sendGoal(goal);
     ac.waitForResult();
@@ -113,7 +112,7 @@ void MainController::trackObject()
 
     // 当飞机接近原点时跟踪停止
     // 如果没有追踪上就往原点飞
-    // TODO::中间如果又检测到目标物，应当继续追踪
+    // 让飞机飞到原点可以被抢占
     double distance2origin = 10000000;
     while(distance2origin > 0.5) {
         // 0.1s 控制飞机运动一次
@@ -197,3 +196,48 @@ void MainController::stopObjectDetection(char detection_type)
         ROS_INFO("detection start failed");
     }
 }
+
+void MainController::grabObject()
+{
+    //TODO::grabObject service
+    ROS_INFO("grab object OK!");
+}
+
+void MainController::releaseObject()
+{
+    //TODO::releaseObject service
+    ROS_INFO("release object OK!");
+}
+
+void MainController::shutDownUav()
+{
+    //　TODO::关闭飞机
+    ROS_INFO("shut down uav!");
+}
+
+void MainController::flyFixedHeight(double z)
+{
+    //　起飞到一定的高度
+    goal_pose.pose.position.z = z;
+    goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
+    goal.fly_type = "position_line_planner_server";
+    ac.sendGoal(goal);
+    ac.waitForResult();
+    ROS_INFO("arrive at height of %.3f meters", z);
+}
+
+void MainController::flyInPlane(double x, double y)
+{
+    // 高度和姿态不变,做平面运动
+    goal_pose.pose.position.x = x;
+    goal_pose.pose.position.y = y;
+    goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
+    goal.fly_type = "position_line_planner_server";
+    ac.sendGoal(goal);
+    ac.waitForResult();
+    ROS_INFO("arrive at goal point, x = %.3f, y = %.3f", x, y);
+}
+
+

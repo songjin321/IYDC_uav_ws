@@ -1,0 +1,13 @@
+<launch>
+    <node name="task3_node" pkg="competition_tasks" type="task3" output="screen">
+		<param name="task3_x" value="0" type="double"/>
+		<param name="task3_y" value="0" type="double"/>
+		<param name="task3_z" value="1.5" type="double"/>
+	</node>
+    <node name="find_object_2d" pkg="find_object_2d" type="find_object_2d" output="log">
+        <remap from="image" to="/usb_cam/image_rect_color"/>
+        <param name="gui" value="false" type="bool"/>
+        <param name="objects_path" value="~/Project/uav_ws/src/application/competition_tasks/object_template/car" type="str"/>
+        <param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
+    </node>
+</launch>
