@@ -1,5 +1,7 @@
 .idea/
 cmake-build-debug/
+.catkin_workspace
+.catkin_tools/
 exp_data/
 cmake-build-release/
 install/
