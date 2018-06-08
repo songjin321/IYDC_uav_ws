@@ -35,10 +35,10 @@ colorPerson and medicalBag only need to be detected once, but the car needs both
 - 标定相机:使用camera_calibration包进行标定，将标定参数写到
 camera_info
 - ROS_NAMESPACE=usb_cam rosrun image_proc image_proc进行图片矫正
-
-用于进行sift检测的模版
-objects/medicalBag.png
-objects/car.png
+- rosrun find_object_2d find_object_2d image:=/usb_cam/image_rect_color 采集检测模版
+> 用于进行sift检测的模版位置
+> - application/competition_tasks/object_template/medicalBag/medicalBag.png
+> - application/competition_tasks/object_template/car/car.png
 
 call 相对应的服务
 - int8 opateControlType

@@ -23,13 +23,12 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
     {
         if(detector->detect(frame, box))
         {
-            std::cout << "detect success, try to init tracker" << std::endl;
             tracker->clear();
             tracker = cv::TrackerKCF::create();
             if(tracker->init(frame, box))
             {
                 state = tracking;
-                std::cout << "tracker init success" << std::endl;
+                std::cout << "tracker init success, try to tracking" << std::endl;
                 return true;
             } else{
                 std::cout << "tracker init failed" << std::endl;
@@ -44,7 +43,7 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
             std::cout << "track lost, begin detect" << std::endl;
 
         } else{
-            std::cout << "tracking......" << std::endl;
+            // std::cout << "tracking......" << std::endl;
             return true;
         }
     }

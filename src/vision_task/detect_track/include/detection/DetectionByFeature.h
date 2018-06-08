@@ -33,6 +33,8 @@ private:
                      double x2, double y2,
                      double x3, double y3,
                      double x4, double y4);
+    ros::NodeHandle nh;
+    ros::Subscriber object_sub;
 
 };
 #endif //UAV_WS_DETECTIONBYFEATURE_H

@@ -35,7 +35,7 @@ bool DetectionByColor::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
     cv::Scalar hsv_h(high_hue_,255,255);
     cv::Mat bw;
     inRange(hsvImg, hsv_l, hsv_h, bw);
-    // imshow("Specific Colour", bw);
+    imshow("Specific Colour", bw);
     std::vector< std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());

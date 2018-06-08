@@ -204,17 +204,16 @@ install(DIRECTORY objects
 ## Testing ##
 #############
 
-#[[
-add_executable(detectMedicalBag test/detectMedicalBag.cpp)
-target_link_libraries(detectMedicalBag
+add_executable(colorPerson_test test/colorPerson_test.cpp)
+target_link_libraries(colorPerson_test
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         detection
         )
-install(TARGETS detectMedicalBag
+install(TARGETS colorPerson_test
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
-
+#[[
 add_executable(medicalBag_test test/medicalBag_test.cpp)
 target_link_libraries(medicalBag_test
         ${catkin_LIBRARIES}

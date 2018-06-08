@@ -16,6 +16,8 @@
 DetectionByFeature::DetectionByFeature()
 {
     H = cv::Mat::zeros(3,3,CV_32F);
+    //objects pose subscribe
+    object_sub = nh.subscribe("/objects", 1, &DetectionByFeature::objects_sub_callback, this);
 }
 bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::Rect2d &roi)
 {
@@ -91,5 +93,5 @@ void DetectionByFeature::objects_sub_callback(const std_msgs::Float32MultiArray 
     obj_corners[3] = cv::Point2f(0.0, oh);
     scene_corners.clear();
     cv::perspectiveTransform(obj_corners, scene_corners, H);
-
+    // ROS_INFO("flush scene corners");
 }

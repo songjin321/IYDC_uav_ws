@@ -43,10 +43,6 @@ int main(int argc, char** argv)
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
                                                      &DetectionController::controlDetectionCallback,
                                                      &detection_controller);
-    //Topic you want to subscribe
-    ros::Subscriber object_sub = nh.subscribe("/objects", 1, &DetectionByFeature::objects_sub_callback,
-                                              &medicalBag_detector);
-
     cv::Mat frame;
     cv::Rect2d box;
     cv::RotatedRect r_box;
@@ -54,44 +50,48 @@ int main(int argc, char** argv)
     {
         ros::Rate rate(30);
         ros::spinOnce();
-        if (!imageToMat.getNewImage(frame))
-            continue;
-        if(detection_controller.is_detect_car_)
+        if (imageToMat.getNewImage(frame))
         {
-            if(car_dAt.detectFrame(frame, box))
+            if(detection_controller.is_detect_car_)
             {
-                object_pose.calculatePoseFromBox(box);
-                object_pose.publishPose();
-                cv::rectangle(frame, box, CV_RGB(255,0,0));
+                if(car_dAt.detectFrame(frame, box))
+                {
+                    // 如果检测成功,必定会发布object_pose
+                    object_pose.calculatePoseFromBox(box);
+                    object_pose.publishPose();
+                    cv::rectangle(frame, box, CV_RGB(255,0,0));
+                }
             }
-        }
-        if(detection_controller.is_detect_medicalBag_)
-        {
-            if(medicalBag_detector.detect(frame, r_box))
+            if(detection_controller.is_detect_medicalBag_)
             {
-                object_pose.calculatePoseFromRotatedBox(r_box);
-                object_pose.publishPose();
-                // cv::Point2f *vertices = &medicalBag_detector.scene_corners[0];
-                cv::Point2f vertices[4];
-                r_box.points(vertices);
-                for (int i = 0; i < 4; i++)
-                    line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                if(medicalBag_detector.detect(frame, r_box))
+                {
+                    // ROS_INFO("detected medicalBag!!!");
+                    object_pose.calculatePoseFromRotatedBox(r_box);
+                    object_pose.publishPose();
+                    // cv::Point2f *vertices = &medicalBag_detector.scene_corners[0];
+                    cv::Point2f vertices[4];
+                    r_box.points(vertices);
+                    for (int i = 0; i < 4; i++)
+                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                }
             }
-        }
-        if(detection_controller.is_detect_colorPerson_)
-        {
-            if(colorPerson.detect(frame, r_box))
+            if(detection_controller.is_detect_colorPerson_)
             {
-                object_pose.calculatePoseFromRotatedBox(r_box);
-                object_pose.publishPose();
-                cv::Point2f vertices[4];
-                r_box.points(vertices);
-                for (int i = 0; i < 4; i++)
-                    line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                if(colorPerson.detect(frame, r_box))
+                {
+                    // ROS_INFO("detected colorPerson!!!");
+                    object_pose.calculatePoseFromRotatedBox(r_box);
+                    object_pose.publishPose();
+                    cv::Point2f vertices[4];
+                    r_box.points(vertices);
+                    for (int i = 0; i < 4; i++)
+                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                }
             }
+            cv::imshow("detection_result", frame);
+            cv::waitKey(3);
         }
-        cv::imshow("detection_result", frame);
-        cv::waitKey(3);
         rate.sleep();
     }
 }

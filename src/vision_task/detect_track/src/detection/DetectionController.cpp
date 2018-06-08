@@ -23,6 +23,7 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
                 car_dAt_->stopDetection();
                 ROS_INFO("car detection stop");
             }
+            is_detect_car_ = req.Start;
             break;
         case 1:
             is_detect_medicalBag_ = req.Start;

@@ -115,8 +115,8 @@ void MainController::trackObject()
     // 让飞机飞到原点可以被抢占
     double distance2origin = 10000000;
     while(distance2origin > 0.5) {
-        // 0.1s 控制飞机运动一次
-        ros::Rate rate(10);
+        // 0.2s 控制飞机运动一次
+        ros::Rate rate(5);
         if(is_objectPose_updated)
         {
             cv::Point2f object_2d_position(static_cast<float>(object_pose.pose.position.x),
@@ -131,13 +131,14 @@ void MainController::trackObject()
             goal_pose.pose.position.x = uav_pose.pose.position.x + object_2d_position.x;
             goal_pose.pose.position.y = uav_pose.pose.position.y - object_2d_position.y;
 
-            // 可以尝试控制速度加快飞机的运动
+            // 可以尝试控制速度加快飞机的运动, 可以被抢占,时刻改变飞行目标
             goal.goal_pose = goal_pose;
             goal.fly_type = "position_line_planner_server";
             goal.fly_vel = -1;
             ac.sendGoal(goal);
-            ac.waitForResult();
-            ROS_INFO("fly to one object position");
+            ROS_INFO("try to fly to one object position, x = %.3f, y =%.3f",
+                     goal_pose.pose.position.x,goal_pose.pose.position.y);
+            // ac.waitForResult();
             is_objectPose_updated = false;
         } else
         {
