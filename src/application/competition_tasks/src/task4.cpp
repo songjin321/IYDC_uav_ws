@@ -21,7 +21,8 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(1);
 
     // 调整无人机的位姿, 使飞机头朝向医药包的窄的一侧
-    main_controller.adjustUavPose();
+    // 调整无人机的位置,位于医药包正上方.
+    main_controller.adjustUavPosition(0,0);
 
     // 关闭目标检测,1表示medicalBag
     main_controller.stopObjectDetection(1);

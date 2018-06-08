@@ -4,7 +4,8 @@
 #include "detection/ObjectPoseCal.h"
 #include "sensor_msgs/CameraInfo.h"
 
-ObjectPoseCal::ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name) {
+ObjectPoseCal::ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name)
+{
     cameraInfo_sub_ = n_.subscribe(camera_info_name, 1, &ObjectPoseCal::cameraInfoCallBack, this);
     pub_pose_ = n_.advertise<geometry_msgs::PoseStamped>(publish_pose_name, 1);
 }
@@ -30,6 +31,8 @@ void ObjectPoseCal::calculatePoseFromRotatedBox(const cv::RotatedRect &box)
     // std::cout << "the yaw angle of the box  = " << box.angle << std::endl;
     object_pose_.pose.orientation.w = cos(-box.angle/180*3.14/2);
     object_pose_.pose.orientation.z = sin(-box.angle/180*3.14/2);
+    object_pose_.pose.orientation.y = 0;
+    object_pose_.pose.orientation.x = 0;
 }
 
 void ObjectPoseCal::publishPose()

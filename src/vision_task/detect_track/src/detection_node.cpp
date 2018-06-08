@@ -22,6 +22,8 @@ int main(int argc, char** argv)
     // get some parameters from parameter servers
     // HSV threshold in color person detection
 
+    //
+
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 

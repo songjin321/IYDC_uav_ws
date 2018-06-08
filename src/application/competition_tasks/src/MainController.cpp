@@ -25,7 +25,7 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     object_pose_sub = nh_.subscribe(object_pose_name, 1, &MainController::object_pose_callback, this);
 
     // uav pose subscribe
-    uav_pose_sub = nh_.subscribe(uav_pose_name, 1, &MainController::object_pose_callback, this);
+    uav_pose_sub = nh_.subscribe(uav_pose_name, 1, &MainController::uav_pose_callback, this);
 }
 void MainController::start_to_goal(double x, double y, double z)
 {
@@ -73,7 +73,7 @@ void MainController::adjustUavPose()
     goal.fly_vel = -1;
     ac.sendGoal(goal);
     ac.waitForResult();
-    ROS_INFO("return to the origin");
+    ROS_INFO("adjustUavPose OK");
 }
 
 void MainController::adjustUavPosition(double delta_x, double delta_y)
@@ -85,19 +85,19 @@ void MainController::adjustUavPosition(double delta_x, double delta_y)
         rate.sleep();
     }
     //　仅仅只使用第一次检测到的目标物的位置
+    // 飞到需要调整的位置,假定相机安装在正下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
     is_objectPose_updated = false;
-    ROS_INFO("try to adjust the position of uav");
-    // 飞到需要调整的位置
-    double current_z =  goal_pose.pose.position.z;
-    goal_pose = object_pose;
-    goal_pose.pose.position.z = current_z;
+    ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
+             object_pose.pose.position.x, -object_pose.pose.position.y);
+    goal_pose.pose.position.x = object_pose.pose.position.x + uav_pose.pose.position.x;
+    goal_pose.pose.position.y = uav_pose.pose.position.y - object_pose.pose.position.y;
 
     goal.goal_pose = goal_pose;
     goal.fly_type = "position_line_planner_server";
     goal.fly_vel = -1;
     ac.sendGoal(goal);
     ac.waitForResult();
-    ROS_INFO("return to the origin");
+    ROS_INFO("adjustUavPosition OK");
 }
 
 void MainController::trackObject()
@@ -128,8 +128,8 @@ void MainController::trackObject()
             */
 
             // 飞到目标物的位置
-            goal_pose.pose.position.x = object_2d_position.x;
-            goal_pose.pose.position.y = object_2d_position.y;
+            goal_pose.pose.position.x = uav_pose.pose.position.x + object_2d_position.x;
+            goal_pose.pose.position.y = uav_pose.pose.position.y - object_2d_position.y;
 
             // 可以尝试控制速度加快飞机的运动
             goal.goal_pose = goal_pose;
