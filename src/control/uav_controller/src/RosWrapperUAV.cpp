@@ -6,23 +6,76 @@
 #include "nav_msgs/GetPlan.h"
 #include "ros_common/RosMath.h"
 #include <iostream>
-RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name)
+RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name):
+        vision_pose_ok_flag(true)
 {
     vision_pose_sub_ = n_.subscribe(vision_pose_name, 1, &RosWrapperUAV::vision_pose_callback, this);
     mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",1);
-    current_pose_.pose.orientation.w = 1.0;
+    mavros_vision_pose_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1);
+    uav_local_pose_sub = n_.subscribe("/mavros/local_position/pose",1, &RosWrapperUAV::uav_local_pose_callback, this);
+    uav_pose_pub_.pose.orientation.w = 1.0;
 }
 
 void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &vision_pose)
 {
-    current_pose_ =  vision_pose;
+    // 对视觉定位结果进行处理,防止炸鸡
+
+    // 将vision_pose转化为uav_pose
+    // vision_pose:相机在建图坐标系
+    // uav_pose:无人机在世界坐标系
+    geometry_msgs::PoseStamped uav_pose = vision_pose;
+
+
+    // 如果orb定位lost,三个位置分量返回０
+    double vision_x = vision_pose.pose.position.x;
+    double vision_y = vision_pose.pose.position.y;
+    double vision_z = vision_pose.pose.position.z;
+    if(vision_x==0 && vision_y == 0 && vision_z == 0)
+    {
+        vision_pose_ok_flag = false;
+        ROS_ERROR("vision localization lost!!!");
+        return;
+    }
+
+    // roll和pitch角不会超过45度,M_PI_4
+    double roll = 0, pitch = 0, yaw = 0;
+    RosMath::getRPYFromPoseStamp(vision_pose, roll, pitch, yaw);
+    if(fabs(roll) > M_PI_4 || fabs(pitch) > M_PI_4)
+    {
+        vision_pose_ok_flag = false;
+        ROS_ERROR("roll or pitch angel is greater then 45 degrees");
+        return;
+    }
+
+    // 两次的pose位置变化不能大于0.5
+    if (RosMath::calDistance(uav_pose_pub_, uav_pose) > 0.5)
+    {
+        vision_pose_ok_flag = false;
+        ROS_ERROR("distance of two vision estimated position is greater than 0.5m");
+        return;
+    }
+
+    if(vision_pose_ok_flag)
+        uav_pose_pub_ = uav_pose;
+    mavros_vision_pose_pub_.publish(uav_pose_pub_);
+    vision_pose_ok_flag = true;
 }
+
+void RosWrapperUAV::uav_local_pose_callback(const geometry_msgs::PoseStamped &uav_local_pose)
+{
+    uav_pose_ = uav_local_pose;
+}
+
 geometry_msgs::PoseStamped RosWrapperUAV::getCurrentPoseStamped() {
-    return current_pose_;
+    return uav_pose_;
 }
 void RosWrapperUAV::fly_to_goal(const geometry_msgs::PoseStamped &goal_pose, double fly_vel)
 {
-
+    if(!vision_pose_ok_flag)
+    {
+        ROS_ERROR("vision pose information is not available, can't control uav");
+        return;
+    }
     if (fly_vel <= 0)
     {
         mavros_set_point_pub_.publish(goal_pose);

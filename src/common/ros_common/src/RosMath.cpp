@@ -27,3 +27,16 @@ double RosMath::getYawFromPoseStamp(const geometry_msgs::PoseStamped &p)
     m.getRPY(roll, pitch, yaw);
     return  yaw;
 }
+
+void RosMath::getRPYFromPoseStamp(const geometry_msgs::PoseStamped &p,
+                                  double &roll, double &pitch, double yaw)
+{
+    tf::Quaternion q(
+            p.pose.orientation.x,
+            p.pose.orientation.y,
+            p.pose.orientation.z,
+            p.pose.orientation.w
+    );
+    tf::Matrix3x3 m(q);
+    m.getRPY(roll, pitch, yaw);
+}

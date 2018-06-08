@@ -17,13 +17,29 @@ class RosWrapperUAV
 public:
     RosWrapperUAV(std::string vision_pose_name);
     void vision_pose_callback(const geometry_msgs::PoseStamped &vision_pose);
+    void uav_local_pose_callback(const geometry_msgs::PoseStamped &uav_local_pose);
     void fly_to_goal(const geometry_msgs::PoseStamped &goal_pose, double fly_vel);
     geometry_msgs::PoseStamped getCurrentPoseStamped();
 private:
     ros::NodeHandle n_;
     ros::Subscriber vision_pose_sub_;
+    ros::Subscriber uav_local_pose_sub;
     ros::Publisher mavros_set_point_pub_;
-    geometry_msgs::PoseStamped current_pose_;
+    ros::Publisher mavros_vision_pose_pub_;
+
+    /*
+     * 时刻发布出去的视觉估计的姿态
+     */
+    geometry_msgs::PoseStamped uav_pose_pub_;
+
+    /*
+     * 从mavros返回回来的无人机的位姿
+     */
+    geometry_msgs::PoseStamped uav_pose_;
+    /*
+     * true表示视觉的位姿可用, false表示不可用
+     */
+    bool vision_pose_ok_flag;
 };
 
 #endif

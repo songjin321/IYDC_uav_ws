@@ -29,8 +29,8 @@ void ObjectPoseCal::calculatePoseFromRotatedBox(const cv::RotatedRect &box)
     object_pose_.pose.position.x = (box.center.x-cx)/fx;
     object_pose_.pose.position.y = (box.center.y-cy)/fy;
     // std::cout << "the yaw angle of the box  = " << box.angle << std::endl;
-    object_pose_.pose.orientation.w = cos(-box.angle/180*3.14/2);
-    object_pose_.pose.orientation.z = sin(-box.angle/180*3.14/2);
+    object_pose_.pose.orientation.w = cos(-box.angle/180*M_PI/2);
+    object_pose_.pose.orientation.z = sin(-box.angle/180*M_PI/2);
     object_pose_.pose.orientation.y = 0;
     object_pose_.pose.orientation.x = 0;
 }
