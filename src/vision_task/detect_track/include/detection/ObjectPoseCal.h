@@ -22,6 +22,7 @@ public:
     void publishPose();
     void calculatePoseFromBox(const cv::Rect_<float> &box);
     void calculatePoseFromRotatedBox(const cv::RotatedRect &box);
+    void calculatePoseFromPoint(const cv::Point2f &center);
 private:
     ros::NodeHandle n_;
     ros::Publisher pub_pose_;

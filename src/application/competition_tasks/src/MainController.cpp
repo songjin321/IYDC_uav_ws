@@ -175,6 +175,8 @@ void MainController::startObjectDetection(char detection_type)
     //# 0: car
     //# 1: medicalBag
     //# 2: colorPerson
+    //# 3: redPerson
+    //# 4: blackCircle
     srv.request.ControlType = detection_type;
     srv.request.Start = true;
     if (detection_client.call(srv))

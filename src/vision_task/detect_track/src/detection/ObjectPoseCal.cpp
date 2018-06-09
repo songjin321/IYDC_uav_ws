@@ -24,6 +24,12 @@ void ObjectPoseCal::calculatePoseFromBox(const cv::Rect2f &box)
     object_pose_.pose.position.y = (box.y+box.height/2-cy)/fy;
 }
 
+void ObjectPoseCal::calculatePoseFromPoint(const cv::Point2f &center)
+{
+    object_pose_.pose.position.x = (center.x-cx)/fx;
+    object_pose_.pose.position.y = (center.y-cy)/fy;
+}
+
 void ObjectPoseCal::calculatePoseFromRotatedBox(const cv::RotatedRect &box)
 {
     object_pose_.pose.position.x = (box.center.x-cx)/fx;

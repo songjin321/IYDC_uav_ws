@@ -19,6 +19,9 @@ public:
     bool is_detect_car_;
     bool is_detect_medicalBag_;
     bool is_detect_colorPerson_;
+    bool is_detect_redPerson_;
+    bool is_detect_blackCircle_;
+
 private:
     DetectionAndTrackingLoop *car_dAt_;
 };

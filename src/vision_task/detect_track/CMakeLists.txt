@@ -213,14 +213,13 @@ target_link_libraries(colorPerson_test
 install(TARGETS colorPerson_test
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
-#[[
-add_executable(medicalBag_test test/medicalBag_test.cpp)
-target_link_libraries(medicalBag_test
+
+add_executable(blackCircle_test test/blackCircle_test.cpp)
+target_link_libraries(blackCircle_test
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         detection
         )
-install(TARGETS medicalBag_test
+install(TARGETS blackCircle_test
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )
-]]

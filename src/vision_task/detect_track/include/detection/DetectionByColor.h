@@ -7,12 +7,13 @@
 
 #include <detection/DetectionBase.h>
 
-class DetectionByColor:DetectionBase
+class DetectionByColor
 {
 public:
     DetectionByColor(uchar low_hue, uchar high_hue);
-    bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
-    bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) override;
+    bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi);
+    bool detectRedPerson(cv::Mat &sceneImg, cv::RotatedRect &roi);
+    bool detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center);
 private:
     uchar low_hue_;
     uchar high_hue_;

@@ -46,6 +46,7 @@ int main(int argc, char** argv)
     cv::Mat frame;
     cv::Rect2d box;
     cv::RotatedRect r_box;
+    cv::Point2f black_center;
     while(ros::ok())
     {
         ros::Rate rate(30);
@@ -87,6 +88,29 @@ int main(int argc, char** argv)
                     r_box.points(vertices);
                     for (int i = 0; i < 4; i++)
                         line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                }
+            }
+            if(detection_controller.is_detect_redPerson_)
+            {
+                if(colorPerson.detectRedPerson(frame, r_box))
+                {
+                    // ROS_INFO("detected colorPerson!!!");
+                    object_pose.calculatePoseFromRotatedBox(r_box);
+                    object_pose.publishPose();
+                    cv::Point2f vertices[4];
+                    r_box.points(vertices);
+                    for (int i = 0; i < 4; i++)
+                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                }
+            }
+            if(detection_controller.is_detect_blackCircle_)
+            {
+                if(colorPerson.detectBlackCircle(frame, black_center))
+                {
+                    // ROS_INFO("detected colorPerson!!!");
+                    object_pose.calculatePoseFromPoint(black_center);
+                    object_pose.publishPose();
+                    cv::circle( frame, black_center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
                 }
             }
             cv::imshow("detection_result", frame);

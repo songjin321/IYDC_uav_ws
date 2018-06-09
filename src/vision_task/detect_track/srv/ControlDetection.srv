@@ -2,6 +2,8 @@
 # 0: car
 # 1: medicalBag
 # 2: colorPerson
+# 3: redPerson
+# 4: blackCircle
 int8 ControlType
 
 # start/stop

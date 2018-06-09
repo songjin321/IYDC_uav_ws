@@ -33,6 +33,14 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
             is_detect_colorPerson_ = req.Start;
             ROS_INFO("color person detection state: %d", req.Start);
             break;
+        case 3:
+            is_detect_redPerson_ = req.Start;
+            ROS_INFO("red person detection state: %d", req.Start);
+            break;
+        case 4:
+            is_detect_blackCircle_ = req.Start;
+            ROS_INFO("red person detection state: %d", req.Start);
+            break;
         default:
             ROS_INFO("no correspond detection type");
             return false;
