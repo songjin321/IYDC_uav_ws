@@ -1,3 +1,12 @@
 [submodule "src/device_driver/mavros"]
 	path = src/device_driver/mavros
 	url = https://github.com/mavlink/mavros.git
+[submodule "src/device_driver/serial"]
+	path = src/device_driver/serial
+	url = https://github.com/wjwwood/serial.git
+[submodule "src/device_driver/vrpn_client_ros"]
+	path = src/device_driver/vrpn_client_ros
+	url = https://github.com/ros-drivers/vrpn_client_ros.git
+[submodule "src/device_driver/usb_cam"]
+	path = src/device_driver/usb_cam
+	url = https://github.com/ros-drivers/usb_cam.git
