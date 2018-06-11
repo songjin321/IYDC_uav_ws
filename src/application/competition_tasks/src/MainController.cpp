@@ -1,10 +1,10 @@
 //
 // Created by songjin on 18-6-4.
 //
-
-#include <opencv-3.3.1-dev/opencv2/core/types.hpp>
+#include <opencv2/opencv.hpp>
 #include "competition_tasks/MainController.h"
 #include "detect_track/ControlDetection.h"
+#include "manipulater_controller/ControlManipulater.h"
 MainController::MainController(std::string uav_controller_server_name,
                                std::string object_pose_name,
                                std::string uav_pose_name) :
@@ -26,6 +26,9 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
 
     // uav pose subscribe
     uav_pose_sub = nh_.subscribe(uav_pose_name, 1, &MainController::uav_pose_callback, this);
+
+    // detection_controller_server
+    manipulater_client = nh_.serviceClient<manipulater_controller::ControlManipulater>("manipulater_server");
 }
 void MainController::start_to_goal(double x, double y, double z)
 {
@@ -36,8 +39,15 @@ void MainController::start_to_goal(double x, double y, double z)
 
 void MainController::sendBuzzerSignal(int seconds)
 {
-    //TODO::Buzzer service
-    ROS_INFO("bi bi bi bi bi bi bi bi");
+    manipulater_controller::ControlManipulater srv;
+    srv.request.cmd = 4;
+    if (manipulater_client.call(srv))
+    {
+        ROS_INFO("bi bi bi bi bi bi bi bi.....");
+    } else
+    {
+        ROS_ERROR("bi .. failed");
+    }
 }
 
 void MainController::returnToOrigin()
@@ -202,14 +212,30 @@ void MainController::stopObjectDetection(char detection_type)
 
 void MainController::grabObject()
 {
-    //TODO::grabObject service
-    ROS_INFO("grab object OK!");
+    manipulater_controller::ControlManipulater srv;
+    srv.request.cmd = 2;
+    if (manipulater_client.call(srv))
+    {
+        ROS_INFO("grab object OK!");
+    } else
+    {
+        ROS_INFO("grab object failed!");
+    }
+
 }
 
 void MainController::releaseObject()
 {
-    //TODO::releaseObject service
-    ROS_INFO("release object OK!");
+    manipulater_controller::ControlManipulater srv;
+    srv.request.cmd = 3;
+    if (manipulater_client.call(srv))
+    {
+        ROS_INFO("release object OK!");
+    } else
+    {
+        ROS_INFO("release object failed!");
+    }
+
 }
 
 void MainController::shutDownUav()

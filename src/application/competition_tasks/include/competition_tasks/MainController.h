@@ -92,6 +92,7 @@ private:
     geometry_msgs::PoseStamped goal_pose;
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
+    ros::ServiceClient manipulater_client;
     ros::Subscriber object_pose_sub;
     ros::Subscriber uav_pose_sub;
     geometry_msgs::PoseStamped object_pose;
