@@ -21,7 +21,23 @@ int main(int argc, char ** argv)
         {
             case 4:
                 // TODO::让蜂鸣器响５秒///
-                sleep(5);
+                // sleep(5);
+                ///////////////////////////
+                // 如果成功返回０
+                my_serial.write(0, 0);
+                //　如果失败返回1
+                // my_serial.write(1, 0);
+                break;
+            case 2:
+                // TODO::抓住///
+                ///////////////////////////
+                // 如果成功返回０
+                my_serial.write(0, 0);
+                //　如果失败返回1
+                // my_serial.write(1, 0);
+                break;
+            case 3:
+                // TODO::松开///
                 ///////////////////////////
                 // 如果成功返回０
                 my_serial.write(0, 0);
