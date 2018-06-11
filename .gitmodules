@@ -10,3 +10,6 @@
 [submodule "src/device_driver/usb_cam"]
 	path = src/device_driver/usb_cam
 	url = https://github.com/ros-drivers/usb_cam.git
+[submodule "src/vision_task/find-object"]
+	path = src/vision_task/find-object
+	url = https://github.com/introlab/find-object.git
