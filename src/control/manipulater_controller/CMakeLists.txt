@@ -9,10 +9,8 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
         roscpp
-        sensor_msgs
         std_msgs
         genmsg
-        ros_common
         serial
         )
 
