@@ -9,7 +9,7 @@
 #include <string>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <uav_controller/FlyToGoalAction.h>
+#include "uav_controller/FlyToGoalAction.h"
 
 class MainController
 {

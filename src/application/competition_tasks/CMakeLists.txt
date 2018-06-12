@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib
         ros_common
         detect_track
+        uav_controller
+        manipulater_controller
         )
 
 ## System dependencies are found with CMake's conventions

@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
         )
 
 ## System dependencies are found with CMake's conventions
-#find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV 3 REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -121,6 +121,7 @@ catkin_package(
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
+        ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -156,10 +157,12 @@ add_dependencies(detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 ## Specify libraries to link a library or executable target against
 target_link_libraries(detection
         ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
         )
 
 target_link_libraries(detection_node
         ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
         detection
         )
 
@@ -204,6 +207,7 @@ install(DIRECTORY objects
 add_executable(colorPerson_test test/colorPerson_test.cpp)
 target_link_libraries(colorPerson_test
         ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
         detection
         )
 install(TARGETS colorPerson_test
@@ -213,6 +217,7 @@ install(TARGETS colorPerson_test
 add_executable(blackCircle_test test/blackCircle_test.cpp)
 target_link_libraries(blackCircle_test
         ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES}
         detection
         )
 install(TARGETS blackCircle_test
