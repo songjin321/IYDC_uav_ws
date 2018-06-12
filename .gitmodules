@@ -1,6 +1,3 @@
-[submodule "src/device_driver/mavros"]
-	path = src/device_driver/mavros
-	url = https://github.com/mavlink/mavros.git
 [submodule "src/device_driver/serial"]
 	path = src/device_driver/serial
 	url = https://github.com/wjwwood/serial.git
