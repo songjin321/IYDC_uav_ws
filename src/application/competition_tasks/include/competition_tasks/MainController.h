@@ -14,8 +14,7 @@
 class MainController
 {
 public:
-    MainController(std::string uav_controller_server_name, std::string object_pose_name,
-                       std::string uav_pose_name);
+    MainController(std::string uav_controller_server_name);
 
     /*
      * 起飞飞到目标点
@@ -68,7 +67,7 @@ public:
     void trackObject();
 
     /*
-     * 飞到固定的高度
+     * 飞到固定的高度,要保证不在水平面移动
      */
     void flyFixedHeight(double z);
 
@@ -82,6 +81,8 @@ public:
      */
     void shutDownUav();
 
+    void MainController::ros_message_callback(int callback_rate);
+
     void object_pose_callback(const geometry_msgs::PoseStamped &msg);
 
     void uav_pose_callback(const geometry_msgs::PoseStamped &msg);
@@ -93,8 +94,6 @@ private:
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
     ros::ServiceClient manipulater_client;
-    ros::Subscriber object_pose_sub;
-    ros::Subscriber uav_pose_sub;
     geometry_msgs::PoseStamped object_pose;
     geometry_msgs::PoseStamped uav_pose;
     bool is_objectPose_updated;

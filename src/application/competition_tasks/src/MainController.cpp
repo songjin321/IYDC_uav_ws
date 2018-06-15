@@ -5,9 +5,8 @@
 #include "competition_tasks/MainController.h"
 #include "detect_track/ControlDetection.h"
 #include "manipulater_controller/ControlManipulater.h"
-MainController::MainController(std::string uav_controller_server_name,
-                               std::string object_pose_name,
-                               std::string uav_pose_name) :
+#include <thread>
+MainController::MainController(std::string uav_controller_server_name) :
 ac(uav_controller_server_name, true),is_objectPose_updated(false)
 {
     ROS_INFO("Waiting for uav_controller_server to start.");
@@ -21,18 +20,31 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     // detection_controller_server
     detection_client = nh_.serviceClient<detect_track::ControlDetection>("detection_controller_server");
 
-    // object pose subscribe
-    object_pose_sub = nh_.subscribe(object_pose_name, 1, &MainController::object_pose_callback, this);
-
-    // uav pose subscribe
-    uav_pose_sub = nh_.subscribe(uav_pose_name, 1, &MainController::uav_pose_callback, this);
-
     // detection_controller_server
     manipulater_client = nh_.serviceClient<manipulater_controller::ControlManipulater>("manipulater_server");
+
+    // ros message callback, 60HZ
+    std::thread t_message_callback(&MainController::ros_message_callback, this, 60);
 }
+
+void MainController::ros_message_callback(int callback_rate)
+{
+    // object pose subscribe
+    ros::Subscriber object_pose_sub = nh_.subscribe("/object_pose", 1, &MainController::object_pose_callback, this);
+
+    // uav pose subscribe
+    ros::Subscriber uav_pose_sub = nh_.subscribe("/mavros/local_position/pose", 1, &MainController::uav_pose_callback, this);
+
+    ros::Rate loop_rate(callback_rate);
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+}
+
 void MainController::start_to_goal(double x, double y, double z)
 {
-
     flyFixedHeight(z);
     flyInPlane(x, y);
 }
@@ -246,8 +258,10 @@ void MainController::shutDownUav()
 
 void MainController::flyFixedHeight(double z)
 {
-    //　起飞到一定的高度
+    //　起飞到一定的高度, x和y不变
     goal_pose.pose.position.z = z;
+    goal_pose.pose.position.x = uav_pose.pose.position.x;
+    goal_pose.pose.position.y = uav_pose.pose.position.y;
     goal.goal_pose = goal_pose;
     goal.fly_vel = -1;
     goal.fly_type = "position_line_planner_server";
@@ -261,6 +275,8 @@ void MainController::flyInPlane(double x, double y)
     // 高度和姿态不变,做平面运动
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
+    goal_pose.pose.position.z = uav_pose.pose.position.z;
+
     goal.goal_pose = goal_pose;
     goal.fly_vel = -1;
     goal.fly_type = "position_line_planner_server";
