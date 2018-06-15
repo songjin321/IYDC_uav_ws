@@ -10,3 +10,6 @@
 [submodule "src/vision_task/find-object"]
 	path = src/vision_task/find-object
 	url = https://github.com/introlab/find-object.git
+[submodule "src/device_driver/ros_astra_camera"]
+	path = src/device_driver/ros_astra_camera
+	url = https://github.com/orbbec/ros_astra_camera.git

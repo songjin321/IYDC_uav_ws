@@ -5,6 +5,7 @@
 #include "ros_common/RosMath.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_datatypes.h>
+#include
 
 double RosMath::calDistance(const geometry_msgs::PoseStamped &p1, const geometry_msgs::PoseStamped &p2)
 {
@@ -29,7 +30,7 @@ double RosMath::getYawFromPoseStamp(const geometry_msgs::PoseStamped &p)
 }
 
 void RosMath::getRPYFromPoseStamp(const geometry_msgs::PoseStamped &p,
-                                  double &roll, double &pitch, double yaw)
+                                  double &roll, double &pitch, double &yaw)
 {
     tf::Quaternion q(
             p.pose.orientation.x,

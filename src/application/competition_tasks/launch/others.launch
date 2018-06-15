@@ -2,7 +2,11 @@
     <node name="line_planner_server" pkg="simple_planner" type="line_planner" output="screen"/>
     <node name="position_line_planner_server" pkg="simple_planner" type="position_line_planner" output="screen"/>
     <node name="uav_controller_server_node" pkg="uav_controller" type="uav_controller_server" output="screen"/>
-    <include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
-    <node name="detect_track_node" pkg="detect_track" type="detection_node" output="screen"/>
-    <node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam"/>
+    <include file="$(find map_world_convert)/launch/map_world_convert.launch"/>
+    <include file="$(find mavros)/launch/px4.launch">
+        <arg name="fcu_url" value="/dev/px4:921600" />
+    </include>
+    <!--include file="$(find usb_cam)/launch/usb_cam-test.launch"/-->
+    <!--node name="detect_track_node" pkg="detect_track" type="detection_node" output="screen"/-->
+    <!--node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam"/-->
 </launch>

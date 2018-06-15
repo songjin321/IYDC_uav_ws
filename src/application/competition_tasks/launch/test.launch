@@ -1,0 +1,7 @@
+<launch>
+    <node name="test_node" pkg="competition_tasks" type="test_node" output="screen">
+		<param name="task_x" value="0" type="double"/>
+		<param name="task_y" value="0" type="double"/>
+		<param name="task_z" value="0.5" type="double"/>
+	</node>
+</launch>

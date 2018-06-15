@@ -12,7 +12,7 @@ public:
     static double calDistance(const geometry_msgs::PoseStamped &p1, const geometry_msgs::PoseStamped &p2);
     static double getYawFromPoseStamp(const geometry_msgs::PoseStamped &p);
     static void getRPYFromPoseStamp(const geometry_msgs::PoseStamped &p,
-                                      double &roll, double &pitch, double yaw);
+                                      double &roll, double &pitch, double &yaw);
 };
 
 
