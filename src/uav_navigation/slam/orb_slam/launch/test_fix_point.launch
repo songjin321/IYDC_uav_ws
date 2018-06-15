@@ -1,0 +1,7 @@
+<launch>
+   	<node name="test_fix_point" pkg="orb_slam" type="test_fix_point" output="screen">
+		<param name="set_point_x" value="0" type="double"/>
+                <param name="set_point_y" value="0" type="double"/>
+                <param name="set_point_z" value="0.8" type="double"/>
+	</node>
+</launch>

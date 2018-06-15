@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "uav_controller_server");
-    RosWrapperUAV ros_uav("/vision_pose/pose");
+    RosWrapperUAV ros_uav("/vision_pose_world/pose");
     FlyToGoalActionServer flyToGoalActionServer("uav_controller_server",&ros_uav);
     ros::spin();
 

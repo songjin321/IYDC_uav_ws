@@ -11,7 +11,7 @@ RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name):
 {
     vision_pose_sub_ = n_.subscribe(vision_pose_name, 1, &RosWrapperUAV::vision_pose_callback, this);
     mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",1);
-    mavros_vision_pose_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1);
+    mavros_vision_pose_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/mocap/pose",1);
     uav_local_pose_sub = n_.subscribe("/mavros/local_position/pose",1, &RosWrapperUAV::uav_local_pose_callback, this);
     uav_pose_pub_.pose.orientation.w = 1.0;
 }
@@ -24,13 +24,14 @@ void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &visio
     // vision_pose:相机在建图坐标系
     // uav_pose:无人机在世界坐标系
     geometry_msgs::PoseStamped uav_pose = vision_pose;
+    uav_pose.header.stamp = ros::Time::now();
+    uav_pose.header.frame_id = "world";
 
-
-    // 如果orb定位lost,三个位置分量返回０
-    double vision_x = vision_pose.pose.position.x;
-    double vision_y = vision_pose.pose.position.y;
-    double vision_z = vision_pose.pose.position.z;
-    if(vision_x==0 && vision_y == 0 && vision_z == 0)
+    // 如果orb定位lost,三个位置分量返回const
+    //double vision_x = uav_pose.pose.position.x;
+    //double vision_y = uav_pose.pose.position.y;
+    //double vision_z = uav_pose.pose.position.z;
+    if(RosMath::calDistance(uav_pose_pub_, uav_pose) == 0)
     {
         vision_pose_ok_flag = false;
         ROS_ERROR("vision localization lost!!!");
@@ -39,7 +40,7 @@ void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &visio
 
     // roll和pitch角不会超过45度,M_PI_4
     double roll = 0, pitch = 0, yaw = 0;
-    RosMath::getRPYFromPoseStamp(vision_pose, roll, pitch, yaw);
+    RosMath::getRPYFromPoseStamp(uav_pose, roll, pitch, yaw);
     if(fabs(roll) > M_PI_4 || fabs(pitch) > M_PI_4)
     {
         vision_pose_ok_flag = false;
