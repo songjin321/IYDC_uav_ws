@@ -100,9 +100,9 @@ void MainController::adjustUavPose()
 
 void MainController::adjustUavPosition(double delta_x, double delta_y)
 {
+    ros::Rate rate(30);
     while(!is_objectPose_updated)
     {
-        ros::Rate rate(30);
         ros::spinOnce();
         rate.sleep();
     }
@@ -113,6 +113,7 @@ void MainController::adjustUavPosition(double delta_x, double delta_y)
              object_pose.pose.position.x, -object_pose.pose.position.y);
     goal_pose.pose.position.x = object_pose.pose.position.x + uav_pose.pose.position.x;
     goal_pose.pose.position.y = uav_pose.pose.position.y - object_pose.pose.position.y;
+    goal_pose.pose.position.z = uav_pose.pose.position.z;
 
     goal.goal_pose = goal_pose;
     goal.fly_type = "position_line_planner_server";

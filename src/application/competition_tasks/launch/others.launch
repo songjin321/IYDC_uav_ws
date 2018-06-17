@@ -1,10 +1,15 @@
 <launch>
-    <node name="line_planner_server" pkg="simple_planner" type="line_planner" output="screen"/>
-    <node name="position_line_planner_server" pkg="simple_planner" type="position_line_planner" output="screen"/>
+    <arg name="step_length" default="0.3" />
+    <arg name="fcu_url" default="/dev/px4:921600" />
+
+    <!--node name="line_planner_server" pkg="simple_planner" type="line_planner" output="screen"/-->
+    <include file="$(find simple_planner)/launch/position_line_planner.launch">
+        <arg name="step_length" value="$(arg step_length)" />
+    </include>
     <node name="uav_controller_server_node" pkg="uav_controller" type="uav_controller_server" output="screen"/>
     <include file="$(find map_world_convert)/launch/map_world_convert.launch"/>
     <include file="$(find mavros)/launch/px4.launch">
-        <arg name="fcu_url" value="/dev/px4:921600" />
+        <arg name="fcu_url" value="$(arg fcu_url)" />
     </include>
     <!--include file="$(find usb_cam)/launch/usb_cam-test.launch"/-->
     <!--node name="detect_track_node" pkg="detect_track" type="detection_node" output="screen"/-->

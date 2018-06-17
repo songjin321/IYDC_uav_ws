@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "task4");
     ros::NodeHandle n;
-    MainController main_controller("uav_controller_server", "object_pose", "/mavros/vision_pose/pose");
+    MainController main_controller("uav_controller_server");
 
     // 起飞飞到药品包的位置
     double task4_medical_x, task4_medical_y, task4_medical_z;

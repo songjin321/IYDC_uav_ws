@@ -81,7 +81,7 @@ public:
      */
     void shutDownUav();
 
-    void MainController::ros_message_callback(int callback_rate);
+    void ros_message_callback(int callback_rate);
 
     void object_pose_callback(const geometry_msgs::PoseStamped &msg);
 

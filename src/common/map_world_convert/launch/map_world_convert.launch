@@ -1,6 +1,0 @@
-<launch>
-   	<node name="map_world_convert" pkg="map_world_convert" type="map_world_convert" output="screen">
-		<param name="vision_pose_map_name" value="/vision_pose_map/pose" type="string"/>
-		<param name="vision_pose_map_name" value="/vision_pose_world/pose" type="string"/>
-	</node>
-</launch>
