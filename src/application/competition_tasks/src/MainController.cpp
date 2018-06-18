@@ -24,7 +24,14 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     manipulater_client = nh_.serviceClient<manipulater_controller::ControlManipulater>("manipulater_server");
 
     // ros message callback, 60HZ
-    std::thread t_message_callback(&MainController::ros_message_callback, this, 60);
+    t_message_callback = std::thread(&MainController::ros_message_callback, this, 60);
+    
+    // control uav thread
+    t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 2);
+
+    // detection camera config
+    camera_2_uav_x = 0.08;
+    camera_2_uav_y = 0.05;
 }
 
 void MainController::ros_message_callback(int callback_rate)
@@ -43,12 +50,28 @@ void MainController::ros_message_callback(int callback_rate)
     }
 }
 
+void MainController::uav_control_loop(int loop_rate)
+{
+    ros::Rate rate(loop_rate);
+    while (ros::ok())
+    {
+        goal.goal_pose = goal_pose;
+        goal.fly_vel = -1;
+        goal.fly_type = "position_line_planner_server";
+        ac.sendGoal(goal);
+        ac.waitForResult();
+        ROS_INFO("arrive at goal  point, x = %.3f, y = %.3f, z = %.3f", 
+                 goal_pose.pose.position.x, goal_pose.pose.position.y,
+                 goal_pose.pose.position.z);
+        rate.sleep();
+    }
+}
+
 void MainController::start_to_goal(double x, double y, double z)
 {
     flyFixedHeight(z);
     flyInPlane(x, y);
 }
-
 void MainController::sendBuzzerSignal(int seconds)
 {
     manipulater_controller::ControlManipulater srv;
@@ -100,26 +123,26 @@ void MainController::adjustUavPose()
 
 void MainController::adjustUavPosition(double delta_x, double delta_y)
 {
-    ros::Rate rate(30);
+    // wait for object detection begin, let uav hover
     while(!is_objectPose_updated)
     {
+        ros::Rate rate(30);
         ros::spinOnce();
         rate.sleep();
     }
-    //　仅仅只使用第一次检测到的目标物的位置
-    // 飞到需要调整的位置,假定相机安装在正下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
-    is_objectPose_updated = false;
-    ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
-             object_pose.pose.position.x, -object_pose.pose.position.y);
-    goal_pose.pose.position.x = object_pose.pose.position.x + uav_pose.pose.position.x;
-    goal_pose.pose.position.y = uav_pose.pose.position.y - object_pose.pose.position.y;
-    goal_pose.pose.position.z = uav_pose.pose.position.z;
+    // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
 
-    goal.goal_pose = goal_pose;
-    goal.fly_type = "position_line_planner_server";
-    goal.fly_vel = -1;
-    ac.sendGoal(goal);
-    ac.waitForResult();
+    while(is_objectPose_updated && object_uav_dis > 0.05)
+    {
+        is_objectPose_updated = false;    
+        ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
+	          object_2_uav_x, object_2_uav_y);
+
+        //　assum the yaw of uav is zero
+        goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
+        goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
+        goal_pose.pose.position.z = uav_pose.pose.position.z;
+    }
     ROS_INFO("adjustUavPosition OK");
 }
 
@@ -186,6 +209,9 @@ void MainController::trackObject()
 void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg)
 {
     object_pose = msg;
+    object_2_uav_x = -object_pose.pose.position.x + camera_2_uav_x;
+    object_2_uav_y = object_pose.pose.position.y + camera_2_uav_y;
+    object_uav_dis = object_2_uav_x * object_2_uav_x + object_2_uav_y * object_2_uav_y;
     is_objectPose_updated = true;
 }
 void MainController::uav_pose_callback(const geometry_msgs::PoseStamped &msg)
@@ -263,12 +289,6 @@ void MainController::flyFixedHeight(double z)
     goal_pose.pose.position.z = z;
     goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal_pose.pose.position.y = uav_pose.pose.position.y;
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("arrive at height of %.3f meters", z);
 }
 
 void MainController::flyInPlane(double x, double y)
@@ -277,13 +297,4 @@ void MainController::flyInPlane(double x, double y)
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
     goal_pose.pose.position.z = uav_pose.pose.position.z;
-
-    goal.goal_pose = goal_pose;
-    goal.fly_vel = -1;
-    goal.fly_type = "position_line_planner_server";
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("arrive at goal point, x = %.3f, y = %.3f", x, y);
 }
-
-

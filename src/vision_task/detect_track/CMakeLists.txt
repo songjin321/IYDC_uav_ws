@@ -142,7 +142,7 @@ add_dependencies(detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(detection_node src/detection_node.cpp)
+add_executable(detect_track_node src/detect_track_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,7 +152,7 @@ add_executable(detection_node src/detection_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(detect_track_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(detection
@@ -160,7 +160,7 @@ target_link_libraries(detection
         ${OpenCV_LIBRARIES}
         )
 
-target_link_libraries(detection_node
+target_link_libraries(detect_track_node
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         detection
@@ -182,7 +182,7 @@ target_link_libraries(detection_node
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS detection detection_node
+install(TARGETS detection detect_track_node
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

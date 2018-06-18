@@ -10,6 +10,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include "uav_controller/FlyToGoalAction.h"
+#include <thread>
 
 class MainController
 {
@@ -82,6 +83,8 @@ public:
     void shutDownUav();
 
     void ros_message_callback(int callback_rate);
+    
+    void uav_control_loop(int loop_rate);
 
     void object_pose_callback(const geometry_msgs::PoseStamped &msg);
 
@@ -96,7 +99,15 @@ private:
     ros::ServiceClient manipulater_client;
     geometry_msgs::PoseStamped object_pose;
     geometry_msgs::PoseStamped uav_pose;
+    std::thread t_message_callback;
+    std::thread t_uav_control_loop;
     bool is_objectPose_updated;
+
+    double camera_2_uav_x = 0;
+    double camera_2_uav_y = 0;
+    double object_2_uav_x;
+    double object_2_uav_y;
+    double object_uav_dis;
 };
 
 

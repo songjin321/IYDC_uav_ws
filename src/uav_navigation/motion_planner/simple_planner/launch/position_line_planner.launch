@@ -1,6 +1,6 @@
 <launch>
     <arg name="step_length" default="0.1"/>
-    <node name="position_line_planner_server" pkg="simple_planner" type="position_line_planner" output="screen">
+    <node name="position_line_planner" pkg="simple_planner" type="position_line_planner" output="screen">
     	  <param name="step_length" value="$(arg step_length)"/> 
     </node>
 </launch>

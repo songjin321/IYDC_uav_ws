@@ -24,9 +24,9 @@ private:
     ros::NodeHandle n_;
     ros::Subscriber vision_pose_sub_;
     ros::Subscriber uav_local_pose_sub;
-    ros::Publisher mavros_set_point_pub_;
+    ros::Publisher mavros_position_pub_;
     ros::Publisher mavros_vision_pose_pub_;
-
+    ros::Publisher mavros_attitute_pub_;
     /*
      * 时刻发布出去的视觉估计的姿态
      */

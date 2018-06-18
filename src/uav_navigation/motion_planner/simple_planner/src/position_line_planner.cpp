@@ -14,19 +14,20 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
 
     // Guaranteed posture is unchanged
     geometry_msgs::PoseStamped planned_pose = req.start;
-    req.goal.pose.orientation = req.start.pose.orientation;
+    planned_pose.header.frame_id = "local";
 
     double steps = path_length/step_length;
     for (int i = 0; i < steps; i++)
     {
         //　规划的点的时间怎么确定
-        planned_pose.header = req.start.header;
         planned_pose.pose.position.x = req.start.pose.position.x + i*dx/steps;
         planned_pose.pose.position.y = req.start.pose.position.y + i*dy/steps;
         planned_pose.pose.position.z = req.start.pose.position.z + i*dz/steps;
         res.plan.poses.push_back(planned_pose);
     }
-    res.plan.poses.push_back(req.goal);
+    planned_pose.pose.position = req.goal.pose.position;
+    planned_pose.pose.orientation = req.start.pose.orientation;
+    res.plan.poses.push_back(planned_pose);
     return true;
 }
 
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     n.getParam("/position_line_planner/step_length", step_length);
-
+    std::cout << "position_line_planner step length = " << step_length << std::endl;
     ros::ServiceServer service = n.advertiseService("position_line_planner_server", calLinePath);
     ROS_INFO("Ready to calculate position_line path.");
     ros::spin();

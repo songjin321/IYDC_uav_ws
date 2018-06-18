@@ -15,13 +15,13 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
     cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
     cv::Mat bw;
     inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
-    imshow("Specific Colour", bw);
+    //imshow("Specific Colour", bw);
     std::vector< std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
 
     // sort by size in contours
-    std::cout << "find contours number = " << contours.size() << std::endl;
+    // std::cout << "find contours number = " << contours.size() << std::endl;
     std::stable_sort(contours.begin(), contours.end(), isSmaller);
     // 目标物体应当在背景的包围之中，此时才返回ｔｒｕｅ
     if(contours.empty())
@@ -31,17 +31,13 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
     if(contours.size() == 1)
     {
         roi = cv::minAreaRect(*(contours.end()-1));
-        return false;
+        return true;
     }
-    if(contours.size() == 2)
+    if(contours.size() > 1)
     {
         roi = cv::minAreaRect(*(contours.end()-2));
-        return false;
+        return true;
     }
-
-    //
-    roi = cv::minAreaRect(*(contours.end()-2));
-    return true;
 }
 
 bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)

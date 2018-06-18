@@ -10,7 +10,8 @@ RosWrapperUAV::RosWrapperUAV(std::string vision_pose_name):
         vision_pose_ok_flag(true)
 {
     vision_pose_sub_ = n_.subscribe(vision_pose_name, 1, &RosWrapperUAV::vision_pose_callback, this);
-    mavros_set_point_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",1);
+    mavros_position_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local",1);
+    mavros_attitute_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_attitude/local",1);
     mavros_vision_pose_pub_ = n_.advertise<geometry_msgs::PoseStamped>("/mavros/mocap/pose",1);
     uav_local_pose_sub = n_.subscribe("/mavros/local_position/pose",1, &RosWrapperUAV::uav_local_pose_callback, this);
     uav_pose_pub_.pose.orientation.w = 1.0;
@@ -74,12 +75,15 @@ void RosWrapperUAV::fly_to_goal(const geometry_msgs::PoseStamped &goal_pose, dou
 {
     if(!vision_pose_ok_flag)
     {
-        ROS_ERROR("vision pose information is not available, can't control uav");
+        ROS_ERROR("vision pose is not available, try to let uav being balance");
+        geometry_msgs::PoseStamped balance_pose; 
+	balance_pose.pose.orientation.w = 1.0;
+	mavros_attitute_pub_.publish(balance_pose);
         return;
     }
     if (fly_vel <= 0)
     {
-        mavros_set_point_pub_.publish(goal_pose);
+        mavros_position_pub_.publish(goal_pose);
     } else {
         // mavros fly using velocity control
     }

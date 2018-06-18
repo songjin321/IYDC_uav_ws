@@ -1,6 +1,6 @@
 与设备的底层交互
 ================
-## 相机和imu的驱动
+## 相机和imu的驱动 remenber copy camera_info.yaml to .ros/camera_info
 
 ## 无人机的驱动
 

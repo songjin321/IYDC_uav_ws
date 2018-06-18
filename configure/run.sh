@@ -7,7 +7,7 @@ rgbd()
 orb_slam()
 {
     cd ~/Project/ORB_SLAM2
-    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml true
+    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false
 }
 orb_localization()
 {
@@ -24,6 +24,12 @@ orb_test()
     orb_localization
 }
 uav_test()
+{
+    gnome-terminal -e 'roslaunch competition_tasks others.launch'
+    gnome-terminal -e 'roslaunch competition_tasks   test.launch'
+    orb_slam
+}
+topic_show()
 {
     gnome-terminal -e 'rostopic echo /mavros/setpoint_position/local'
     gnome-terminal -e 'rostopic echo /mavros/local_position/pose'

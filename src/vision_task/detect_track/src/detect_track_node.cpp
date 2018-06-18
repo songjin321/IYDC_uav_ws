@@ -48,9 +48,9 @@ int main(int argc, char** argv)
     cv::Rect2d box;
     cv::RotatedRect r_box;
     cv::Point2f black_center;
+    ros::Rate rate(30);
     while(ros::ok())
     {
-        ros::Rate rate(30);
         ros::spinOnce();
         if (imageToMat.getNewImage(frame))
         {
@@ -81,10 +81,10 @@ int main(int argc, char** argv)
             if(detection_controller.is_detect_BackgroundObject_)
             {
                 if(color_detector.detectBackgroundObject(frame, r_box,
-                                                      cv::Scalar(40,50,50),
+                                                      cv::Scalar(40,0,0),
                                                       cv::Scalar(80,255,255)))
                 {
-                    // ROS_INFO("detected colorPerson!!!");
+                    ROS_INFO("detected backgroundObject!!!");
                     object_pose.calculatePoseFromRotatedBox(r_box);
                     object_pose.publishPose();
                     cv::Point2f vertices[4];
@@ -135,8 +135,8 @@ int main(int argc, char** argv)
                     cv::circle( frame, black_center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
                 }
             }
-            cv::imshow("detection_result", frame);
-            cv::waitKey(3);
+            //cv::imshow("detection_result", frame);
+            //cv::waitKey(3);
         }
         rate.sleep();
     }

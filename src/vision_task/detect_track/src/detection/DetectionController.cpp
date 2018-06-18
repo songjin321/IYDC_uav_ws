@@ -4,8 +4,9 @@
 
 #include "detection/DetectionController.h"
 DetectionController::DetectionController(DetectionAndTrackingLoop *car_dAt):
-        is_detect_car_(false),is_detect_medicalBag_(false),
-        is_detect_BackgroundObject_(false), car_dAt_(car_dAt), is_detect_yellowPerson_(false)
+        is_detect_car_(false),is_detect_medicalBag_(false),is_detect_blackCircle_(false),
+        is_detect_BackgroundObject_(false), car_dAt_(car_dAt), is_detect_yellowPerson_(false),
+	is_detect_redPerson_(false)
 {
 
 }
@@ -31,7 +32,7 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
             break;
         case 2:
             is_detect_BackgroundObject_ = req.Start;
-            ROS_INFO("Background bject detection state: %d", req.Start);
+            ROS_INFO("Background object detection state: %d", req.Start);
             break;
         case 3:
             is_detect_redPerson_ = req.Start;
