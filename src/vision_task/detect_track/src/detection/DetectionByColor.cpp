@@ -3,34 +3,42 @@
 //
 #include "detection/DetectionByColor.h"
 #include <opencv2/opencv.hpp>
-DetectionByColor::DetectionByColor(uchar low_hue, uchar high_hue):
-low_hue_(low_hue), high_hue_(high_hue)
-{
-}
-
 bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s2)
 {
     return s1.size() < s2.size();
 }
 
-bool DetectionByColor::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
+bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
+                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
 {
     cv::Mat hsvImg;
     cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
-    cv::Scalar hsv_l(low_hue_,50,50);
-    cv::Scalar hsv_h(high_hue_,255,255);
     cv::Mat bw;
-    inRange(hsvImg, hsv_l, hsv_h, bw);
+    inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
     imshow("Specific Colour", bw);
     std::vector< std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
 
     // sort by size in contours
-    // std::cout << "find contours number = " << contours.size() << std::endl;
-    if(contours.size() < 2)
-        return false;
+    std::cout << "find contours number = " << contours.size() << std::endl;
     std::stable_sort(contours.begin(), contours.end(), isSmaller);
+    // 目标物体应当在背景的包围之中，此时才返回ｔｒｕｅ
+    if(contours.empty())
+    {
+        return false;
+    }
+    if(contours.size() == 1)
+    {
+        roi = cv::minAreaRect(*(contours.end()-1));
+        return false;
+    }
+    if(contours.size() == 2)
+    {
+        roi = cv::minAreaRect(*(contours.end()-2));
+        return false;
+    }
+
     //
     roi = cv::minAreaRect(*(contours.end()-2));
     return true;
@@ -39,7 +47,7 @@ bool DetectionByColor::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
 bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)
 {
     cv::RotatedRect r_box;
-    detect(sceneImg, r_box);
+    detectBackgroundObject(sceneImg, r_box, cv::Scalar(), cv::Scalar());
     cv::Mat imCrop = sceneImg(r_box.boundingRect());
     cv::Mat src_gray;
     /// Convert it to gray
@@ -70,13 +78,15 @@ bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)
     return true;
 }
 
-bool DetectionByColor::detectRedPerson(cv::Mat &sceneImg, cv::RotatedRect &roi)
+bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
+                                        cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
+                                        cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
 {
     cv::Mat hsvImg;
     cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
     cv::Mat mask1, mask2;
-    inRange(hsvImg, cv::Scalar(0, 50, 50), cv::Scalar(10, 255, 255), mask1);
-    inRange(hsvImg, cv::Scalar(170, 50, 50), cv::Scalar(180, 255, 255), mask2);
+    inRange(hsvImg, hsv_object_l1, hsv_object_h1, mask1);
+    inRange(hsvImg, hsv_object_l2, hsv_object_h2, mask2);
     cv::Mat bw = mask1 | mask2;
 
     std::vector< std::vector<cv::Point> > contours;

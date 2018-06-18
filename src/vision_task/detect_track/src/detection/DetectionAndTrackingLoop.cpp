@@ -40,7 +40,7 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
         if(!tracker->update(frame, box))
         {
             state = detection;
-            std::cout << "track lost, begin detect" << std::endl;
+            std::cout << "track lost, begin detect Object" << std::endl;
 
         } else{
             // std::cout << "tracking......" << std::endl;

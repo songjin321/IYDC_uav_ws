@@ -35,11 +35,12 @@ int main(int argc, char** argv)
     DetectionByFeature car_detector;
 
     // green is 1, others is 0
-    DetectionByColor colorPerson(40, 80);
+    DetectionByColor color_detector;
     DetectionAndTrackingLoop car_dAt(&car_detector);
 
     // detection controller, server
     DetectionController detection_controller(&car_dAt);
+
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
                                                      &DetectionController::controlDetectionCallback,
                                                      &detection_controller);
@@ -77,9 +78,11 @@ int main(int argc, char** argv)
                         line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
                 }
             }
-            if(detection_controller.is_detect_colorPerson_)
+            if(detection_controller.is_detect_BackgroundObject_)
             {
-                if(colorPerson.detect(frame, r_box))
+                if(color_detector.detectBackgroundObject(frame, r_box,
+                                                      cv::Scalar(40,50,50),
+                                                      cv::Scalar(80,255,255)))
                 {
                     // ROS_INFO("detected colorPerson!!!");
                     object_pose.calculatePoseFromRotatedBox(r_box);
@@ -92,7 +95,26 @@ int main(int argc, char** argv)
             }
             if(detection_controller.is_detect_redPerson_)
             {
-                if(colorPerson.detectRedPerson(frame, r_box))
+                if(color_detector.detectPureObject(frame, r_box,
+                                                cv::Scalar(0, 50, 50),
+                                                cv::Scalar(10, 255, 255),
+                                                cv::Scalar(170, 50, 50),
+                                                cv::Scalar(180, 255, 255)))
+                {
+                    // ROS_INFO("detected colorPerson!!!");
+                    object_pose.calculatePoseFromRotatedBox(r_box);
+                    object_pose.publishPose();
+                    cv::Point2f vertices[4];
+                    r_box.points(vertices);
+                    for (int i = 0; i < 4; i++)
+                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
+                }
+            }
+            if(detection_controller.is_detect_yellowPerson_)
+            {
+                if(color_detector.detectPureObject(frame, r_box,
+                                                cv::Scalar(0, 50, 50),
+                                                cv::Scalar(10, 255, 255)))
                 {
                     // ROS_INFO("detected colorPerson!!!");
                     object_pose.calculatePoseFromRotatedBox(r_box);
@@ -105,7 +127,7 @@ int main(int argc, char** argv)
             }
             if(detection_controller.is_detect_blackCircle_)
             {
-                if(colorPerson.detectBlackCircle(frame, black_center))
+                if(color_detector.detectBlackCircle(frame, black_center))
                 {
                     // ROS_INFO("detected colorPerson!!!");
                     object_pose.calculatePoseFromPoint(black_center);

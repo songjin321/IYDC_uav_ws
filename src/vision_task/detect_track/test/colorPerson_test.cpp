@@ -12,7 +12,7 @@ bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s
 int main(int argc, char **argv)
 {
     // green is 1, others is 0
-    DetectionByColor colorPerson(40, 80);
+    //DetectionByColor colorPerson(40, 80);
     cv::Mat srcImage = cv::imread("/home/songjin/Project/uav_ws/exp_data/red_color_person.png");
     cv::RotatedRect r_box;
     cv::Mat hsvImg;
