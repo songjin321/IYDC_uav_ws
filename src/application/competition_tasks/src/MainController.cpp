@@ -62,10 +62,6 @@ void MainController::uav_control_loop(int loop_rate)
         goal.fly_vel = -1;
         goal.fly_type = "position_line_planner_server";
         ac.sendGoal(goal);
-        //ac.waitForResult();
-        ROS_INFO("arrive at goal  point, x = %.3f, y = %.3f, z = %.3f", 
-                 goal_pose.pose.position.x, goal_pose.pose.position.y,
-                 goal_pose.pose.position.z);
         rate.sleep();
     }
 }

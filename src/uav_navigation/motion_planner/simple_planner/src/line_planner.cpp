@@ -20,7 +20,7 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
     res.plan.header = req.start.header;
     geometry_msgs::PoseStamped planned_pose;
     double steps = path_length/step_length;
-    for (int i = 0; i < steps; i++)
+    for (int i = 1; i < steps; i++)
     {
         // Create this quaternion from roll/pitch/yaw (in radians)
         double yaw = yaw_start + i*dyaw/steps;
