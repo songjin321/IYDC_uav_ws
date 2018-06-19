@@ -102,7 +102,8 @@ int main(int argc, char** argv)
                     // 一个轮廓都没有检测到,无法计算目标物的位置
                     // 最大的轮廓不为空,确定目标物在最大轮廓的那个方向
                     // 如果视野中全是背景色,无法确定目标物的位置
-                    if(r_box_1.size != 0 && abs(r_box_1.size - (frame.rows + frame.cols)*2) > 200)
+
+                    if(r_box_1.size.area() != 0 && abs(r_box_1.size.area() - (frame.rows + frame.cols)*2) > 200)
                     {
                         ROS_INFO("detected background!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box_1);

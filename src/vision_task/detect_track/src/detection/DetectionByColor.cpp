@@ -3,47 +3,118 @@
 //
 #include "detection/DetectionByColor.h"
 #include <opencv2/opencv.hpp>
+using namespace cv;
 bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s2)
 {
     return s1.size() < s2.size();
 }
 
-bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
-                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
-{
+bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2,
+                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h) {
+    // 将RGB转化为HSV
     cv::Mat hsvImg;
     cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
+
+
+    // HSV 阈值分割
     cv::Mat bw;
     inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
-    //imshow("Specific Colour", bw);
-    std::vector< std::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
 
-    // sort by size in contours
-    // std::cout << "find contours number = " << contours.size() << std::endl;
-    std::stable_sort(contours.begin(), contours.end(), isSmaller);
-    // 目标物体应当在背景的包围之中，此时才返回ｔｒｕｅ
-    if(contours.empty())
+    // 进行腐蚀消除一部分噪点
+    cv::Mat erodeImg;
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::erode(bw, erodeImg, element);
+
+
+    // 进行膨胀变回原来的形状
+    cv::Mat dilateImg;
+    cv::erode(erodeImg, dilateImg, element);
+
+
+    // 查找轮廓
+    std::vector <std::vector<cv::Point>> contours;
+    std::vector <cv::Vec4i> hierarchy;
+    cv::findContours(dilateImg, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
+
+    // 查找轮廓当中最大的填充面积
+    double largest_area_1 = -1;
+    int largest_contour_index_1 = -1;
+    double largest_area_2 = -1;
+    int largest_contour_index_2 = -1;
+
+    for (size_t i = 0; i < contours.size(); i++)  // 遍历每个轮廓
     {
+        double area = cv::contourArea(contours[i]);  // 计算每个轮廓的面积
+
+        if (area > largest_area_1) {
+            largest_area_1 = area;
+            largest_contour_index_1 = i;               // 储存最大轮廓的数字
+            largest_area_2 = largest_area_1;
+            largest_contour_index_2 = largest_contour_index_1;
+        }else if(area > largest_area_2){
+            largest_area_2 = area;
+            largest_contour_index_2 = i;
+        }
+    }
+    // 如果最大区域面积小于4000，证明视野范围之内没有板子
+    if (largest_area_1 < 4000) {
         return false;
-    }
-    if(contours.size() == 1)
-    {
-        roi = cv::minAreaRect(*(contours.end()-1));
-        return true;
-    }
-    if(contours.size() > 1)
-    {
-        roi = cv::minAreaRect(*(contours.end()-2));
-        return true;
+    }// 如果最大区域面积大于4000，证明视野进入绿色板子以内
+    else {
+        //最大面积的最小外接矩形
+        roi_1 = cv::minAreaRect(contours[largest_contour_index_1]);
+
+        // 只有一个轮廓时不对第二个轮廓赋值
+        if(contours.size() == 1)
+            return false;
+
+        //第二大面积的最小外接矩形
+        roi_2 = cv::minAreaRect(contours[largest_contour_index_2]);
+
+        //求中心像素的 3x3 mask 的 HSV 平均值
+        cv::Point2f center = roi_2.center;
+
+        int h_avg;
+        int s_avg;
+        int v_avg;
+
+        h_avg = (int) ((hsvImg.at<Vec3b>(center.y - 1, center.x - 1)[0] + hsvImg.at<Vec3b>(center.y, center.x - 1)[0] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x - 1)[0]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x)[0] + hsvImg.at<Vec3b>(center.y, center.x)[0] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x)[0]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x + 1)[0] +
+                        hsvImg.at<Vec3b>(center.y, center.x + 1)[0] + hsvImg.at<Vec3b>(center.y + 1, center.x + 1)[0]) /
+                       9);
+
+        s_avg = (int) ((hsvImg.at<Vec3b>(center.y - 1, center.x - 1)[1] + hsvImg.at<Vec3b>(center.y, center.x - 1)[1] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x - 1)[1]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x)[1] + hsvImg.at<Vec3b>(center.y, center.x)[1] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x)[1]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x + 1)[1] +
+                        hsvImg.at<Vec3b>(center.y, center.x + 1)[1] + hsvImg.at<Vec3b>(center.y + 1, center.x + 1)[1]) /
+                       9);
+
+        v_avg = (int) ((hsvImg.at<Vec3b>(center.y - 1, center.x - 1)[2] + hsvImg.at<Vec3b>(center.y, center.x - 1)[2] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x - 1)[2]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x)[2] + hsvImg.at<Vec3b>(center.y, center.x)[2] +
+                        hsvImg.at<Vec3b>(center.y + 1, center.x)[2]
+                        + hsvImg.at<Vec3b>(center.y - 1, center.x + 1)[2] +
+                        hsvImg.at<Vec3b>(center.y, center.x + 1)[2] + hsvImg.at<Vec3b>(center.y + 1, center.x + 1)[2]) /
+                       9);
+
+        // 判断 h_avg 范围是否在 [95,130] 之间
+        if (h_avg > 95 && h_avg < 130) {
+            return true;  //中心是蓝色
+        } else {
+            return false; //中心不是蓝色
+        }
     }
 }
 
 bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)
 {
-    cv::RotatedRect r_box;
-    detectBackgroundObject(sceneImg, r_box, cv::Scalar(), cv::Scalar());
+    cv::RotatedRect r_box, r_box2;
+    detectBackgroundObject(sceneImg, r_box, r_box2, cv::Scalar(40,0,0), cv::Scalar(80,255,255));
     cv::Mat imCrop = sceneImg(r_box.boundingRect());
     cv::Mat src_gray;
     /// Convert it to gray

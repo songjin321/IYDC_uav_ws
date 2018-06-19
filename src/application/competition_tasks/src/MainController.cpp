@@ -184,62 +184,27 @@ bool MainController::uav_hover(double x, double y, double radiu)
 }
 void MainController::trackObject()
 {
-    // wait for object detection result
-    while(!is_objectPose_updated)
-    {
-        ros::Rate rate(30);
-        ros::spinOnce();
-        rate.sleep();
-    }
-
-    // 当飞机接近原点时跟踪停止
     // 如果没有追踪上就往原点飞
-    // 让飞机飞到原点可以被抢占
+    // 让飞机飞到原点即可停止
     double distance2origin = 10000000;
+    ros::Rate rate(10);
     while(distance2origin > 0.5) {
         // 0.2s 控制飞机运动一次
-        ros::Rate rate(5);
         if(is_objectPose_updated)
         {
-            cv::Point2f object_2d_position(static_cast<float>(object_pose.pose.position.x),
-                                           static_cast<float>(object_pose.pose.position.y));
-            /*
-            std::deque<cv::Point2f> object_path;
-            object_path.push_back(object_2d_position);
-            object_path.pop_front();
-            */
-
-            // 飞到目标物的位置
-            goal_pose.pose.position.x = uav_pose.pose.position.x + object_2d_position.x;
-            goal_pose.pose.position.y = uav_pose.pose.position.y - object_2d_position.y;
-
-            // 可以尝试控制速度加快飞机的运动, 可以被抢占,时刻改变飞行目标
-            goal.goal_pose = goal_pose;
-            goal.fly_type = "position_line_planner_server";
-            goal.fly_vel = -1;
-            ac.sendGoal(goal);
-            ROS_INFO("try to fly to one object position, x = %.3f, y =%.3f",
-                     goal_pose.pose.position.x,goal_pose.pose.position.y);
-            // ac.waitForResult();
+            // 飞到目标物的位置　可以尝试控制速度加快飞机的运动, 可以被抢占,时刻改变飞行目标
+            goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
+            goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
             is_objectPose_updated = false;
         } else
         {
             //　返回到原点上方
             goal_pose.pose.position.x = 0;
             goal_pose.pose.position.y = 0;
-            goal.goal_pose = goal_pose;
-            goal.fly_vel = -1;
-            goal.fly_type = "position_line_planner_server";
-            ac.sendGoal(goal);
-            // ac.waitForResult();
-            ROS_INFO("track lost, return to origin");
         }
-        distance2origin = uav_pose.pose.position.x * uav_pose.pose.position.x +
-                          uav_pose.pose.position.y * uav_pose.pose.position.y;
-        ros::spinOnce();
+        distance2origin = RosMath::calDistance(uav_pose.pose.position.x, uav_pose.pose.position.y, 0, 0);
         rate.sleep();
     }
-
 }
 
 void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg)

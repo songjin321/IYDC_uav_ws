@@ -12,8 +12,8 @@ class DetectionByColor
 public:
     //　返回一个大轮廓和一个小轮廓
     //　检测到目标物体返回true,否则返回false
-    bool detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi, cv::Scalar hsv_background_l,
-                                    cv::Scalar hsv_background_h);
+    bool detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2,
+                                cv::Scalar hsv_background_l, cv::Scalar hsv_background_h);
     bool detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                           cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
                           cv::Scalar hsv_object_l2 = cv::Scalar(0, 50, 50),
