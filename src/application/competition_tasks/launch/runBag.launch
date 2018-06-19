@@ -1,5 +1,5 @@
 <launch>
-    <arg name="step_length" default="0.3" />
+    <arg name="step_length" default="0.5" />
 
     <include file="$(find simple_planner)/launch/position_line_planner.launch">
         <arg name="step_length" value="$(arg step_length)" />

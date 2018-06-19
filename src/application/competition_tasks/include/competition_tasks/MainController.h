@@ -104,8 +104,9 @@ private:
     std::thread t_uav_control_loop;
     bool is_objectPose_updated;
 
-    double camera_2_uav_x = 0;
-    double camera_2_uav_y = 0;
+    double camera_2_uav_x;
+    double camera_2_uav_y;
+    double hover_radius;
     double object_2_uav_x;
     double object_2_uav_y;
     double object_uav_dis;

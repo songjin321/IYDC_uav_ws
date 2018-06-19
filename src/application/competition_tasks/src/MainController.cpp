@@ -35,6 +35,9 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     // detection camera config
     camera_2_uav_x = 0.08;
     camera_2_uav_y = 0.05;
+
+    // hover init radius, metric:m
+    hover_radius = 0.5;
 }
 
 void MainController::ros_message_callback(int callback_rate)
@@ -139,7 +142,12 @@ void MainController::adjustUavPosition(double delta_x, double delta_y)
         }
         // wait for object detection begin, let uav hover
         else{
-            uav_hover(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.5);
+            while(!uav_hover(uav_pose.pose.position.x, uav_pose.pose.position.y, hover_radius))
+            {
+                ROS_INFO("can not find object after hover radiu: %.3f, try to add search radius", hover_radius);
+                hover_radius*=2;
+            }
+
         }
         rate.sleep();
     }
@@ -160,6 +168,7 @@ bool MainController::wait_task_over()
         }
         rate.sleep();
     }
+    ROS_INFO("task over normally");
     return true;
 }
 bool MainController::uav_hover(double x, double y, double radiu)
@@ -288,10 +297,11 @@ void MainController::flyFixedHeight(double z)
     goal_pose.pose.position.y = uav_pose.pose.position.y;
 
     ros::Rate rate(30);
-    while (fabs(z - uav_pose.pose.position.x) > 0.1)
+    while (fabs(z - uav_pose.pose.position.z) > 0.1)
     {
         rate.sleep();
     }
+    ROS_INFO("arrive at height of %.3f meters", z);
 }
 
 void MainController::flyInPlane(double x, double y)
@@ -306,4 +316,5 @@ void MainController::flyInPlane(double x, double y)
     {
         rate.sleep();
     }
+    ROS_INFO("arrive at plane point, x = %.3f, y = %.3f", x, y);
 }
