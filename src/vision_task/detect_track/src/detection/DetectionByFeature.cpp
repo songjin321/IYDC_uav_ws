@@ -36,6 +36,9 @@ bool DetectionByFeature::detect(cv::Mat &sceneImg, cv::RotatedRect &roi)
     //std::cout <<"roi size = " << roi.size << std::endl;
     //std::cout <<"roi center = " << roi.center << std::endl;
     //std::cout <<"roi angle = " << roi.angle << std::endl;
+    // 如果ｒｏｉ不满足某些条件就认为发生检测不合格
+    // 1 边长比不能大于２
+    // 2
     return true;
 }
 
