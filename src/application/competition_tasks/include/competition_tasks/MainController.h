@@ -77,6 +77,7 @@ public:
      */
     void flyInPlane(double x, double y);
 
+    bool uav_hover(double x, double y, double radiu);
     /*
      * 关闭飞机
      */
@@ -108,6 +109,8 @@ private:
     double object_2_uav_x;
     double object_2_uav_y;
     double object_uav_dis;
+
+    bool wait_task_over();
 };
 
 

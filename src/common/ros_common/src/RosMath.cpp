@@ -13,7 +13,13 @@ double RosMath::calDistance(const geometry_msgs::PoseStamped &p1, const geometry
     double dz = p1.pose.position.z - p2.pose.position.z;
     return sqrt(dx*dx + dy*dy + dz*dz);
 }
-
+double RosMath::calDistance(double x1, double y1, double x2, double y2, double z1, double z2)
+{
+    double dx = x1 - x2;
+    double dy = y1 - y2;
+    double dz = z1 - z2;
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
 double RosMath::getYawFromPoseStamp(const geometry_msgs::PoseStamped &p)
 {
     tf::Quaternion q(

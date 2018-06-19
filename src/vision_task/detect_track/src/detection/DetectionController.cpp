@@ -3,6 +3,7 @@
 //
 
 #include "detection/DetectionController.h"
+#include <stdlib.h>
 DetectionController::DetectionController(DetectionAndTrackingLoop *car_dAt):
         is_detect_car_(false),is_detect_medicalBag_(false),is_detect_blackCircle_(false),
         is_detect_BackgroundObject_(false), car_dAt_(car_dAt), is_detect_yellowPerson_(false),
@@ -27,7 +28,15 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
             is_detect_car_ = req.Start;
             break;
         case 1:
-            is_detect_medicalBag_ = req.Start;
+            if(req.Start)
+            {
+                is_detect_medicalBag_ = true;
+                system("roslaunch competition_tasks find_object.launch");
+            } else
+            {
+                is_detect_medicalBag_ = false;
+                system("kill find-object-2d");
+            }
             ROS_INFO("medical bag detection state: %d", req.Start);
             break;
         case 2:

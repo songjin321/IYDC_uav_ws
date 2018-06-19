@@ -40,7 +40,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
     auto ite_path = path.poses.begin();
 
     while (ite_path!=path.poses.end()) {
-        ros::Rate rate(100);
+        ros::Rate rate(60);
         // check that preempt has not been requested by the client
         if (as_.isPreemptRequested() || !ros::ok()) {
             ROS_INFO("%s: Preempted", action_name_.c_str());
@@ -54,17 +54,18 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
         // call uav fly to goal method with correspond velocity
         p_ros_uav_->fly_to_goal(current_destination_pose, goal->fly_vel);
 
+        // publish the feedback
         current_pose = p_ros_uav_->getCurrentPoseStamped();
+        feedback_.distance = (float)RosMath::calDistance(current_pose, goal->goal_pose);
+        as_.publishFeedback(feedback_);
+
         double current_yaw = RosMath::getYawFromPoseStamp(current_pose);
         double current_destination_yaw = RosMath::getYawFromPoseStamp(current_destination_pose);
 	// std::cout << "z = " << current_pose.pose.position.z << std::endl;
-        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.1)
+        if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01)
  //              fabs(current_yaw - current_destination_yaw) < 30.0/180.0*3.14 )
         {
             ite_path++;
-            feedback_.distance = (float)RosMath::calDistance(current_pose, goal->goal_pose);
-            // publish the feedback
-            as_.publishFeedback(feedback_);
             ROS_INFO("arrive a waypoint");
         }
         rate.sleep();

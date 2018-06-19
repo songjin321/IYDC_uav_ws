@@ -6,6 +6,9 @@
 #include "detect_track/ControlDetection.h"
 #include "manipulater_controller/ControlManipulater.h"
 #include <thread>
+#include <geometry_msgs/PoseStamped.h>
+#include "ros_common/RosMath.h"
+
 MainController::MainController(std::string uav_controller_server_name) :
 ac(uav_controller_server_name, true),is_objectPose_updated(false)
 {
@@ -27,7 +30,7 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     t_message_callback = std::thread(&MainController::ros_message_callback, this, 60);
     
     // control uav thread
-    t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 2);
+    t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 10);
 
     // detection camera config
     camera_2_uav_x = 0.08;
@@ -59,7 +62,7 @@ void MainController::uav_control_loop(int loop_rate)
         goal.fly_vel = -1;
         goal.fly_type = "position_line_planner_server";
         ac.sendGoal(goal);
-        ac.waitForResult();
+        //ac.waitForResult();
         ROS_INFO("arrive at goal  point, x = %.3f, y = %.3f, z = %.3f", 
                  goal_pose.pose.position.x, goal_pose.pose.position.y,
                  goal_pose.pose.position.z);
@@ -123,29 +126,62 @@ void MainController::adjustUavPose()
 
 void MainController::adjustUavPosition(double delta_x, double delta_y)
 {
-    // wait for object detection begin, let uav hover
-    while(!is_objectPose_updated)
+    object_uav_dis = 1000000;
+    ros::Rate rate(10);
+    while(object_uav_dis > 0.05)
     {
-        ros::Rate rate(30);
-        ros::spinOnce();
+        // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
+        if(is_objectPose_updated)
+        {
+            is_objectPose_updated = false;
+            ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
+                     object_2_uav_x, object_2_uav_y);
+
+            //　assum the yaw of uav is zero
+            goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
+            goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
+        }
+        // wait for object detection begin, let uav hover
+        else{
+            uav_hover(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.5);
+        }
         rate.sleep();
-    }
-    // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
-
-    while(is_objectPose_updated && object_uav_dis > 0.05)
-    {
-        is_objectPose_updated = false;    
-        ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
-	          object_2_uav_x, object_2_uav_y);
-
-        //　assum the yaw of uav is zero
-        goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
-        goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
-        goal_pose.pose.position.z = uav_pose.pose.position.z;
     }
     ROS_INFO("adjustUavPosition OK");
 }
-
+bool MainController::wait_task_over()
+{
+    ros::Rate rate(30);
+    while (RosMath::calDistance(goal_pose.pose.position.x, goal_pose.pose.position.y,
+                                uav_pose.pose.position.x, uav_pose.pose.position.y) > 0.1)
+    {
+        if (is_objectPose_updated)
+        {
+            // stable uav
+            goal_pose.pose.position.x = uav_pose.pose.position.x;
+            goal_pose.pose.position.y = uav_pose.pose.position.y;
+            return false;
+        }
+        rate.sleep();
+    }
+    return true;
+}
+bool MainController::uav_hover(double x, double y, double radiu)
+{
+    goal_pose.pose.position.x = x + radiu;
+    goal_pose.pose.position.y = y;
+    if(!wait_task_over()) return true;
+    goal_pose.pose.position.x = x;
+    goal_pose.pose.position.y = y + radiu;
+    if(!wait_task_over()) return true;
+    goal_pose.pose.position.x = x - radiu;
+    goal_pose.pose.position.y = y;
+    if(!wait_task_over()) return true;
+    goal_pose.pose.position.x = x;
+    goal_pose.pose.position.y = y - radiu;
+    if(!wait_task_over()) return true;
+    return false;
+}
 void MainController::trackObject()
 {
     // wait for object detection result
@@ -289,6 +325,12 @@ void MainController::flyFixedHeight(double z)
     goal_pose.pose.position.z = z;
     goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal_pose.pose.position.y = uav_pose.pose.position.y;
+
+    ros::Rate rate(30);
+    while (fabs(z - uav_pose.pose.position.x) > 0.1)
+    {
+        rate.sleep();
+    }
 }
 
 void MainController::flyInPlane(double x, double y)
@@ -297,4 +339,10 @@ void MainController::flyInPlane(double x, double y)
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
     goal_pose.pose.position.z = uav_pose.pose.position.z;
+
+    ros::Rate rate(30);
+    while (RosMath::calDistance(x,y, uav_pose.pose.position.x, uav_pose.pose.position.y) > 0.1)
+    {
+        rate.sleep();
+    }
 }
