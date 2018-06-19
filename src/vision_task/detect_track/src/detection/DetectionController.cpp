@@ -30,12 +30,15 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
         case 1:
             if(req.Start)
             {
-                is_detect_medicalBag_ = true;
-                system("roslaunch competition_tasks find_object.launch");
+                if(!is_detect_medicalBag_)
+                {
+                    is_detect_medicalBag_ = true;
+                    system("roslaunch competition_tasks find_object.launch &");
+                }
             } else
             {
                 is_detect_medicalBag_ = false;
-                system("kill find-object-2d");
+                system("pkill find_object_2d");
             }
             ROS_INFO("medical bag detection state: %d", req.Start);
             break;
