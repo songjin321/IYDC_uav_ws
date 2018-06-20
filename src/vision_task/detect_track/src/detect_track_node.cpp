@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     cv::Rect2d box;
     cv::RotatedRect r_box;
     cv::Point2f black_center;
-    ros::Rate rate(30);
+    ros::Rate rate(10);
     while(ros::ok())
     {
         ros::spinOnce();
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
                 // 最大的轮廓
                 cv::RotatedRect r_box_1;
                 bool is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
-                                                                              cv::Scalar(40,0,0),
+                                                                              cv::Scalar(40,50,50),
                                                                               cv::Scalar(80,255,255));
                 // 计算目标物的位置
                 if(is_detect_object)
@@ -100,8 +100,9 @@ int main(int argc, char** argv)
                     // 一个轮廓都没有检测到,无法计算目标物的位置
                     // 最大的轮廓不为空,确定目标物在最大轮廓的那个方向
                     // 如果视野中全是背景色,无法确定目标物的位置
-
-                    if(r_box_1.size.area() != 0 && abs(r_box_1.size.area() - (frame.rows + frame.cols)*2) > 200)
+		    // std::cout << "box area " << r_box_1.size.area() << std::endl;
+		    // std::cout << "frame are " << frame.rows * frame.cols << std::endl;
+                    if(r_box_1.size.area() > 5000 && abs(r_box_1.size.area() - (frame.rows * frame.cols)) > 3000)
                     {
                         ROS_INFO("detected background!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box_1);
@@ -155,8 +156,8 @@ int main(int argc, char** argv)
                     cv::circle( frame, black_center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
                 }
             }
-            //cv::imshow("detection_result", frame);
-            //cv::waitKey(3);
+            cv::imshow("detection_result", frame);
+            cv::waitKey(3);
         }
         rate.sleep();
     }
