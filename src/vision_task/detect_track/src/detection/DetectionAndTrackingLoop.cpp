@@ -21,11 +21,12 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
 {
     if (state == detection)
     {
-        if(detector->detect(frame, box))
+        cv::RotatedRect r_box;
+        if(detector->detect(frame, r_box))
         {
             tracker->clear();
             tracker = cv::TrackerKCF::create();
-            if(tracker->init(frame, box))
+            if(tracker->init(frame, r_box.boundingRect2f()))
             {
                 state = tracking;
                 std::cout << "tracker init success, try to tracking" << std::endl;

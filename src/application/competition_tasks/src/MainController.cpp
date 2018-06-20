@@ -197,7 +197,7 @@ void MainController::trackObject()
         // 0.2s 控制飞机运动一次
         if(is_objectPose_updated)
         {
-            // 飞到目标物的位置　可以尝试控制速度加快飞机的运动, 可以被抢占,时刻改变飞行目标
+            // 飞到目标物的位置　可以尝试控制速度加快飞机的运动,时刻改变飞行目标
             goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
             goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
             is_objectPose_updated = false;
@@ -229,7 +229,7 @@ void MainController::startObjectDetection(char detection_type)
     detect_track::ControlDetection srv;
     //# 0: car
     //# 1: medicalBag
-    //# 2: colorPerson
+    //# 2: BackgroundObject
     //# 3: redPerson
     //# 4: blackCircle
     srv.request.ControlType = detection_type;

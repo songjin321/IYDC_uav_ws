@@ -82,16 +82,14 @@ int main(int argc, char** argv)
             {
                 // 最大的轮廓
                 cv::RotatedRect r_box_1;
-                // 第二大的轮廓
-                cv::RotatedRect r_box_2;
-                bool is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box_2,
+                bool is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
                                                                               cv::Scalar(40,0,0),
                                                                               cv::Scalar(80,255,255));
                 // 计算目标物的位置
                 if(is_detect_object)
                 {
                     ROS_INFO("detected backgroundObject!!!");
-                    object_pose.calculatePoseFromRotatedBox(r_box_2);
+                    object_pose.calculatePoseFromRotatedBox(r_box);
                     object_pose.publishPose();
                     cv::Point2f vertices[4];
                     r_box.points(vertices);
@@ -109,7 +107,7 @@ int main(int argc, char** argv)
                         object_pose.calculatePoseFromRotatedBox(r_box_1);
                         object_pose.publishPose();
                         cv::Point2f vertices[4];
-                        r_box.points(vertices);
+                        r_box_1.points(vertices);
                         for (int i = 0; i < 4; i++)
                             line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
                     }

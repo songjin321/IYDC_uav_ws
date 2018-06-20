@@ -16,14 +16,20 @@ int main(int argc, char **argv)
     ROS_INFO("task3_x = %.3f, task3_y = %.3f, task3_z = %.3f",task3_x, task3_y, task3_z);
     main_controller.start_to_goal(task3_x, task3_y, task3_z);
 
-    // 开启目标检测,0表示car
-    main_controller.startObjectDetection(0);
+    // 开启目标检测,2表示BackgroundObject,用这个来控制飞机位于小车上方
+    main_controller.startObjectDetection(2);
 
-    // 调整无人机的位置,位于小车正上方
+    // 调整无人机的位置,位于小人正上方
     main_controller.adjustUavPosition(0,0);
+
+    // 关闭目标检测,2表示BackgroundObject
+    main_controller.stopObjectDetection(2);
 
     // 发出提示５秒
     main_controller.sendBuzzerSignal(5);
+
+    // 开启目标检测,0表示car
+    main_controller.startObjectDetection(0);
 
     // 使无人机追踪目标物
     main_controller.trackObject();

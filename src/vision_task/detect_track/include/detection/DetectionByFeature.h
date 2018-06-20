@@ -17,7 +17,6 @@ class DetectionByFeature: public DetectionBase
 {
 public:
     DetectionByFeature();
-    bool detect(cv::Mat &sceneImg, cv::Rect2d &roi) override;
     bool detect(cv::Mat &sceneImg, cv::RotatedRect &roi) override;
 
     void objects_sub_callback(const std_msgs::Float32MultiArray& msg);
