@@ -11,14 +11,14 @@ vision tasks stack
 # 任务一 检测蓝色小人#
 1. 判断检测到几个轮廓
     1）两个以上
-           2. 判断最大轮廓是否大于4000
-                   1）大于 4000
-                           3. 判断第二大轮廓是否在最大轮廓之内
-                                 1） 在轮廓内
-                                           4. 判断第二大轮廓中心是否是蓝色
-                                                  1）是蓝色 -- return true
-                                                  2）不是蓝色 -- return false
-                                 2） 不在轮廓内 -- return false
-                   2）小于 4000 -- return false
+        2. 判断最大轮廓是否大于4000
+            1）大于 4000
+                3. 判断第二大轮廓是否在最大轮廓之内
+                    1） 在轮廓内
+                        4. 判断第二大轮廓中心是否是蓝色
+                            1）是蓝色 -- return true
+                            2）不是蓝色 -- return false
+                    2） 不在轮廓内 -- return false
+            2）小于 4000 -- return false
     2）一个 -- return false
     3)  没有 -- return false
