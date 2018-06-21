@@ -2,7 +2,7 @@
 #include "nav_msgs/GetPlan.h"
 #include <tf/transform_datatypes.h>
 #include "ros_common/RosMath.h"
-double step_length = 0.1;
+
 bool calLinePath(nav_msgs::GetPlan::Request  &req,
                  nav_msgs::GetPlan::Response &res)
 {
@@ -16,6 +16,8 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
     geometry_msgs::PoseStamped planned_pose = req.start;
     planned_pose.header.frame_id = "local";
 
+    // let tolerance as step length
+    double step_length = req.tolerance;
     double steps = path_length/step_length;
     for (int i = 1; i < steps; i++)
     {

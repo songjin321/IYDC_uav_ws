@@ -20,6 +20,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
     geometry_msgs::PoseStamped current_pose = p_ros_uav_->getCurrentPoseStamped();
     geometry_msgs::PoseStamped current_destination_pose;
     if (!generatePath(goal->fly_type,
+                      goal->step_length,
                       current_pose,
                       goal->goal_pose,
                       path))
@@ -80,6 +81,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
 }
 
 bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
+                                         double step_length,
                                          const geometry_msgs::PoseStamped &start_pose,
                                          const geometry_msgs::PoseStamped &goal_pose,
                                          nav_msgs::Path &path)
@@ -89,7 +91,7 @@ bool FlyToGoalActionServer::generatePath(const std::string &path_planner_name,
     nav_msgs::GetPlan srv;
     srv.request.start = start_pose;
     srv.request.goal = goal_pose;
-    srv.request.tolerance = 1.0;
+    srv.request.tolerance = step_length;
     if(planner_client_.call(srv))
     {
         for(auto pose : srv.response.plan.poses)
