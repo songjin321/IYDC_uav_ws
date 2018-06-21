@@ -70,13 +70,16 @@ public:
     /*
      * 飞到固定的高度,要保证不在水平面移动
      */
-    void flyFixedHeight(double z);
+    void flyFixedHeight(double z, double preicision=0.1);
 
     /*
      * 让飞机在平面进行平移,维持高度不变
      */
-    void flyInPlane(double x, double y);
+    void flyInPlane(double x, double y, double precision=0.1);
 
+    /*
+     * let uav hover
+     */
     bool uav_hover(double x, double y, double radiu);
     /*
      * 关闭飞机
@@ -98,6 +101,7 @@ private:
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
     ros::ServiceClient manipulater_client;
+    ros::ServiceClient arming_client;
     geometry_msgs::PoseStamped object_pose;
     geometry_msgs::PoseStamped uav_pose;
     std::thread t_message_callback;

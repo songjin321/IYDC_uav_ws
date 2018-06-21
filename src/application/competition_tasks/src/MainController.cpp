@@ -8,6 +8,7 @@
 #include <thread>
 #include <geometry_msgs/PoseStamped.h>
 #include "ros_common/RosMath.h"
+#include <mavros_msgs/CommandBool.h>
 
 MainController::MainController(std::string uav_controller_server_name) :
 ac(uav_controller_server_name, true),is_objectPose_updated(false)
@@ -25,6 +26,9 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
 
     // detection_controller_server
     manipulater_client = nh_.serviceClient<manipulater_controller::ControlManipulater>("manipulater_server");
+
+    // uav arming command
+    arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
 
     // ros message callback, 60HZ
     t_message_callback = std::thread(&MainController::ros_message_callback, this, 60);
@@ -71,7 +75,7 @@ void MainController::uav_control_loop(int loop_rate)
 
 void MainController::start_to_goal(double x, double y, double z)
 {
-    flyFixedHeight(z);
+    flyFixedHeight(z, 0.3);
     flyInPlane(x, y);
 }
 void MainController::sendBuzzerSignal(int seconds)
@@ -93,7 +97,7 @@ void MainController::returnToOrigin()
     flyInPlane(0.0, 0.0);
 
     // 降落
-    flyFixedHeight(0);
+    flyFixedHeight(-0.3);
 
     // 关闭飞机
     shutDownUav();
@@ -127,8 +131,11 @@ void MainController::adjustUavPosition(double delta_x, double delta_y)
 {
     object_uav_dis = 1000000;
     ros::Rate rate(10);
-    while(object_uav_dis > 0.05)
+    int stable_count=0;
+    while(stable_count < 10)
     {
+	if(object_uav_dis < 0.1) stable_count++;
+        else stable_count=0;
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if(is_objectPose_updated)
         {
@@ -286,35 +293,48 @@ void MainController::releaseObject()
 void MainController::shutDownUav()
 {
     //　TODO::关闭飞机
-    ROS_INFO("shut down uav!");
+    mavros_msgs::CommandBool arm_cmd;
+    arm_cmd.request.value = false;
+    if(arming_client.call(arm_cmd) && arm_cmd.response.success)
+    {
+         ROS_INFO("Vehicle locked");
+         ROS_INFO("shut down uav!");
+    }else
+    { 
+         ROS_INFO("shut down uav faled!");
+    }
+
 }
 
-void MainController::flyFixedHeight(double z)
+void MainController::flyFixedHeight(double z, double precision)
 {
     //　起飞到一定的高度, x和y不变
     goal_pose.pose.position.z = z;
     goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal_pose.pose.position.y = uav_pose.pose.position.y;
 
-    ros::Rate rate(30);
-    while (fabs(z - uav_pose.pose.position.z) > 0.1)
+    ros::Rate rate(10);
+    while (fabs(z - uav_pose.pose.position.z) > precision)
     {
         rate.sleep();
     }
-    ROS_INFO("arrive at height of %.3f meters", z);
+    ROS_INFO("arrive at height, z of uav is %.3f meters", z);
 }
 
-void MainController::flyInPlane(double x, double y)
+void MainController::flyInPlane(double x, double y, double precision)
 {
     // 高度和姿态不变,做平面运动
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
     goal_pose.pose.position.z = uav_pose.pose.position.z;
 
-    ros::Rate rate(30);
-    while (RosMath::calDistance(x,y, uav_pose.pose.position.x, uav_pose.pose.position.y) > 0.1)
+    ros::Rate rate(10);
+    int stable_count = 0;
+    while (stable_count < 20)
     {
+        if(RosMath::calDistance(x,y, uav_pose.pose.position.x, uav_pose.pose.position.y) > precision) stable_count++;
+        else stable_count=0;
         rate.sleep();
     }
-    ROS_INFO("arrive at plane point, x = %.3f, y = %.3f", x, y);
+    ROS_INFO("arrive at plane point x = %.3f, y = %.3f, the position of uav:x = %.3f, y = %.3f, z = %.3f", x, y, uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z);
 }
