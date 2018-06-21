@@ -18,8 +18,12 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     ac.waitForServer(); //will wait for infinite time
     ROS_INFO("uav_controller_server start!");
 
-    // init goal pose
+    // init goal pose and goal 
     goal_pose.pose.orientation.w = 1.0;
+    goal.goal_pose = goal_pose;
+    goal.fly_vel = -1;
+    goal.fly_type = "position_line_planner_server";
+    goal.step_length = 0.1;
 
     // detection_controller_server
     detection_client = nh_.serviceClient<detect_track::ControlDetection>("detection_controller_server");
@@ -34,7 +38,7 @@ ac(uav_controller_server_name, true),is_objectPose_updated(false)
     t_message_callback = std::thread(&MainController::ros_message_callback, this, 60);
     
     // control uav thread
-    t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 10);
+    t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 2);
 
     // detection camera config
     camera_2_uav_x = 0.08;
@@ -65,9 +69,6 @@ void MainController::uav_control_loop(int loop_rate)
     ros::Rate rate(loop_rate);
     while (ros::ok())
     {
-        goal.goal_pose = goal_pose;
-        goal.fly_vel = -1;
-        goal.fly_type = "position_line_planner_server";
         ac.sendGoal(goal);
         rate.sleep();
     }
@@ -75,8 +76,8 @@ void MainController::uav_control_loop(int loop_rate)
 
 void MainController::start_to_goal(double x, double y, double z)
 {
-    flyFixedHeight(z, 0.3);
-    flyInPlane(x, y);
+    flyFixedHeight(z+0.5, 0.5, 0.5);
+    flyInPlane(x, y, 0.05, 0.1);
 }
 void MainController::sendBuzzerSignal(int seconds)
 {
@@ -306,13 +307,13 @@ void MainController::shutDownUav()
 
 }
 
-void MainController::flyFixedHeight(double z, double precision)
+void MainController::flyFixedHeight(double z, double precision, double step_length)
 {
-    //　起飞到一定的高度, x和y不变
+    //　起飞到一定的高度, x和y不变, try to solve take off slow problem, increase precision
     goal_pose.pose.position.z = z;
     goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal_pose.pose.position.y = uav_pose.pose.position.y;
-
+    goal.step_length = step_length;
     ros::Rate rate(10);
     while (fabs(z - uav_pose.pose.position.z) > precision)
     {
@@ -321,18 +322,18 @@ void MainController::flyFixedHeight(double z, double precision)
     ROS_INFO("arrive at height, z of uav is %.3f meters", z);
 }
 
-void MainController::flyInPlane(double x, double y, double precision)
+void MainController::flyInPlane(double x, double y, double precision, double step_length)
 {
     // 高度和姿态不变,做平面运动
     goal_pose.pose.position.x = x;
     goal_pose.pose.position.y = y;
     goal_pose.pose.position.z = uav_pose.pose.position.z;
-
+    goal.step_length = step_length;
     ros::Rate rate(10);
     int stable_count = 0;
     while (stable_count < 20)
     {
-        if(RosMath::calDistance(x,y, uav_pose.pose.position.x, uav_pose.pose.position.y) > precision) stable_count++;
+        if(RosMath::calDistance(x,y, uav_pose.pose.position.x, uav_pose.pose.position.y) < precision) stable_count++;
         else stable_count=0;
         rate.sleep();
     }

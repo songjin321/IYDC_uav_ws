@@ -38,7 +38,7 @@ bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s
 }
 
 //检测视野中第二大的区域（并检测第二大区域中心是否是蓝色）
-bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
+bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2,
                                               cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
 {
     // 将RGB转化为HSV

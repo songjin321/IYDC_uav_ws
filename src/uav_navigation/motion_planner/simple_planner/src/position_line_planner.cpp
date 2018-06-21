@@ -38,8 +38,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "position_line_planner");
     ros::NodeHandle n;
 
-    n.getParam("/position_line_planner/step_length", step_length);
-    std::cout << "position_line_planner step length = " << step_length << std::endl;
+    //n.getParam("/position_line_planner/step_length", step_length);
+    //std::cout << "position_line_planner step length = " << step_length << std::endl;
     ros::ServiceServer service = n.advertiseService("position_line_planner_server", calLinePath);
     ROS_INFO("Ready to calculate position_line path.");
     ros::spin();

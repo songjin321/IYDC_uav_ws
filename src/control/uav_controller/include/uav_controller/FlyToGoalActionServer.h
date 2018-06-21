@@ -33,6 +33,7 @@ private:
      * fly follow
      */
     bool generatePath(const std::string &path_planner_name,
+                      double step_length,
                       const geometry_msgs::PoseStamped &start_pose,
                       const geometry_msgs::PoseStamped &goal_pose,
                       nav_msgs::Path &path);

@@ -70,12 +70,12 @@ public:
     /*
      * 飞到固定的高度,要保证不在水平面移动
      */
-    void flyFixedHeight(double z, double preicision=0.1);
+    void flyFixedHeight(double z, double preicision=0.1, double step_length = 0.1);
 
     /*
      * 让飞机在平面进行平移,维持高度不变
      */
-    void flyInPlane(double x, double y, double precision=0.1);
+    void flyInPlane(double x, double y, double precision=0.1, double step_length = 0.1);
 
     /*
      * let uav hover
