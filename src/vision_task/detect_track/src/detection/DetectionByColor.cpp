@@ -5,6 +5,10 @@
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
+float GetCross(Point2f& p1, Point2f& p2, Point2f& p)
+{
+	return (p2.x - p1.x) * (p.y - p1.y) - (p.x - p1.x) * (p2.y - p1.y);
+}
 // 判断第二大区域是否在最大区域内部
 bool IsInReigon(cv::RotatedRect &roi_1, cv::RotatedRect &roi_2)
 {
@@ -38,9 +42,8 @@ bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s
 }
 
 //检测视野中第二大的区域（并检测第二大区域中心是否是蓝色）
-bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
-                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
-{
+bool detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2, 
+                             cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
     // 将RGB转化为HSV
 	cv::Mat hsvImg;
 	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
