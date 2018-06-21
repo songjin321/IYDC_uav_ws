@@ -4,62 +4,178 @@
 #include "detection/DetectionByColor.h"
 #include <opencv2/opencv.hpp>
 using namespace cv;
+
+// 判断第二大区域是否在最大区域内部
+bool IsInReigon(cv::RotatedRect &roi_1, cv::RotatedRect &roi_2)
+{
+	// 将RotatedRect边缘点赋值给 Point2f
+	cv::Point2f Q[4];
+	roi_1.points(Q);
+
+	cv::Point2f P[4];
+	roi_2.points(P);
+
+	// 判断第二大区域边缘每个点是否在最大区域内部
+	bool IsPointInMatrix_0 = GetCross(Q[0], Q[1], P[0]) * GetCross(Q[2], Q[3], P[0]) >= 0 && GetCross(Q[1], Q[2], P[0]) * GetCross(Q[3], Q[0], P[0]) >= 0;
+	bool IsPointInMatrix_1 = GetCross(Q[0], Q[1], P[1]) * GetCross(Q[2], Q[3], P[1]) >= 0 && GetCross(Q[1], Q[2], P[1]) * GetCross(Q[3], Q[0], P[1]) >= 0;
+	bool IsPointInMatrix_2 = GetCross(Q[0], Q[1], P[2]) * GetCross(Q[2], Q[3], P[2]) >= 0 && GetCross(Q[1], Q[2], P[2]) * GetCross(Q[3], Q[0], P[2]) >= 0;
+	bool IsPointInMatrix_3 = GetCross(Q[0], Q[1], P[3]) * GetCross(Q[2], Q[3], P[3]) >= 0 && GetCross(Q[1], Q[2], P[3]) * GetCross(Q[3], Q[0], P[3]) >= 0;
+
+	if (IsPointInMatrix_0 && IsPointInMatrix_1 && IsPointInMatrix_2 && IsPointInMatrix_3)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s2)
 {
 
     return cv::contourArea(s1) < cv::contourArea(s2);
 }
 
-bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2,
-                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h) {
+//检测视野中第二大的区域（并检测第二大区域中心是否是蓝色）
+bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
+                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
+{
     // 将RGB转化为HSV
-    cv::Mat hsvImg;
-    cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
+	cv::Mat hsvImg;
+	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
 
-    // HSV 阈值分割
-    cv::Mat bw;
-    inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
+	// HSV 阈值分割 
+	cv::Mat bw;
+	inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
 
-    // 进行腐蚀消除一部分噪点
-    cv::Mat erodeImg;
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 10));
-    cv::erode(bw, erodeImg, element);
+	// 进行腐蚀消除一部分噪点 
+	cv::Mat erodeImg;
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	cv::erode(bw, erodeImg, element);
 
+	// 进行膨胀变回原来的形状
+	cv::Mat dilateImg;
+	cv::erode(erodeImg, dilateImg, element);
 
-    // 进行膨胀变回原来的形状
-    cv::Mat dilateImg;
-    cv::erode(erodeImg, dilateImg, element);
+	// 查找轮廓 
+	std::vector< std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+	cv::findContours(dilateImg, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
 
-    cv::imshow("dilateImg", dilateImg);
-    cv::waitKey(3);
-    // 查找轮廓
-    std::vector <std::vector<cv::Point>> contours;
-    std::vector <cv::Vec4i> hierarchy;
-    cv::findContours(dilateImg, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
-    std::stable_sort(contours.begin(), contours.end(), isSmaller);
+	// 面积排序 找出最大和第二大面积
+	if ( contours.size() > 1 )
+	{
+		double largest_area_1 = 0;
+		double largest_area_2 = 0;
+		int largest_contour_index_1 = 0;
+		int largest_contour_index_2 = 0;
 
-    if(contours.empty())
-    {
+		// 计算前两个数值，找出临时最大和第二大数值
+		if (cv::contourArea(contours[0]) < cv::contourArea(contours[1]))
+		{
+			largest_area_1 = cv::contourArea(contours[1]);
+			largest_area_2 = cv::contourArea(contours[0]);
+
+			largest_contour_index_1 = 1;
+			largest_contour_index_2 = 0;
+		}
+		else
+		{
+			largest_area_1 = cv::contourArea(contours[0]);
+			largest_area_2 = cv::contourArea(contours[1]);
+
+			largest_contour_index_1 = 0;
+			largest_contour_index_2 = 1;
+		}
+
+		// 计算遍历后面所有元素，找出最终的最大值和第二大数值
+		for (size_t i = 2; i < contours.size(); i++)  // 遍历每个轮廓
+		{
+			if (cv::contourArea(contours[i]) > largest_area_1)
+			{
+				largest_area_2 = largest_area_1;
+				largest_area_1 = cv::contourArea(contours[i]);
+
+				largest_contour_index_2 = largest_contour_index_1;
+				largest_contour_index_1 = i;
+			}
+			else if (cv::contourArea(contours[i]) > largest_area_2)
+			{
+				largest_area_2 = cv::contourArea(contours[i]);
+				largest_contour_index_2 = i;
+			}
+		}
+
+		// 如果最大区域面积小于4000，证明视野范围之内没有板子
+		if (largest_area_1 < 4000)
+		{
+			//std::cout << "return false_ roi1 面积小于4000" << std::endl;
+			return false;
+		}
+
+		// 如果最大区域面积大于4000，证明视野进入绿色板子以内
+		else
+		{
+			//最大面积的最小外接矩形
+			roi_1 = cv::minAreaRect(contours[largest_contour_index_1]);
+
+			//第二大面积的最小外接矩形
+			roi_2 = cv::minAreaRect(contours[largest_contour_index_2]);
+
+			// -------------验证第二大面积包含在第一大面积之内--------------
+			
+			//调用isInReigon函数判断第二大面积是否包含在最大面积之内
+			bool isInReigon = IsInReigon(roi_1, roi_2);
+		    
+			if (isInReigon)
+			{
+			
+					// 求中心像素的mask平均值
+					cv::Point2f center = roi_2.center;
+
+					cv::Scalar hsv_avg = (0, 0, 0);
+
+					for (int i = 0; i < 3; i++)
+					{
+						hsv_avg[i] = ((hsvImg.at<Vec3b>(center.y - 1, center.x - 1)[i] + hsvImg.at<Vec3b>(center.y, center.x - 1)[i] + hsvImg.at<Vec3b>(center.y + 1, center.x - 1)[i]
+							+ hsvImg.at<Vec3b>(center.y - 1, center.x)[i] + hsvImg.at<Vec3b>(center.y, center.x)[i] + hsvImg.at<Vec3b>(center.y + 1, center.x)[i]
+							+ hsvImg.at<Vec3b>(center.y - 1, center.x + 1)[i] + hsvImg.at<Vec3b>(center.y, center.x + 1)[i] + hsvImg.at<Vec3b>(center.y + 1, center.x + 1)[i]) / 9);
+					}
+
+					if (hsv_avg[0] > 95 && hsv_avg[0] < 130)
+					{
+						//std::cout << "return true" << std::endl;
+						return true;
+					}
+					else
+					{
+						//std::cout << "return false_roi_2中心不是蓝色" << std::endl;
+						return false;
+					}
+					
+			}
+			else
+			{
+					// std::cout << "return false_ roi2 轮廓超出范围" << std::endl;
+					return false;
+			}		
+		}
+			
+		
+	}
+	else if ( contours.size() == 1)
+	{
+		roi_1 = cv::minAreaRect(contours[0]);
+		//std::cout << "return false_contours == 1" << std::endl;
         return false;
-    }
-    if(contours.size() > 0)
-    {
-        roi_1 = cv::minAreaRect(*(contours.end()-1));
-    }
-    if(contours.size() > 1)
-    {
-        roi_2 = cv::minAreaRect(*(contours.end()-2));
-    }
+	}
+	else
+	{
+		// std::cout << "return false_contours == 0" << std::endl;
+		return false;
+	}
 
-    // if detect object reutrn true, else turn false
-    // 目标物体应当在背景的包围之中，此时才返回ｔｒｕｅ
-    if(roi_1.size.area() > 10000 && roi_2.size.area() > 1000)
-    {
-        return true;
-    }else
-    {
-        return false;
-    }
 }
 
 bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)
