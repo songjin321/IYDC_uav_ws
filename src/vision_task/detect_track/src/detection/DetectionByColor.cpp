@@ -5,6 +5,10 @@
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
+float GetCross(Point2f& p1, Point2f& p2, Point2f& p)
+{
+	return (p2.x - p1.x) * (p.y - p1.y) - (p.x - p1.x) * (p2.y - p1.y);
+}
 // 判断第二大区域是否在最大区域内部
 bool IsInReigon(cv::RotatedRect &roi_1, cv::RotatedRect &roi_2)
 {
