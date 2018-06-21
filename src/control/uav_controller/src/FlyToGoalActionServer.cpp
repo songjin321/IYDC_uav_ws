@@ -41,7 +41,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
     auto ite_path = path.poses.begin();
 
     while (ite_path!=path.poses.end()) {
-        ros::Rate rate(60);
+        ros::Rate rate(20);
         // check that preempt has not been requested by the client
         if (as_.isPreemptRequested() || !ros::ok()) {
             ROS_INFO("%s: Preempted", action_name_.c_str());

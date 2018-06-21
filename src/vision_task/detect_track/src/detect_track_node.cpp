@@ -156,8 +156,8 @@ int main(int argc, char** argv)
                     cv::circle( frame, black_center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
                 }
             }
-            cv::imshow("detection_result", frame);
-            cv::waitKey(3);
+            //cv::imshow("detection_result", frame);
+            //cv::waitKey(3);
         }
         rate.sleep();
     }

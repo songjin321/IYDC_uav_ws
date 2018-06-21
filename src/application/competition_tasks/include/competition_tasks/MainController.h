@@ -97,7 +97,7 @@ private:
     ros::NodeHandle nh_;
     uav_controller::FlyToGoalGoal goal;
     // 通过修改goal_pose来控制飞机,可以实现相对运动
-    geometry_msgs::PoseStamped goal_pose;
+    // geometry_msgs::PoseStamped goal_pose;
     actionlib::SimpleActionClient<uav_controller::FlyToGoalAction> ac;
     ros::ServiceClient detection_client;
     ros::ServiceClient manipulater_client;
