@@ -19,10 +19,12 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
         case 0:
             if(req.Start)
             {
+                system("roslaunch competition_tasks find_object.launch object_name:=car &");
                 car_dAt_->beginDetection();
                 ROS_INFO("car detection begin");
             } else{
                 car_dAt_->stopDetection();
+                system("pkill find_object_2d");
                 ROS_INFO("car detection stop");
             }
             is_detect_car_ = req.Start;
@@ -33,7 +35,7 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
                 if(!is_detect_medicalBag_)
                 {
                     is_detect_medicalBag_ = true;
-                    system("roslaunch competition_tasks find_object.launch &");
+                    system("roslaunch competition_tasks find_object.launch object_name:=medicalBag &");
                 }
             } else
             {
