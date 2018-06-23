@@ -16,11 +16,11 @@
 
       # Must either specify refresh frequency > 0.0, or a list of trackers to create
       refresh_tracker_frequency: 1.0
-      trackers:
-      - three
+      #trackers:
+      #- three
       #- SecondTracker
     </rosparam>
-    <remap from="/vrpn_client_node/three/pose" to="/mavros/mocap/pose"/>
+    <remap from="/vrpn_client_node/sj/pose" to="/mavros/mocap/pose"/>
   </node>
 
 </launch>

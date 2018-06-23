@@ -5,6 +5,10 @@
     <include file="$(find vrpn_client_ros)/launch/sample.launch">
         <arg name="server" value="192.168.1.105" />
     </include>
-    <include file="$(find orb_slam)/launch/test_fix_point.launch">
-    </include>
+    <node name="test_uav" pkg="orb_slam" type="test_mavros_vel_control" output="screen">
+            <param name="set_point_x" value="0.3" type="double"/>
+            <param name="set_point_y" value="0" type="double"/>
+            <param name="set_point_z" value="0.3" type="double"/>
+    </node>
 </launch>
+

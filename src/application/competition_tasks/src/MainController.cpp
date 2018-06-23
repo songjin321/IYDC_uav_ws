@@ -79,7 +79,7 @@ void MainController::start_to_goal(double x, double y, double z)
 {
     flyFixedHeight(0.5);
     flyFixedHeight(z);
-    flyInPlane(x, y, 0.1, 0.3);
+    flyInPlane(x, y, 0.05, 0.3);
 }
 void MainController::sendBuzzerSignal(int seconds)
 {

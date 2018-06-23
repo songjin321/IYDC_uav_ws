@@ -93,9 +93,9 @@ int main(int argc, char **argv)
     double set_point_x = 0;
     double set_point_y = 0;
     double set_point_z = 0;
-    nh.param<double>("/test_fix_point/set_point_x",set_point_x,0);
-    nh.param<double>("/test_fix_point/set_point_y",set_point_y,0);
-    nh.param<double>("/test_fix_point/set_point_z",set_point_z,0);
+    nh.param<double>("/test_uav/set_point_x",set_point_x,0);
+    nh.param<double>("/test_uav/set_point_y",set_point_y,0);
+    nh.param<double>("/test_uav/set_point_z",set_point_z,0);
     set_pose.pose = local_pose.pose;
     set_pose.pose.position.x = set_point_x;
     set_pose.pose.position.y = set_point_y;

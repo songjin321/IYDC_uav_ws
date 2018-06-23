@@ -26,7 +26,7 @@ add_executable(test_fix_point test/test_fix_point.cpp)
 target_link_libraries(test_fix_point ${catkin_LIBRARIES})
 
 add_executable(test_mavros_vel_control test/test_mavros_vel_control.cpp)
-target_link_libraries(test_fix_point ${catkin_LIBRARIES})
+target_link_libraries(test_mavros_vel_control ${catkin_LIBRARIES})
 
 
 install(TARGETS test_fix_point test_mavros_vel_control
