@@ -68,9 +68,9 @@ public:
     void trackObject();
 
     /*
-     * 飞到固定的高度,要保证不在水平面移动
+     * 飞到固定的高度,要保证不在水平面移动, no step length, no path planning in height direction
      */
-    void flyFixedHeight(double z, double preicision=0.1, double step_length = 0.1);
+    void flyFixedHeight(double z, double preicision=0.1);
 
     /*
      * 让飞机在平面进行平移,维持高度不变

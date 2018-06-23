@@ -202,14 +202,17 @@ void MainController::trackObject()
     // 如果没有追踪上就往原点飞
     // 让飞机飞到原点即可停止
     double distance2origin = 10000000;
-    ros::Rate rate(10);
-    while(distance2origin > 0.5) {
+    ros::Rate rate(20);
+    while(distance2origin > 0.3) {
         // 0.2s 控制飞机运动一次
         if(is_objectPose_updated)
         {
             // 飞到目标物的位置　可以尝试控制速度加快飞机的运动,时刻改变飞行目标
             goal.goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
             goal.goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
+            // fly to target point with 1m/s velocity
+            goal.fly_vel = 1;
+            goal.step_length = 0.5;
             is_objectPose_updated = false;
             ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
                      object_2_uav_x, object_2_uav_y);
@@ -218,6 +221,8 @@ void MainController::trackObject()
             //　返回到原点上方
             goal.goal_pose.pose.position.x = 0;
             goal.goal_pose.pose.position.y = 0;
+            goal.fly_vel = 0;
+            goal.step_length = 0.25;
             ROS_INFO("track lost, fly to origin");
         }
         distance2origin = RosMath::calDistance(uav_pose.pose.position.x, 0, uav_pose.pose.position.y, 0);
@@ -312,13 +317,12 @@ void MainController::shutDownUav()
 
 }
 
-void MainController::flyFixedHeight(double z, double precision, double step_length)
+void MainController::flyFixedHeight(double z, double precision)
 {
     //　起飞到一定的高度, x和y不变, try to solve take off slow problem, increase precision
     goal.goal_pose.pose.position.z = z;
     goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
-    goal.step_length = step_length;
     ros::Rate rate(10);
     while (fabs(z - uav_pose.pose.position.z) > precision)
     {
@@ -337,7 +341,6 @@ void MainController::flyInPlane(double x, double y, double precision, double ste
     std::cout << "planer height = " << goal.goal_pose.pose.position.z << std::endl;
     goal.step_length = step_length;
     ros::Rate rate(10);
-    std::cout << "precision = " << precision << std::endl;
     int stable_count = 0;
     while (stable_count < 20)
     {

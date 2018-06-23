@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         if (fabs(1.0 - local_pose.pose.position.z) < 0.1 )
         {    
             uav_twist.linear.z = 0;
-            uav_twist.linear.x = set_point.x;
+            uav_twist.linear.x = set_point_x;
         }
         if(fabs(1.0 - local_pose.pose.position.x) < 0.1)
         {
