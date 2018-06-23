@@ -25,7 +25,11 @@ ${catkin_INCLUDE_DIRS}
 add_executable(test_fix_point test/test_fix_point.cpp)
 target_link_libraries(test_fix_point ${catkin_LIBRARIES})
 
-install(TARGETS test_fix_point 
+add_executable(test_mavros_vel_control test/test_mavros_vel_control.cpp)
+target_link_libraries(test_fix_point ${catkin_LIBRARIES})
+
+
+install(TARGETS test_fix_point test_mavros_vel_control
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
