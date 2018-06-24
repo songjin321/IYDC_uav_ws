@@ -245,7 +245,7 @@ bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point &center)
 	{
 		return false;
 	}
-
+}
 bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                                         cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
                                         cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
