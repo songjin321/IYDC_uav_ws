@@ -182,39 +182,69 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 
 }
 
-bool DetectionByColor::detectBlackCircle(cv::Mat &sceneImg, cv::Point2f &center)
+bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point &center)
 {
-    cv::RotatedRect r_box, r_box2;
-    detectBackgroundObject(sceneImg, r_box, r_box2, cv::Scalar(40,0,0), cv::Scalar(80,255,255));
-    cv::Mat imCrop = sceneImg(r_box.boundingRect());
-    cv::Mat src_gray;
-    /// Convert it to gray
-    cvtColor( imCrop, src_gray, cv::COLOR_BGR2GRAY );
+    // 缩小图像 
+	resize(input, input, cv::Size(384, 288));
+	/*resize(src, src, Size(512,384));*/
+	/*resize(src, src, Size(448, 336));*/
 
-    /// Reduce the noise so we avoid false circle detection
-    GaussianBlur( src_gray, src_gray, cv::Size(9, 9), 2, 2 );
+	//裁剪图像
+	cv::Rect rect(42, 19, 250, 250);
+	input = input(rect);
+	
+	// 声明处理过程mat
+	cv::Mat midImage;
 
-    std::vector<cv::Vec3f> circles;
+	// 声明中心点的X、Y
+	float sum_x = 0;
+	float sum_y = 0;
 
-    /// Apply the Hough Transform to find the circles
-    HoughCircles( src_gray, circles, cv::HOUGH_GRADIENT, 1, src_gray.rows/8, 200, 100, 0, 0 );
-    std::cout << "circle number: " << circles.size() <<std::endl;
+	 //将图片进行裁剪 
+	cvtColor(input, midImage, CV_BGR2GRAY);
 
-    if (circles.empty())
-        return false;
+	//直方图均衡化
+	equalizeHist(midImage, midImage);
 
-    /// calculate the average center
-    cv::Point2f circle_center_sum(0.0, 0.0);
-    for( size_t i = 0; i < circles.size(); i++ )
-    {
-        cv::Point2f center_(cvRound(circles[i][0]), cvRound(circles[i][1]));
-        circle_center_sum = circle_center_sum + center_;
-    }
+	// 阈值分割 减少计算量
+	threshold(midImage, midImage, 200, 255, cv::THRESH_TRUNC);
 
-    center.x = circle_center_sum.x/circles.size() + r_box.boundingRect().x,
-    center.y = circle_center_sum.y/circles.size() + r_box.boundingRect().y;
-    return true;
-}
+	//中值滤波
+	medianBlur(midImage, midImage, 3);
+
+	//高斯滤波
+	GaussianBlur(midImage, midImage, cv::Size(3, 3), 2, 2);
+
+	//腐蚀（让圆形轮廓更明显）
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	cv::erode(midImage, midImage, element);
+	
+	//进行霍夫圆变换
+	std::vector<cv::Vec3f> circles;
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, 1, 10, 100, 88, 0, 0); //检测宋老师的图片 
+
+	if (circles.size() >= 1)
+	{
+		for (size_t i = 0; i < circles.size(); i++)
+		{
+			// 将每个检测出来的圆心赋值给  cv::Point
+            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+           
+            //将每个检测出来的圆心分别叠加起来
+			sum_x += circles[i][0];
+			sum_y += circles[i][1];
+		}
+		
+		//计算平均圆心
+		center.x = sum_x / circles.size();
+		center.y = sum_y / circles.size();
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 
 bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                                         cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
