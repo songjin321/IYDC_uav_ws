@@ -250,17 +250,69 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                                         cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
                                         cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
 {
-    cv::Mat hsvImg;
-    cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
-    cv::Mat mask1, mask2;
-    inRange(hsvImg, hsv_object_l1, hsv_object_h1, mask1);
-    inRange(hsvImg, hsv_object_l2, hsv_object_h2, mask2);
-    cv::Mat bw = mask1 | mask2;
+    // 将RGB转化为HSV
+	cv::Mat hsvImg;
+	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
 
-    std::vector< std::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(bw, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
-    std::stable_sort(contours.begin(), contours.end(), isSmaller);
-    //
-    roi = cv::minAreaRect(*(contours.end()-1));
+	// HSV 阈值分割 (红色分成两个颜色） 
+	cv::Mat mask1;
+	inRange(hsvImg, hsv_object_l1, hsv_object_h1, mask1);
+
+	cv::Mat mask2;
+	inRange(hsvImg, hsv_object_l2, hsv_object_h2, mask2);
+
+	cv::Mat bw = mask1 | mask2;
+  
+	// 进行腐蚀消除一部分噪点 
+	cv::Mat erodeImg;
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	cv::erode(bw, erodeImg, element);
+
+	// 进行膨胀变回原来的形状
+	cv::Mat dilateImg;
+	cv::dilate(erodeImg, dilateImg, element);
+
+	// 查找轮廓 
+	std::vector< std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+	cv::findContours(dilateImg, contours, hierarchy, CV_RETR_LIST, cv::CHAIN_APPROX_NONE, cv::Point());
+
+	// 如果查找到至少一个轮廓则进行判定 
+	if (contours.size() >= 1)
+	{
+		// 查找轮廓当中最大的填充面积
+		int largest_area_1 = 0;
+		int largest_contour_index_1 = 0;
+
+		for (size_t i = 0; i< contours.size(); i++)  // 遍历每个轮廓
+		{
+			double area_1 = cv::contourArea(contours[i]);  // 计算每个轮廓的面积
+
+			if (area_1 > largest_area_1)
+			{
+				largest_area_1 = area_1;
+				largest_contour_index_1 = i;               // 储存最大轮廓的数字
+			}
+
+			
+		}
+
+
+		// 如果最大区域面积小于4000，证明视野范围之内没有小人
+		if (largest_area_1 < 4000)
+		{
+			return false;
+		}
+		else
+		{
+			//最大面积的最小外接矩形
+			roi = cv::minAreaRect(contours[largest_contour_index_1]);
+			
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
