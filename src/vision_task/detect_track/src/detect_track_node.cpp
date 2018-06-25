@@ -119,7 +119,7 @@ int main(int argc, char** argv)
                 if(color_detector.detectPureObject(frame, r_box,
                                                 cv::Scalar(0, 50, 50),
                                                 cv::Scalar(10, 255, 255),
-                                                cv::Scalar(170, 50, 50),
+                                                cv::Scalar(160, 50, 50),
                                                 cv::Scalar(180, 255, 255)))
                 {
                     // ROS_INFO("detected colorPerson!!!");

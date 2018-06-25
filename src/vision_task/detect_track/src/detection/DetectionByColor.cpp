@@ -172,7 +172,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 	{
 		roi_1 = cv::minAreaRect(contours[0]);
 		//std::cout << "return false_contours == 1" << std::endl;
-        return false;
+                return false;
 	}
 	else
 	{
@@ -184,14 +184,14 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 
 bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point2f &center)
 {
-    // 缩小图像 
-	resize(input, input, cv::Size(384, 288));
-	/*resize(src, src, Size(512,384));*/
-	/*resize(src, src, Size(448, 336));*/
+        // 缩小图像 
+	// resize(input, input, cv::Size(384, 288));
+	// resize(src, src, Size(512,384));
+	// resize(src, src, Size(448, 336));
 
 	//裁剪图像
-	cv::Rect rect(42, 19, 250, 250);
-	input = input(rect);
+	// cv::Rect rect(42, 19, 250, 250);
+	// input = input(rect);
 	
 	// 声明处理过程mat
 	cv::Mat midImage;
@@ -222,12 +222,11 @@ bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point2f &center)
 	//进行霍夫圆变换
 	std::vector<cv::Vec3f> circles;
 	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, 1, 10, 100, 88, 0, 0); //检测宋老师的图片 
-
+        // std::cout << "the number of detected circles = " << circles.size() << std::endl;
 	if (circles.size() >= 1)
 	{
 		for (size_t i = 0; i < circles.size(); i++)
-		{
-           
+		{         
                         //将每个检测出来的圆心分别叠加起来
 			sum_x += circles[i][0];
 			sum_y += circles[i][1];
@@ -248,7 +247,7 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                                         cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
                                         cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
 {
-    // 将RGB转化为HSV
+        // 将RGB转化为HSV
 	cv::Mat hsvImg;
 	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
 
@@ -291,13 +290,11 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
 				largest_area_1 = area_1;
 				largest_contour_index_1 = i;               // 储存最大轮廓的数字
 			}
-
 			
 		}
-
-
+                // std::cout << "largest_area_1 = " << largest_area_1 << std::endl;
 		// 如果最大区域面积小于4000，证明视野范围之内没有小人
-		if (largest_area_1 < 4000)
+		if (largest_area_1 < 500)
 		{
 			return false;
 		}

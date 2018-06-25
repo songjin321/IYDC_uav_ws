@@ -137,7 +137,7 @@ void MainController::adjustUavPosition(double delta_x, double delta_y)
     int stable_count=0;
     while(stable_count < 20)
     {
-	if(object_uav_dis < 0.1) stable_count++;
+	if(object_uav_dis < 0.07) stable_count++;
         else stable_count=0;
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if(is_objectPose_updated)
