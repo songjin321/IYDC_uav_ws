@@ -182,7 +182,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 
 }
 
-bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point &center)
+bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point2f &center)
 {
     // 缩小图像 
 	resize(input, input, cv::Size(384, 288));
@@ -227,10 +227,8 @@ bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point &center)
 	{
 		for (size_t i = 0; i < circles.size(); i++)
 		{
-			// 将每个检测出来的圆心赋值给  cv::Point
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
            
-            //将每个检测出来的圆心分别叠加起来
+                        //将每个检测出来的圆心分别叠加起来
 			sum_x += circles[i][0];
 			sum_y += circles[i][1];
 		}
