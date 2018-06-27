@@ -8,17 +8,14 @@ using namespace std;
 ros::Publisher body_puber;
 
 // camera relative to body coordinate
-double x = 0.2;
+double x = 0;
 double y = 0;
 double z = 0;
 
 // from body rotate to camera coordinate frame, z->yaw, y->pitch, x->roll
-double yaw = -M_PI_2;
+double yaw = 0;
 double pitch = 0;
-double roll = -M_PI_2;
-
-// 
-double world_yaw = 0;
+double roll = 0;
 
 void PoseStamped_Callback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
@@ -53,9 +50,15 @@ int main(int argc, char* argv[])
 	std::string vision_pose_world_name;
     	n.param<std::string>("/map_world_convert/vision_pose_map_name",vision_pose_map_name,"/vision_pose_map/pose");
 	n.param<std::string>("/map_world_convert/vision_pose_world_name",vision_pose_world_name,"/vision_pose_world/pose");
-	n.param<double>("/map_world_convert/world_yaw",world_yaw,180);
-	world_yaw  = world_yaw/180.0*M_PI;
-	std::cout << "world_yaw = " << world_yaw << std::endl;
+	n.param<double>("/map_world_convert/yaw",yaw,0);
+	n.param<double>("/map_world_convert/pitch",pitch,0);
+	n.param<double>("/map_world_convert/roll",roll,0);
+	n.param<double>("/map_world_convert/x",x,0);
+	n.param<double>("/map_world_convert/y",y,0);
+	n.param<double>("/map_world_convert/z",z,0);
+	yaw  = yaw/180.0*M_PI;
+	roll  = roll/180.0*M_PI;
+	pitch  = pitch/180.0*M_PI;
   	ros::Subscriber pose_feedback=n.subscribe(vision_pose_map_name, 1, PoseStamped_Callback);
   	body_puber = n.advertise<geometry_msgs::PoseStamped>(vision_pose_world_name, 1);
   	

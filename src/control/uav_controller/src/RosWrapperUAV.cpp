@@ -51,11 +51,11 @@ void RosWrapperUAV::vision_pose_callback(const geometry_msgs::PoseStamped &visio
         return;
     }
 
-    // 两次的pose位置变化不能大于0.5
-    if (RosMath::calDistance(uav_pose_pub_, uav_pose) > 0.5)
+    // 两次的pose位置变化不能大于2
+    if (RosMath::calDistance(uav_pose_pub_, uav_pose) > 2)
     {
         vision_pose_ok_flag = false;
-        ROS_ERROR("distance of two vision estimated position is greater than 0.5m");
+        ROS_ERROR("distance of two vision estimated position is greater than 2m");
         return;
     }
 

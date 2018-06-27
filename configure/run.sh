@@ -7,7 +7,7 @@ rgbd()
 orb_slam()
 {
     cd ~/Project/ORB_SLAM2
-    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false
+    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml true
 }
 orb_localization()
 {

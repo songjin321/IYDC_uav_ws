@@ -21,14 +21,16 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     // get some parameters from parameter servers
     // HSV threshold in color person detection
-
-    //
+    double x_cam2body;
+    double y_cam2body;
+    nh.param<double>("/detect_track_node/x_cam2body", x_cam2body,0);
+    nh.param<double>("/detect_track_node/y_cam2body", y_cam2body,0);
 
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
     // calculate object pose relative camera
-    ObjectPoseCal object_pose("/usb_cam/camera_info","object_pose");
+    ObjectPoseCal object_pose("/usb_cam/camera_info","object_pose", x_cam2body, y_cam2body);
 
     // detectors
     DetectionByFeature medicalBag_detector;

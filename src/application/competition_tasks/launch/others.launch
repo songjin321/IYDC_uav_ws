@@ -12,6 +12,8 @@
         <arg name="fcu_url" value="$(arg fcu_url)" />
     </include>
     <include file="$(find competition_tasks)/launch/usb_cam-test.launch"/>
-    <node name="detect_track_node" pkg="detect_track" type="detect_track_node" args="0" output="screen"/>
+    <include file="$(find detect_track)/launch/detect_track.launch">
+        <arg name="is_show" value="0" />
+    </include>
     <node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam"/>
 </launch>

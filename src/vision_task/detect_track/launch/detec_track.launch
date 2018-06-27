@@ -1,0 +1,8 @@
+<launch>
+    <!-- declare arg to be passed in -->
+    <arg name="is_show" /> 
+    <node name="detect_track_node" pkg="detect_track" type="detect_track_node" args="$(arg is_show)" output="screen">
+          <param name="x_cam2body" value="0"/>
+          <param name="y_cam2body" value="0.23"/>
+    </node>
+</launch>
