@@ -29,9 +29,9 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
                     break;
             }
         }
-        usleep(500);
+        usleep(50);
     }
-    ROS_ERROR("timeout 8s");
+    ROS_ERROR("manipulater controller timeout 8s");
     return false;
 }
 int main(int argc, char **argv)
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     // port, baudrate, timeout in milliseconds
     std::string com_name;
     int baud;
-    nh.param<std::string>("COM_dev",com_name,"/dev/pts/8");
+    nh.param<std::string>("COM_dev",com_name,"/dev/pts/79");
     nh.param<int>("baud_rate",baud, 115200);
     MySerial my_serial(com_name, static_cast<uint32_t >(baud));
     if(!my_serial.serial.isOpen())
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-        ros::Rate rate(100);
+        ros::Rate rate(30);
         ros::spinOnce();
         rate.sleep();
     }
