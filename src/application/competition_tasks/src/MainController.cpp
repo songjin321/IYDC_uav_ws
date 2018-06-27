@@ -39,7 +39,7 @@ MainController::MainController(std::string uav_controller_server_name) :
     t_uav_control_loop = std::thread(&MainController::uav_control_loop, this, 5);
 
     // hover init radius, metric:m
-    hover_radius = 0.5;
+    hover_radius = 0.25;
 }
 
 void MainController::ros_message_callback(int callback_rate) {
@@ -123,7 +123,12 @@ void MainController::adjustUavPosition(double delta_x, double delta_y) {
     ros::Rate rate(10);
     int stable_count = 0;
     while (stable_count < 20) {
-        if (object_uav_dis < 0.07) stable_count++;
+        if (object_uav_dis < 0.07) 
+	{
+            ROS_INFO("object_uav_dis = %.3f", object_uav_dis)
+            ROS_INFO("stable count = ", stable_count)   
+            stable_count++;
+	}
         else stable_count = 0;
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if (is_objectPose_updated) {
@@ -139,6 +144,8 @@ void MainController::adjustUavPosition(double delta_x, double delta_y) {
         else {
             while (!uav_hover(uav_pose.pose.position.x, uav_pose.pose.position.y, hover_radius)) {
                 ROS_INFO("can not find object after hover radiu: %.3f, try to add search radius", hover_radius);
+                // lab
+                return;
                 hover_radius *= 2;
             }
 
@@ -224,7 +231,7 @@ void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg)
     object_pose = msg;
     object_2_uav_x = object_pose.pose.position.x;
     object_2_uav_y = object_pose.pose.position.y;
-    object_uav_dis = object_2_uav_x * object_2_uav_x + object_2_uav_y * object_2_uav_y;
+    object_uav_dis = sqrt(object_2_uav_x * object_2_uav_x + object_2_uav_y * object_2_uav_y);
     is_objectPose_updated = true;
 }
 

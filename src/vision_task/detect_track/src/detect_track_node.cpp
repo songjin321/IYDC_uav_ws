@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     cv::Rect2d box;
     cv::RotatedRect r_box;
     cv::Point2f black_center;
-    ros::Rate rate(10);
+    ros::Rate rate(20);
     while(ros::ok())
     {
         ros::spinOnce();
