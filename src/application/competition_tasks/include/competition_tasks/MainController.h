@@ -11,7 +11,20 @@
 #include <actionlib/client/terminal_state.h>
 #include "uav_controller/FlyToGoalAction.h"
 #include <thread>
+#include <vector>
 
+struct WayPoint
+{
+    WayPoint(double x, double y)
+    {
+        this->x = x;
+        this->y = y;
+        this->dis2origin = x*x + y*y;
+    };
+    double x;
+    double y;
+    double dis2origin;
+};
 class MainController
 {
 public:
@@ -65,7 +78,7 @@ public:
     /*
      * 控制无人机跟随目标运动
      */
-    void trackObject();
+    void trackObject(const std::vector<WayPoint> way_points);
 
     /*
      * 飞到固定的高度,要保证不在水平面移动, no step length, no path planning in height direction
@@ -81,6 +94,7 @@ public:
      * let uav hover
      */
     bool uav_hover(double x, double y, double radiu);
+
     /*
      * 关闭飞机
      */
@@ -108,8 +122,6 @@ private:
     std::thread t_uav_control_loop;
     bool is_objectPose_updated;
 
-    double camera_2_uav_x;
-    double camera_2_uav_y;
     double hover_radius;
     double object_2_uav_x;
     double object_2_uav_y;
