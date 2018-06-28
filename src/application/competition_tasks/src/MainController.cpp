@@ -79,7 +79,7 @@ void MainController::start_to_goal(double x, double y, double z)
 {
     flyFixedHeight(0.5);
     flyFixedHeight(z);
-    flyInPlane(x, y, 0.05, 0.3);
+    flyInPlane(x, y, 0.3, 0.3);
 }
 void MainController::sendBuzzerSignal(int seconds)
 {
@@ -97,7 +97,7 @@ void MainController::sendBuzzerSignal(int seconds)
 void MainController::returnToOrigin()
 {
     //　返回到原点上方
-    flyInPlane(0.0, 0.0, 0.1, 0.3);
+    flyInPlane(0.0, 0.0, 0.3, 0.3);
 
     // 降落 two step
     flyFixedHeight(0.5);
@@ -342,7 +342,7 @@ void MainController::flyInPlane(double x, double y, double precision, double ste
     goal.step_length = step_length;
     ros::Rate rate(10);
     int stable_count = 0;
-    while (stable_count < 20)
+    while (stable_count < 10)
     {
         if(RosMath::calDistance(x, uav_pose.pose.position.x, y, uav_pose.pose.position.y, goal.goal_pose.pose.position.z, uav_pose.pose.position.z) < precision) stable_count++;
         else stable_count=0;

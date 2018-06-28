@@ -13,7 +13,7 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
     ros::Time init_time = ros::Time::now();
     uint8_t return_type;
     std::vector<double> return_value;
-    while(ros::Time::now() < init_time + ros::Duration(8))
+    while(ros::Time::now() < init_time + ros::Duration(6))
     {
         if (my_serial->read(return_type, return_value))
         {
@@ -31,7 +31,7 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
         }
         usleep(50);
     }
-    ROS_ERROR("manipulater controller timeout 8s");
+    ROS_ERROR("manipulater controller timeout 6s");
     return false;
 }
 int main(int argc, char **argv)

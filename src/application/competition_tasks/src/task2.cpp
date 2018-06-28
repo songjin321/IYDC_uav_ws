@@ -45,14 +45,15 @@ int main(int argc, char **argv)
     // 关闭目标检测,4表示blackCircle
     main_controller.stopObjectDetection(4);
 
-    // 下降到0.2m
-    main_controller.flyFixedHeight(0.3);
+    // 下降到0.3m
+    main_controller.flyFixedHeight(0.6);
+    main_controller.flyFixedHeight(0.2);
 
     // 投递食物箱
-    // main_controller.releaseObject();
-    ROS_INFO("release object");
+    main_controller.releaseObject();
 
-    // 升高到0.5m
+    // 升高到task2_z
+    main_controller.flyFixedHeight(0.6);
     main_controller.flyFixedHeight(task2_z);
 
     // 返回到起始点,降落到地面,关闭飞机

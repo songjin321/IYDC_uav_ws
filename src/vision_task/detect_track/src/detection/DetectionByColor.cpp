@@ -62,6 +62,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 	cv::Mat dilateImg;
 	cv::erode(erodeImg, dilateImg, element);
 
+        // cv::imshow("dilateImg", dilateImg);
 	// 查找轮廓 
 	std::vector< std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -136,6 +137,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 			{
 			
 					// 求中心像素的mask平均值
+                                        /*
 					cv::Point2f center = roi_2.center;
 
 					cv::Scalar hsv_avg = (0, 0, 0);
@@ -157,6 +159,8 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 						//std::cout << "return false_roi_2中心不是蓝色" << std::endl;
 						return false;
 					}
+                                        */
+                                        return true;
 					
 			}
 			else

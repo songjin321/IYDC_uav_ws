@@ -8,5 +8,6 @@
     <param name="io_method" value="mmap"/>
 
     <param name="brightness" value="200"/>
+    <param name="auto_white_balance" value="false"/>
   </node>
 </launch>

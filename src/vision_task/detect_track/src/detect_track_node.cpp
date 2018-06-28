@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     double y_cam2body;
     nh.param<double>("/detect_track_node/x_cam2body", x_cam2body,0);
     nh.param<double>("/detect_track_node/y_cam2body", y_cam2body,0);
-
+    // std::cout << "x = " << x_cam2body << " y = " << y_cam2body << std::endl;
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
@@ -119,9 +119,9 @@ int main(int argc, char** argv)
             if(detection_controller.is_detect_redPerson_)
             {
                 if(color_detector.detectPureObject(frame, r_box,
-                                                cv::Scalar(0, 50, 50),
+                                                cv::Scalar(0, 0, 50),
                                                 cv::Scalar(10, 255, 255),
-                                                cv::Scalar(160, 50, 50),
+                                                cv::Scalar(160, 0, 50),
                                                 cv::Scalar(180, 255, 255)))
                 {
                     // ROS_INFO("detected colorPerson!!!");
