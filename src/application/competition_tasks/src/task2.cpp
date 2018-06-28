@@ -28,13 +28,14 @@ int main(int argc, char **argv)
 
     // 发出提示５秒
     main_controller.sendBuzzerSignal(5);
+    Sleep(5);
 
     // 关闭目标检测,3表示redPerson
     main_controller.stopObjectDetection(3);
 
 
     ROS_INFO("task2_circle_x = %.3f, task2_circle_y = %.3f",task2_circle_x, task2_circle_y);
-    main_controller.flyInPlane(task2_circle_x, task2_circle_y, 0.05, 0.2);
+    main_controller.flyInPlane(task2_circle_x, task2_circle_y, 0.1, 0.2);
 
     // 开启目标检测,4表示blackCircle
     main_controller.startObjectDetection(4);
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
 
     // 投递食物箱
     main_controller.releaseObject();
+    Sleep(5);
 
     // 升高到task2_z
     main_controller.flyFixedHeight(0.6);

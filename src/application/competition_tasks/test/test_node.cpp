@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     n.getParam("/test_node/object_id", object_id);
     ROS_INFO("task_x = %.3f, task_y = %.3f, task_z = %.3f, object_id = %d",
               task_x, task_y, task_z, object_id);
+    std::vector<WayPoint> way_points;
     main_controller.start_to_goal(task_x, task_y, task_z);
 
     // 发出提示５秒
@@ -28,7 +29,7 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(object_id);
 
     // 使无人机追踪目标物
-    main_controller.trackObject();
+    main_controller.trackObject(way_points);
 
     // 关闭目标检测,2表示colorPerson
     main_controller.stopObjectDetection(object_id);

@@ -14,6 +14,8 @@ int main(int argc, char **argv)
     n.getParam("/task3_node/task3_y", task3_y);
     n.getParam("/task3_node/task3_z", task3_z);
     ROS_INFO("task3_x = %.3f, task3_y = %.3f, task3_z = %.3f",task3_x, task3_y, task3_z);
+    std::vector<WayPoint> way_points;
+
     main_controller.start_to_goal(task3_x, task3_y, task3_z);
 
     // 开启目标检测,2表示BackgroundObject,用这个来控制飞机位于小车上方
@@ -32,7 +34,7 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(0);
 
     // 使无人机追踪目标物
-    main_controller.trackObject();
+    main_controller.trackObject(way_points);
 
     // 关闭目标检测,0表示car
     main_controller.stopObjectDetection(0);
