@@ -315,3 +315,26 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
 		return false;
 	}
 }
+
+static void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
+{
+	cv::Mat hh;
+
+	hh = *(cv::Mat*)userdata;
+
+	cv::Point p(x, y);
+
+	switch (EVENT)
+	{
+
+	case cv::EVENT_LBUTTONDOWN:
+	{
+		printf("h=%d\t", hh.at<cv::Vec3b>(p)[0]);
+		printf("s=%d\t", hh.at<cv::Vec3b>(p)[1]);
+		printf("v=%d\t\n", hh.at<cv::Vec3b>(p)[2]);
+		circle(hh, p, 2, cv::Scalar(255, 255, 255));
+	}
+	break;
+
+	}
+}
