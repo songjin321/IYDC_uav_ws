@@ -163,14 +163,11 @@ int main(int argc, char** argv)
             {
                //  convert image from RGB to HSV 
 			   cv::cvtColor(frame, hsv, CV_BGR2HSV);
-
-			   // show the final image  
+               // show the final image  
 			   cv::namedWindow("detection_result", 0);
 			   cv::imshow("detection_result", frame);
-
                // click left botton of mouce then show the particular point's HSV value 
                cv::setMouseCallback("detection_result", color_detector.on_mouse, &hsv);
-			
 			   cv::waitKey(3);
             }
         }
