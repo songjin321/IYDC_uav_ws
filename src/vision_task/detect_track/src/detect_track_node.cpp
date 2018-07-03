@@ -47,6 +47,7 @@ int main(int argc, char** argv)
                                                      &DetectionController::controlDetectionCallback,
                                                      &detection_controller);
     cv::Mat frame;
+    cv::Mat hsv;
     cv::Rect2d box;
     cv::RotatedRect r_box;
     cv::Point2f black_center;
@@ -160,8 +161,14 @@ int main(int argc, char** argv)
             }
             if (atoi(argv[1]) == 1)
             {
-                cv::imshow("detection_result", frame);
-                cv::waitKey(3);
+               //  convert image from RGB to HSV 
+			   cv::cvtColor(frame, hsv, CV_BGR2HSV);
+               // show the final image  
+			   cv::namedWindow("detection_result", 0);
+			   cv::imshow("detection_result", frame);
+               // click left botton of mouce then show the particular point's HSV value 
+               cv::setMouseCallback("detection_result", color_detector.on_mouse, &hsv);
+			   cv::waitKey(3);
             }
         }
         rate.sleep();
