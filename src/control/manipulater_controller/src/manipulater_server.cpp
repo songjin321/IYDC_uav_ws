@@ -37,12 +37,12 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "manipulater_server");
-    ros::NodeHandle nh;
-
+    ros::NodeHandle nh; 
+    std::cout << "enter function" << std::endl;
     // port, baudrate, timeout in milliseconds
     std::string com_name;
     int baud;
-    nh.param<std::string>("COM_dev",com_name,"/dev/pts/79");
+    nh.param<std::string>("COM_dev",com_name,"/dev/ttyUSB0");
     nh.param<int>("baud_rate",baud, 115200);
     MySerial my_serial(com_name, static_cast<uint32_t >(baud));
     if(!my_serial.serial.isOpen())

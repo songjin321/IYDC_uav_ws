@@ -125,8 +125,8 @@ void MainController::adjustUavPosition(double delta_x, double delta_y) {
     while (stable_count < 20) {
         if (object_uav_dis < 0.07) 
 	{
-            ROS_INFO("object_uav_dis = %.3f", object_uav_dis)
-            ROS_INFO("stable count = ", stable_count)   
+            ROS_INFO("object_uav_dis = %.3f", object_uav_dis);
+            ROS_INFO("stable count = %d", stable_count);   
             stable_count++;
 	}
         else stable_count = 0;

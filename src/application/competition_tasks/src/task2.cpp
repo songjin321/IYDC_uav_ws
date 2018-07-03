@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     // 发出提示５秒
     main_controller.sendBuzzerSignal(5);
-    Sleep(5);
+    sleep(5);
 
     // 关闭目标检测,3表示redPerson
     main_controller.stopObjectDetection(3);
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
     // 投递食物箱
     main_controller.releaseObject();
-    Sleep(5);
+    sleep(5);
 
     // 升高到task2_z
     main_controller.flyFixedHeight(0.6);
