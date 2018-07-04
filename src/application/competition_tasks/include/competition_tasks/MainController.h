@@ -15,15 +15,18 @@
 
 struct WayPoint
 {
+    WayPoint(){};
     WayPoint(double x, double y)
     {
         this->x = x;
         this->y = y;
-        this->dis2origin = x*x + y*y;
     };
-    double x;
-    double y;
-    double dis2origin;
+    double x = 0;
+    double y = 0;
+    double dis2origin() const
+    {
+        return x*x + y*y;
+    }
 };
 class MainController
 {

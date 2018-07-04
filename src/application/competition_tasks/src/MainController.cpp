@@ -202,25 +202,50 @@ void MainController::trackObject(const std::vector<WayPoint> way_points) {
             goal.fly_vel = 1;
             goal.step_length = 0.5;
             is_objectPose_updated = false;
-            ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
+            ROS_INFO("try to track the obejct, the position of object relative to uav, x = %.3f, y = %.3f",
                      object_2_uav_x, object_2_uav_y);
         } else {
-            //　fly along way points
+            //　fly along way points, assume the all waypoints organized from far to close.
+            // step1: find two wayPoints closest to uav;
             int index = 0;
-            double dis_max = -1;
+            double dis_min = 100000;
             for(int i = 0; i < way_points.size(); i++)
             {
-                if (way_points[i].dis2origin < uav2origin && way_points[i].dis2origin > dis_max)
+                double dis_x = way_points[i].x - uav_pose.pose.position.x;
+                double dis_y = way_points[i].y - uav_pose.pose.position.y;
+                double distance = sqrt(dis_x * dis_x + dis_y * dis_y);
+                if (distance < dis_min)
                 {
-                    dis_max = way_points[i].dis2origin;
+                    dis_min = distance;
                     index = i;
                 }
             }
-            goal.goal_pose.pose.position.x = way_points[index].x;
-            goal.goal_pose.pose.position.y = way_points[index].y;
+            ROS_INFO("closest wayPoint index = %d, dis_min = %.3f", index, dis_min);
+            if (index == 0)
+            {
+                goal.goal_pose.pose.position.x = way_points[1].x;
+                goal.goal_pose.pose.position.y = way_points[1].y;
+            }else if (index == way_points.size()) {
+                goal.goal_pose.pose.position.x = (way_points.end()-1)->x;
+                goal.goal_pose.pose.position.y = (way_points.end()-1)->y;
+            }else if(dis_min < 0.2){
+                goal.goal_pose.pose.position.x = way_points[index+1].x;
+                goal.goal_pose.pose.position.y = way_points[index+1].y;
+            }else if(pow(way_points[index-1].x - uav_pose.pose.position.x, 2)
+                     + pow(way_points[index-1].y - uav_pose.pose.position.y ,2) >
+                    pow(way_points[index+1].x - uav_pose.pose.position.x, 2)
+                    + pow(way_points[index+1].y - uav_pose.pose.position.y ,2))
+            {
+                goal.goal_pose.pose.position.x = way_points[index+1].x;
+                goal.goal_pose.pose.position.y = way_points[index+1].y;
+            }else{
+                goal.goal_pose.pose.position.x = way_points[index].x;
+                goal.goal_pose.pose.position.y = way_points[index].y;
+            }
             goal.fly_vel = 1;
             goal.step_length = 0.5;
-            ROS_INFO("track lost, fly along wayPoints");
+            ROS_INFO("track lost, fly along wayPoints, waypoint: x = %.3f, y = %.3f, velocity of uav: v = %.3f",
+                     goal.goal_pose.pose.position.x, goal.goal_pose.pose.position.y, goal.fly_vel);
         }
         uav2origin = RosMath::calDistance(uav_pose.pose.position.x, 0, uav_pose.pose.position.y, 0);
         rate.sleep();
