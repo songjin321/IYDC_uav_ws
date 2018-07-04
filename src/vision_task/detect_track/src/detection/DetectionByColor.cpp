@@ -137,7 +137,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 			{
 			
 					// 求中心像素的mask平均值
-                                        /*
+				    /*
 					cv::Point2f center = roi_2.center;
 
 					cv::Scalar hsv_avg = (0, 0, 0);
@@ -159,8 +159,8 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 						//std::cout << "return false_roi_2中心不是蓝色" << std::endl;
 						return false;
 					}
-                                        */
-                                        return true;
+                    */
+				    return true;
 					
 			}
 			else
@@ -188,7 +188,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
 
 bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point2f &center)
 {
-        // 缩小图像 
+	// 缩小图像
 	// resize(input, input, cv::Size(384, 288));
 	// resize(src, src, Size(512,384));
 	// resize(src, src, Size(448, 336));
@@ -231,7 +231,7 @@ bool DetectionByColor::detectBlackCircle(cv::Mat &input, cv::Point2f &center)
 	{
 		for (size_t i = 0; i < circles.size(); i++)
 		{         
-                        //将每个检测出来的圆心分别叠加起来
+			//将每个检测出来的圆心分别叠加起来
 			sum_x += circles[i][0];
 			sum_y += circles[i][1];
 		}
@@ -316,7 +316,7 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
 	}
 }
 
-static void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
+void DetectionByColor::on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 {
 	cv::Mat hh;
 

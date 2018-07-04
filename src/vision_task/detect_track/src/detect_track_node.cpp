@@ -103,8 +103,8 @@ int main(int argc, char** argv)
                     // 一个轮廓都没有检测到,无法计算目标物的位置
                     // 最大的轮廓不为空,确定目标物在最大轮廓的那个方向
                     // 如果视野中全是背景色,无法确定目标物的位置
-		    // std::cout << "box area " << r_box_1.size.area() << std::endl;
-		    // std::cout << "frame are " << frame.rows * frame.cols << std::endl;
+		            // std::cout << "box area " << r_box_1.size.area() << std::endl;
+		            // std::cout << "frame are " << frame.rows * frame.cols << std::endl;
                     if(r_box_1.size.area() > 5000 && abs(r_box_1.size.area() - (frame.rows * frame.cols)) > 3000)
                     {
                         ROS_INFO("detected background!!!");
@@ -161,13 +161,13 @@ int main(int argc, char** argv)
             }
             if (atoi(argv[1]) == 1)
             {
-               //  convert image from RGB to HSV 
+               // convert image from RGB to HSV
 			   cv::cvtColor(frame, hsv, CV_BGR2HSV);
                // show the final image  
 			   cv::namedWindow("detection_result", 0);
 			   cv::imshow("detection_result", frame);
                // click left botton of mouce then show the particular point's HSV value 
-               cv::setMouseCallback("detection_result", color_detector.on_mouse, &hsv);
+               cv::setMouseCallback("detection_result", DetectionByColor::on_mouse, &hsv);
 			   cv::waitKey(3);
             }
         }
