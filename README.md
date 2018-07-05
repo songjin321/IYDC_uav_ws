@@ -1,104 +1,58 @@
-# 无人机比赛上位机框架
+UAV Navigation Stack for NRSL
+==============================
+## 简介
+无人机导航栈，将无人机的底层给封装起来，方便上层直接利用封装的api进行应用编程.
 
-# 无人机部分
+### 特点
+- 只规划了大致的框架，可以自行替换里面的各个模块，比如定位和运动规划等模块．
+- 利用uav_controller提供的服务，可以方便的对无人机进行控制.
+- 利用ros的消息和服务机制，各个模块都是解耦的.
+### 目录说明
+```
+uav_ws  
+│
+└───configure 一些配置文件，包括px4固件、相机参数等.
+│
+└───src 
+    ├── application 上层应用包
+    │   └── competition_tasks 青少年无人机比赛包
+    ├── common 常用的包和库
+    │   └── ros_common
+    ├── control 和控制有关的包
+    │   ├── manipulater_controller 执行机构控制包
+    │   └── uav_controller 无人机控制包
+    ├── device_driver 设备驱动
+    │   ├── serial 串口
+    │   ├── usb_cam 相机
+    │   └── vrpn_client_ros-nrsl 动捕
+    ├── uav_navigation 导航
+    │   ├── motion_planner 运动规划，现在只包含最简单的路径规划
+    │   └── slam 定位和建图
+    └── vision_task 视觉任务
+        ├── detect_track 青少年无人机比赛的目标检测和追踪
+        └── find-object 一个基于特征点匹配的目标检测包
+```
+-----
+## 安装与配置
+1. 环境为ubuntu 16.04和ros-kinetic
+2. 飞控采用的px4, 刷的固件版本是1.7.0版，使用lpe作为位置估计器. 可以使用地面站将configure/px4fmu-v2_lpe.px4刷入飞控.飞控采用外部位置估计配置参考[官网教程](https://dev.px4.io/en/ros/external_position_estimation.html).
+3. 使用./configure/install_geographiclib_datasets.sh安装mavros的依赖.使用sudo apt-get install ros-kinetic-mavros ros-kinetic-mavros-extras进行二进制安装.参考[官方教程](https://github.com/mavlink/mavros/blob/master/mavros/README.md#installation)
+4. 使用动捕提供的位置估计运行定高程序
+- 绑定飞控的串口为/dev/px4.[串口绑定教程](https://unix.stackexchange.com/questions/66901/how-to-bind-usb-device-under-a-static-name)
+- 创建动捕刚体的时候一定要保证机头方向和动捕的x轴相反，具体可以看vrpn_client_ros.cpp是怎么写的. 动捕坐标系是y轴向上的，所以需要转换到z轴朝上。
+- rostopic echo /mavros/local_position/pose, 观察当飞机向机头方向运动时，x增加;当飞机向上时，z轴值增加.
+- roslaunch orb_slam uav_mocap_test.launch
+- rostopic echo /mavros/setpoint_position/local,观察设定的点是否是在uav_mocap_test.launch中设定的值.
+5. 配置基于RGBD相机的ORB-SLAM，实现脱离动捕的定位
+- 安装相机驱动，我们使用的是奥比中光的相机.并标定相机的内外参数
+- 提供了一个map_world_convert包用于将相机在地图坐标系的位姿转换到无人机相对于世界坐标系的位姿
+- 下载NRSL增强过的orbslam，运行orbslam，先使用slam模式，关闭后会将建立的地图直接保存
+> cd ~/Project/ORB_SLAM2
+> rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false 
+- 然后可以拿着飞机建立的地图，然后进入定位模式
+> cd ~/Project/ORB_SLAM2
+> rosrun ORB_SLAM2 RGBD_localization Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false MapPointandKeyFrame.map
+6. 配置用于进行目标检测的相机的内外参数
+## 使用说明
+参考application下competition_tasks包的用法
 
-无人机部分指的是运行在小电脑上软件.主要负责无人机的定位,建图,目标检测,追踪,无人机的路径规划,无人机挂载执行器的工作.
-
-本次比赛总共有四个任务.为了完成这四个任务,无人机需实现以下功能:
-
-## 比赛无人软件运行流程
-
-赛前准备:采用orbslam或者rovioli来构建地图,地图中应该包含用来
-定位的特征点信息和四个任务的目标物位置
-
-## 各个模块
-
-1. 定位包 localization
-
-    - 读入图像,实时给出无人的位置->给飞控用于控制无人机
-
-2. 轨迹规划
-
-   - 不需要考虑碰撞
-   - 搜寻模式进行轨迹规划
-   - 给定一个目标点,call这个服务后,这个服务结合地图,给出一条轨迹(带时间的用来控制无人机)
-   - 给定目标在图像中的位置,结合无人机的位姿,假定目标在水平面上不动,做一个滤波器确定其位置
-   - 针对任务三需要认为目标物是动进行速度预测
-
-3. 无人机运动控制
-
-   - 订阅轨迹,来控制无人机运动
-
-4. 无人机操作部分服务
-
-   - 闪灯->返回是否OK
-   - 松开
-   - 抓取->返回时候OK
-
-5. 目标检测服务
-
-   - 给定一张图片,和相应的检测代号,返回box
-
-
-6. 目标追踪节点
-
-   - 给定一个box启动后,接受下一帧图片不断返回box中心点
-
-7. 自动飞行主程序包, auto_fly
-
-   - 有四个节点，对应四个子任务
-   - 四个节点的主要代码框架都差不多，但什么时候开启检测什么时候结束追踪是有区别的
-
-8. 手动飞行程序包
-
-   - 用于手动飞行，参考之前的项目
-
-## 运行建图模式
-
-拿着无人机在场地中实时跑几圈，建好相对应的地图，并且输出四个任务的任务点
-
-## 运行自动模式
-
-上电解锁后脚本自动运行rosrun auto_fly main,
-依据遥控器信号运行不同的指令．**可能不够稳定，考虑直接在地面站运行roslaunch 脚本**
-
-### 1. roslaunch auto_fly task1.launch
-
-先把定位跑起来，注意飞机每次都要摆到与建图的时候相同的起始点．
-运行task1,飞到任务１的相对应的位置，巡航，进行目标检测，检测
-到目标物后，追踪保证其在视野中心．
-物体和飞机均不动，后开始调用声音和闪灯，６秒后返回．上锁
-roslaunch auto_fly allrelative.launch
-rosrun auto_fly task2.launch
-
-### 2. roslaunch auto_fly task2.launch
-
-稳定后，调用声音和闪灯6秒．第2秒的时候调用释放的服务，６秒到了就返回
-返回过程不运行检测和追踪
-
-### 3. roslaunch auto_fly task3.launch
-
-
-
-## 运行手动模式
-
-manual_fly，无人机只运行定位包，接受地面的键盘控制，并传输图像到地面
-参考前一个项目
-
-# 地面站部分
-
-实时接受并显示x相关的无人机的各种状态，rqt_rviz
-远程对无人机进行控制
-
-# 辅助Debug的库
-
-- 显示，订阅Pose转化为odometry
-- 坐标系转换，用tf表示要好一点
-- 将需要的修改的参数设定为rosparam,放入到launch文件中，这样就可以不用每次都重新
-进行编译了
-
-# 写一个自动测试工具来测试相应的算法是否可行，可以使用标准数据集
-
-# 无人机导航包，slam定位，建图，路径规划．基于这个再做上层应用
-
-在地面站上设置飞机初始模式为ASSISTED下的ALTCTL
