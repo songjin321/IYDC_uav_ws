@@ -1,104 +1,159 @@
-# 无人机比赛上位机框架
+青少年无人机大赛包
+=====================
+# 比赛说明
 
-# 无人机部分
+青少年无人机大赛，重点在于青少年. 
 
-无人机部分指的是运行在小电脑上软件.主要负责无人机的定位,建图,目标检测,追踪,无人机的路径规划,无人机挂载执行器的工作.
+# 赛前准备
+### **一定要确保此时的场景和实际比赛时的场景是一致的**
+## 1.使用orbslam建立场景的地图
+- step0:source uav_ws/configure/run.sh载入一些方便使用的函数（在我们的小电脑上默认已经载入了）
+- step1:将无人机放置到起点处，确保无人机的机头方向朝向正前方
+- step2:上电，外接显示器和鼠标，打开一个终端，输入rgbd,启动深度相机.在另一个终端中输入orb_slam true(true表示打开显示界面，在远程调试的时候一定要false.因为远程不可以调用图形界面)
+- step3:缓慢的在场景中移动无人机，建立场景的一个完整的地图，建立完成后关闭程序，则地图自动保存 
 
-本次比赛总共有四个任务.为了完成这四个任务,无人机需实现以下功能:
+## 2.配置目标检测任务的参数
+> roslaunch competition_tasks detect_test.launch 启动目标检测，点击图片中的相应位置可以在终端中看到hsv值
 
-## 比赛无人软件运行流程
+> rostopic echo /object_pose 显示目标物相对无人机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
 
-赛前准备:采用orbslam或者rovioli来构建地图,地图中应该包含用来
-定位的特征点信息和四个任务的目标物位置
+detection_controller_server服务：
 
-## 各个模块
+ControlType:目标检测的物体类型
+- 0:小车
+- 1:医药包
+- 2:绿色背景中的物体
+- 3:红色小人
+- 4:黑色圆圈
+- 5:黄色小人
+- 6:红色背景中的物体
+Start: true(开启相应物体检测)/false(关闭相应相应物体检测)
 
-1. 定位包 localization
+### 任务1:
+- 检测蓝色小人，小人为绿色背景中的物体
+> rosservice call /detection_controller_server "ControlType: 2 Start: true"
 
-    - 读入图像,实时给出无人的位置->给飞控用于控制无人机
+将无人机逐渐移动到一号遇险者上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
-2. 轨迹规划
+> rosservice call /detection_controller_server "ControlType: 2 Start: false"
 
-   - 不需要考虑碰撞
-   - 搜寻模式进行轨迹规划
-   - 给定一个目标点,call这个服务后,这个服务结合地图,给出一条轨迹(带时间的用来控制无人机)
-   - 给定目标在图像中的位置,结合无人机的位姿,假定目标在水平面上不动,做一个滤波器确定其位置
-   - 针对任务三需要认为目标物是动进行速度预测
+### 任务2:
+- 检测红色小人
+> rosservice call /detection_controller_server "ControlType: 3 Start: true"
 
-3. 无人机运动控制
+将无人机逐渐移动到二号红色遇险者上方，观察/object_pose是否正确.默认设置H_red:40~80,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
-   - 订阅轨迹,来控制无人机运动
+> rosservice call /detection_controller_server "ControlType: 3 Start: false"
 
-4. 无人机操作部分服务
+- 检测同心圆
+> rosservice call /detection_controller_server "ControlType: 4 Start: true"
+将无人机逐渐移动到同心圆上方，观察/object_pose是否正确.
+> rosservice call /detection_controller_server "ControlType: 4 Start: false"
 
-   - 闪灯->返回是否OK
-   - 松开
-   - 抓取->返回时候OK
+### 任务3: 
+- 检测小车使用sift方法
+> rosservice call /detection_controller_server "ControlType: 0 Start: true"
 
-5. 目标检测服务
+使用find_object软件将物体的模板存储在application/competition_tasks/object_template/car/car.png中
 
-   - 给定一张图片,和相应的检测代号,返回box
+> rosservice call /detection_controller_server "ControlType: 0 Start: false"
 
+- 检测小车使用颜色分割，小车为绿色背景中的物体
+> rosservice call /detection_controller_server "ControlType: 2 Start: true"
 
-6. 目标追踪节点
+将无人机逐渐移动到一号遇险者上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
-   - 给定一个box启动后,接受下一帧图片不断返回box中心点
+> rosservice call /detection_controller_server "ControlType: 2 Start: false"
 
-7. 自动飞行主程序包, auto_fly
+### 任务4: 
+- 检测医药包，医药包为红色背景中的物体
+> rosservice call /detection_controller_server "ControlType: 6 Start: true"
 
-   - 有四个节点，对应四个子任务
-   - 四个节点的主要代码框架都差不多，但什么时候开启检测什么时候结束追踪是有区别的
+将无人机逐渐移动到医药包上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击红色背景部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
-8. 手动飞行程序包
+> rosservice call /detection_controller_server "ControlType: 6 Start: false"
 
-   - 用于手动飞行，参考之前的项目
+- 检测黄色小人，为黄色纯色物体
+> rosservice call /detection_controller_server "ControlType: 3 Start: true"
 
-## 运行建图模式
+将无人机逐渐移动到四号黄色遇险者上方，观察/object_pose是否正确.默认设置H_yellow:10~30,S_yellow:50~255,V_yellow:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
-拿着无人机在场地中实时跑几圈，建好相对应的地图，并且输出四个任务的任务点
+> rosservice call /detection_controller_server "ControlType: 3 Start: false"
 
-## 运行自动模式
+- 检测物品放置台，为红色纯色物体
 
-上电解锁后脚本自动运行rosrun auto_fly main,
-依据遥控器信号运行不同的指令．**可能不够稳定，考虑直接在地面站运行roslaunch 脚本**
+## 3.测试执行机构是否正常
+#### 使用前准备
+绑定串口到/dev/manipulater
+> rosrun manipulater_controller manipulater_server
 
-### 1. roslaunch auto_fly task1.launch
+观察能否正常打开串口
+#### 抓取测试
+> rosservice call /manipulater_server "cmd: 2"
 
-先把定位跑起来，注意飞机每次都要摆到与建图的时候相同的起始点．
-运行task1,飞到任务１的相对应的位置，巡航，进行目标检测，检测
-到目标物后，追踪保证其在视野中心．
-物体和飞机均不动，后开始调用声音和闪灯，６秒后返回．上锁
-roslaunch auto_fly allrelative.launch
-rosrun auto_fly task2.launch
+观察是否抓取正常，返回值是否为true
+#### 松开测试
+> rosservice call /manipulater_server "cmd: 3"
 
-### 2. roslaunch auto_fly task2.launch
+观察是否松开正常，返回值是否为true
+#### 蜂鸣器测试
+> rosservice call /manipulater_server "cmd: 4"
 
-稳定后，调用声音和闪灯6秒．第2秒的时候调用释放的服务，６秒到了就返回
-返回过程不运行检测和追踪
+观察蜂鸣器是否正常，返回值是否为true
+## 4.设置四个任务点的位置
 
-### 3. roslaunch auto_fly task3.launch
+### 启动
+打开四个终端，分别输入以下指令
+> rgbd
 
+> orb_localization false
 
+> roslaunch competition_tasks others.launch
 
-## 运行手动模式
+> rostopic echo /mavros/local_position/pose
+### 任务1
+- 移动无人机，将无人机移动到任务1蓝色小人的正上方，将无人机此时的x和y坐标写入到task1.launch中,
 
-manual_fly，无人机只运行定位包，接受地面的键盘控制，并传输图像到地面
-参考前一个项目
+### 任务2
+- 移动无人机，将无人机移动到任务2红色小人的正上方，将无人机此时的x和y坐标写入到task2.launch中.
+- 移动无人机，将无人机移动到黑色圆圈正上方，记录此时无人机的x，y写入，将无人机下放到投掷高度，记录无人机此时的z
 
-# 地面站部分
+### 任务3
+- 移动无人机，将无人机移动到任务3的自动寻迹小车的正上方，将无人机此时的x和y坐标写入到task3.launch中.
 
-实时接受并显示x相关的无人机的各种状态，rqt_rviz
-远程对无人机进行控制
+### 任务4
+- 移动无人机，将无人机移动到任务4的药瓶抓取区正上方，将无人机此时的x和y坐标写入，将无人机下降到药瓶抓取台上，记录此时的z值并写入.
+- 移动无人机，将无人机移动到任务4的黄色小人正上方，将无人机此时的x和y坐标写入
+- 移动无人机，将无人机移动到任务4的药品放置区正上方，将无人机此时的x和y坐标写入，将无人机下降到药品放置台上，记录此时的z值并写入.
 
-# 辅助Debug的库
+### 注意 
+无人机默认的起飞高度为1m
 
-- 显示，订阅Pose转化为odometry
-- 坐标系转换，用tf表示要好一点
-- 将需要的修改的参数设定为rosparam,放入到launch文件中，这样就可以不用每次都重新
-进行编译了
+# 比赛
 
-# 写一个自动测试工具来测试相应的算法是否可行，可以使用标准数据集
+## 启动
+- step0: 无人机上电，飞控上电, 将无人放置到起点处
+- step1: 远程连接到无人机，启动相机，orbslam和other.launch
+- step3: rostopic echo 无人机位姿，和给的位姿， 检测目标物位置 
+- step4: roslaunch相对应的任务
+## 任务1
+> roslaunch competition_tasks task1.launch
+## 任务2
+> roslaunch competition_tasks task2.launch
+## 任务3
+> roslaunch competition_tasks task3.launch
+## 任务4
+> roslaunch competition_tasks task4.launch
+## 注意事项
+每次重新启动一个任务时，最好将others.launch重启
 
-# 无人机导航包，slam定位，建图，路径规划．基于这个再做上层应用
+# 备忘录与说明
 
-在地面站上设置飞机初始模式为ASSISTED下的ALTCTL
+## TODOLists
+- 目标检测时，基于sift的方案不可行，如何改为基于背景的检测.要注意背景的颜色要可以更改
+- 实际上如果不需要精准的抓取和投放，考虑不进行目标检测，直接使用定位结果，物品放置台很大，可能不需要加测
+- 在检测目标相对于无人机的位置时，默认的是目标相对于相机高度为1m，这个是不对的，要考虑无人机的高度和目标物的高度
+- orb_slam定位模式刚起来能否定位上，或者slam模式是否需要动一下飞机
+- manipulater_controller 的返回值读取和使用launch绑定串口，将其写入other.launch
+- 将每个任务的各个位置和无人机运动的速度和步长弄成参数
+- 目标检测控制使用枚举，小车的检测是否使用sift方便切换

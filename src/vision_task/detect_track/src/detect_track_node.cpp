@@ -26,6 +26,12 @@ int main(int argc, char** argv)
     nh.param<double>("/detect_track_node/x_cam2body", x_cam2body,0);
     nh.param<double>("/detect_track_node/y_cam2body", y_cam2body,0);
     // std::cout << "x = " << x_cam2body << " y = " << y_cam2body << std::endl;
+
+    // hue and saturation value of green background
+    int hue_greenBackGround_low;
+    int hue_greenBackGround_high; 
+    nh.param<int>("/detect_track_node/hue_greenBackGround_low", hue_greenBackGround_low, 40);
+    nh.param<int>("/detect_track_node/hue_greenBackGround_high", hue_greenBackGround_high, 80);
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
 
@@ -86,8 +92,8 @@ int main(int argc, char** argv)
                 // 最大的轮廓
                 cv::RotatedRect r_box_1;
                 bool is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
-                                                                              cv::Scalar(40,50,50),
-                                                                              cv::Scalar(80,255,255));
+                                                                              cv::Scalar(hue_greenBackGround_low, 50, 50),
+                                                                              cv::Scalar(hue_greenBackGround_high, 255, 255));
                 // 计算目标物的位置
                 if(is_detect_object)
                 {
@@ -120,25 +126,10 @@ int main(int argc, char** argv)
             if(detection_controller.is_detect_redPerson_)
             {
                 if(color_detector.detectPureObject(frame, r_box,
-                                                cv::Scalar(0, 0, 50),
-                                                cv::Scalar(10, 255, 255),
-                                                cv::Scalar(160, 0, 50),
-                                                cv::Scalar(180, 255, 255)))
-                {
-                    // ROS_INFO("detected colorPerson!!!");
-                    object_pose.calculatePoseFromRotatedBox(r_box);
-                    object_pose.publishPose();
-                    cv::Point2f vertices[4];
-                    r_box.points(vertices);
-                    for (int i = 0; i < 4; i++)
-                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
-                }
-            }
-            if(detection_controller.is_detect_yellowPerson_)
-            {
-                if(color_detector.detectPureObject(frame, r_box,
                                                 cv::Scalar(0, 50, 50),
-                                                cv::Scalar(10, 255, 255)))
+                                                cv::Scalar(10, 255, 255),
+                                                cv::Scalar(160, 50, 50),
+                                                cv::Scalar(180, 255, 255)))
                 {
                     // ROS_INFO("detected colorPerson!!!");
                     object_pose.calculatePoseFromRotatedBox(r_box);
@@ -157,6 +148,21 @@ int main(int argc, char** argv)
                     object_pose.calculatePoseFromPoint(black_center);
                     object_pose.publishPose();
                     cv::circle( frame, black_center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
+                }
+            }
+            if(detection_controller.is_detect_yellowPerson_)
+            {
+                if(color_detector.detectPureObject(frame, r_box,
+                                                cv::Scalar(0, 50, 50),
+                                                cv::Scalar(10, 255, 255)))
+                {
+                    // ROS_INFO("detected colorPerson!!!");
+                    object_pose.calculatePoseFromRotatedBox(r_box);
+                    object_pose.publishPose();
+                    cv::Point2f vertices[4];
+                    r_box.points(vertices);
+                    for (int i = 0; i < 4; i++)
+                        line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0,255,0));
                 }
             }
             if (atoi(argv[1]) == 1)

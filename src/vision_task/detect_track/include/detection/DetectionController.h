@@ -16,6 +16,7 @@ public:
     DetectionController(DetectionAndTrackingLoop *car_dAt);
     bool controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                   detect_track::ControlDetection::Response &res);
+    
     bool is_detect_car_;
     bool is_detect_medicalBag_;
     bool is_detect_BackgroundObject_;

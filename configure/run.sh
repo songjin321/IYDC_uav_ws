@@ -7,12 +7,12 @@ rgbd()
 orb_slam()
 {
     cd ~/Project/ORB_SLAM2
-    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false 
+    rosrun ORB_SLAM2 RGBD Vocabulary/ORBvoc.txt param/rgbd_camera.yaml $1 
 }
 orb_localization()
 {
     cd ~/Project/ORB_SLAM2
-    rosrun ORB_SLAM2 RGBD_localization Vocabulary/ORBvoc.txt param/rgbd_camera.yaml false MapPointandKeyFrame.map
+    rosrun ORB_SLAM2 RGBD_localization Vocabulary/ORBvoc.txt param/rgbd_camera.yaml $1 MapPointandKeyFrame.map
 }
 orb_test()
 {
@@ -35,6 +35,11 @@ topic_show()
     gnome-terminal -e 'rostopic echo /mavros/local_position/pose'
     gnome-terminal -e 'rostopic echo /mavros/mocap/pose'
 }
+open_detection()
+{
+    rosservice call /detection_controller_server "ControlType: $1 Start: true"
+}
+
 kall()
 {
     killall gnome-terminal-server
