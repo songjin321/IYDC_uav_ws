@@ -78,15 +78,15 @@ ControlType:目标检测的物体类型
 
 观察能否正常打开串口
 #### 抓取测试
-> rosservice call /manipulater_server "cmd: 2"
+> rosservice call /manipulater_server "cmd: 3"
 
 观察是否抓取正常，返回值是否为true
 #### 松开测试
-> rosservice call /manipulater_server "cmd: 3"
+> rosservice call /manipulater_server "cmd: 4"
 
 观察是否松开正常，返回值是否为true
 #### 蜂鸣器测试
-> rosservice call /manipulater_server "cmd: 4"
+> rosservice call /manipulater_server "cmd: 5"
 
 观察蜂鸣器是否正常，返回值是否为true
 ## 4.设置四个任务点的位置
