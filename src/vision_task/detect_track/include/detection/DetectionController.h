@@ -9,23 +9,22 @@
 #include <ros/ros.h>
 #include "detect_track/ControlDetection.h"
 #include <string>
-
+enum class DetectionType{
+    None = 0,
+    bluePerson = 1,
+    RedPerson = 2,
+    BlackCircle = 3,
+    Car = 4,
+    MedicalBag = 5,
+    YellowPerson = 6
+};
 class DetectionController
 {
 public:
-    DetectionController(DetectionAndTrackingLoop *car_dAt);
+    DetectionController();
     bool controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                   detect_track::ControlDetection::Response &res);
-    
-    bool is_detect_car_;
-    bool is_detect_medicalBag_;
-    bool is_detect_BackgroundObject_;
-    bool is_detect_redPerson_;
-    bool is_detect_blackCircle_;
-    bool is_detect_yellowPerson_;
-
-private:
-    DetectionAndTrackingLoop *car_dAt_;
+    DetectionType detection_type_;
 };
 
 

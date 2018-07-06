@@ -20,8 +20,8 @@ int main(int argc, char **argv)
     ROS_INFO("task2_x = %.3f, task2_y = %.3f, task2_z = %.3f",task2_x, task2_y, task2_z);
     main_controller.start_to_goal(task2_x, task2_y, task2_z);
 
-    // 开启目标检测,3表示redPerson
-    main_controller.startObjectDetection(3);
+    // 开启目标检测,2表示redPerson
+    main_controller.startObjectDetection(2);
 
     // 调整无人机的位置,位于小人正上方
     main_controller.adjustUavPosition(0,0);
@@ -30,21 +30,21 @@ int main(int argc, char **argv)
     main_controller.sendBuzzerSignal(5);
     sleep(5);
 
-    // 关闭目标检测,3表示redPerson
-    main_controller.stopObjectDetection(3);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
 
     ROS_INFO("task2_circle_x = %.3f, task2_circle_y = %.3f",task2_circle_x, task2_circle_y);
     main_controller.flyInPlane(task2_circle_x, task2_circle_y, 0.1, 0.2);
 
-    // 开启目标检测,4表示blackCircle
-    main_controller.startObjectDetection(4);
+    // 开启目标检测,3表示blackCircle
+    main_controller.startObjectDetection(3);
 
     // 调整无人机的位置,位于投递区中心
     main_controller.adjustUavPosition(0,0);
 
-    // 关闭目标检测,4表示blackCircle
-    main_controller.stopObjectDetection(4);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
     // 下降到0.3m
     main_controller.flyFixedHeight(0.6);

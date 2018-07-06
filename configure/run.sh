@@ -35,9 +35,9 @@ topic_show()
     gnome-terminal -e 'rostopic echo /mavros/local_position/pose'
     gnome-terminal -e 'rostopic echo /mavros/mocap/pose'
 }
-open_detection()
+set_detection()
 {
-    rosservice call /detection_controller_server "ControlType: $1 Start: true"
+    rosservice call /detection_controller_server "ControlType: $1"
 }
 
 kall()

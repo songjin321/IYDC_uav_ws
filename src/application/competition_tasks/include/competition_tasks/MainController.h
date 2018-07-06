@@ -46,7 +46,7 @@ public:
     /*
      * 关闭目标检测
      */
-    void stopObjectDetection(char detection_type);
+    void stopObjectDetection();
 
     /*
      * 返回原点

@@ -13,74 +13,61 @@
 - step3:缓慢的在场景中移动无人机，建立场景的一个完整的地图，建立完成后关闭程序，则地图自动保存 
 
 ## 2.配置目标检测任务的参数
-> roslaunch competition_tasks detect_test.launch 启动目标检测，点击图片中的相应位置可以在终端中看到hsv值
+### 启动
+1 测量用于目标检测的相机相对与无人的x和y偏移写入detect_track.launch中
 
-> rostopic echo /object_pose 显示目标物相对无人机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
+2 启动目标检测服务
+> roslaunch competition_tasks detect_test.launch 启动目标检测，点击图片中的相应位置可以在终端中看到hsv值
 
 detection_controller_server服务：
 
 ControlType:目标检测的物体类型
-- 0:小车
-- 1:医药包
-- 2:绿色背景中的物体
-- 3:红色小人
-- 4:黑色圆圈
-- 5:黄色小人
-- 6:红色背景中的物体
-Start: true(开启相应物体检测)/false(关闭相应相应物体检测)
+- None = 0,
+- bluePerson = 1,
+- RedPerson = 2,
+- BlackCircle = 3,
+- Car = 4,
+- MedicalBag = 5,
+- YellowPerson = 6,
+
+3 监视检测到的目标相对于无人机位置
+> rostopic echo /object_pose 显示目标物相对无人机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
 
 ### 任务1:
-- 检测蓝色小人，小人为绿色背景中的物体
-> rosservice call /detection_controller_server "ControlType: 2 Start: true"
+- 检测蓝色小人，检测方法为检测绿色背景中的物体
+> set_detection 1 将无人机逐渐移动到蓝色小人上方，观察/object_pose是否正确.
 
-将无人机逐渐移动到一号遇险者上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
-
-> rosservice call /detection_controller_server "ControlType: 2 Start: false"
+默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
 
 ### 任务2:
-- 检测红色小人
-> rosservice call /detection_controller_server "ControlType: 3 Start: true"
+- 检测红色小人，检测方法为检测纯红色物体
+> set_detection 2 将无人机逐渐移动到二号红色遇险者上方，观察/object_pose是否正确.
 
-将无人机逐渐移动到二号红色遇险者上方，观察/object_pose是否正确.默认设置H_red:40~80,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
-
-> rosservice call /detection_controller_server "ControlType: 3 Start: false"
+默认设置H_red:160~10,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改源代码
 
 - 检测同心圆
-> rosservice call /detection_controller_server "ControlType: 4 Start: true"
+> set_detection 3
 将无人机逐渐移动到同心圆上方，观察/object_pose是否正确.
-> rosservice call /detection_controller_server "ControlType: 4 Start: false"
 
-### 任务3: 
-- 检测小车使用sift方法
-> rosservice call /detection_controller_server "ControlType: 0 Start: true"
+### 任务3:
+- 检测小车，检测方法为检测绿色背景中的物体 
+> set_detection 1
+
+- 检测小车，sift检测
+> set_detection 4
 
 使用find_object软件将物体的模板存储在application/competition_tasks/object_template/car/car.png中
 
-> rosservice call /detection_controller_server "ControlType: 0 Start: false"
-
-- 检测小车使用颜色分割，小车为绿色背景中的物体
-> rosservice call /detection_controller_server "ControlType: 2 Start: true"
-
-将无人机逐渐移动到一号遇险者上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
-
-> rosservice call /detection_controller_server "ControlType: 2 Start: false"
-
 ### 任务4: 
-- 检测医药包，医药包为红色背景中的物体
-> rosservice call /detection_controller_server "ControlType: 6 Start: true"
+- 检测医药包，检测方法为检测红色背景中的物体
+> set_detection 5 将无人机逐渐移动到医药包上方，观察/object_pose是否正确.
 
-将无人机逐渐移动到医药包上方，观察/object_pose是否正确.默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击红色背景部分查看hsv值.修改detect_track.launch文件中的hsv参数.
+默认设置H_red:160~10,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改源代码
 
-> rosservice call /detection_controller_server "ControlType: 6 Start: false"
+- 检测黄色小人，检测方法为检测纯黄色物体
+> set_detection 6 将无人机逐渐移动到四号黄色遇险者上方，观察/object_pose是否正确.
 
-- 检测黄色小人，为黄色纯色物体
-> rosservice call /detection_controller_server "ControlType: 3 Start: true"
-
-将无人机逐渐移动到四号黄色遇险者上方，观察/object_pose是否正确.默认设置H_yellow:10~30,S_yellow:50~255,V_yellow:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改detect_track.launch文件中的hsv参数.
-
-> rosservice call /detection_controller_server "ControlType: 3 Start: false"
-
-- 检测物品放置台，为红色纯色物体
+默认设置H_yellow:10~30,S_yellow:50~255,V_yellow:50~255.如果无法检测到黄色，可以用鼠标点击黄色部分查看hsv值.修改源代码
 
 ## 3.测试执行机构是否正常
 #### 使用前准备
@@ -150,10 +137,9 @@ Start: true(开启相应物体检测)/false(关闭相应相应物体检测)
 # 备忘录与说明
 
 ## TODOLists
-- 目标检测时，基于sift的方案不可行，如何改为基于背景的检测.要注意背景的颜色要可以更改
+- 目标检测时，基于sift的方案不可行，如何改为基于背景的检测.要注意背景的颜色要可以更改，目标检测控制使用枚举
 - 实际上如果不需要精准的抓取和投放，考虑不进行目标检测，直接使用定位结果，物品放置台很大，可能不需要加测
 - 在检测目标相对于无人机的位置时，默认的是目标相对于相机高度为1m，这个是不对的，要考虑无人机的高度和目标物的高度
 - orb_slam定位模式刚起来能否定位上，或者slam模式是否需要动一下飞机
 - manipulater_controller 的返回值读取和使用launch绑定串口，将其写入other.launch
 - 将每个任务的各个位置和无人机运动的速度和步长弄成参数
-- 目标检测控制使用枚举，小车的检测是否使用sift方便切换

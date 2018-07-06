@@ -17,14 +17,14 @@ int main(int argc, char **argv)
              task4_medical_x, task4_medical_y, task4_medical_z);
     main_controller.start_to_goal(task4_medical_x, task4_medical_y, task4_medical_z);
 
-    // 开启目标检测,1表示medicalBag
-    main_controller.startObjectDetection(1);
+    // 开启目标检测,5表示medicalBag
+    main_controller.startObjectDetection(5);
 
     // 调整无人机的位置,位于医药包正上方.
     main_controller.adjustUavPosition(0,0);
 
-    // 关闭目标检测,1表示medicalBag
-    main_controller.stopObjectDetection(1);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
     // 逐渐下降到１m高的抓取台上
     main_controller.flyFixedHeight(1);
@@ -45,8 +45,8 @@ int main(int argc, char **argv)
              task4_person_x, task4_person_y, task4_person_z);
     main_controller.start_to_goal(task4_person_x, task4_person_y, task4_person_z);
 
-    // 开启目标检测,2表示colorPerson
-    main_controller.startObjectDetection(2);
+    // 开启目标检测,6表示yellowPerson
+    main_controller.startObjectDetection(6);
 
     // 调整无人机的位置,位于小人正上方
     main_controller.adjustUavPosition(0,0);
@@ -57,8 +57,8 @@ int main(int argc, char **argv)
     // 调整无人机的位置,位于药品放置区中心
     main_controller.adjustUavPosition(0.2,0);
 
-    // 关闭目标检测,2表示colorPerson
-    main_controller.stopObjectDetection(2);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
     // 下降到0.2m
     main_controller.flyFixedHeight(0.2);

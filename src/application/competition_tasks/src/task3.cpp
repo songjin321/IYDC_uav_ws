@@ -34,17 +34,17 @@ int main(int argc, char **argv)
     // 起飞飞到目标点
     main_controller.start_to_goal(task3_x, task3_y, task3_z);
 
-    // 开启目标检测,2表示BackgroundObject,用这个来控制飞机位于小车上方
-    main_controller.startObjectDetection(2);
+    // 开启目标检测,1绿色背景上的目标物,用这个来控制飞机位于小车上方
+    main_controller.startObjectDetection(1);
 
     // 调整无人机的位置,位于小人正上方
     main_controller.adjustUavPosition(0,0);
 
-    // 关闭目标检测,2表示BackgroundObject
-    main_controller.stopObjectDetection(2);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
-    // 开启目标检测,0表示car
-    main_controller.startObjectDetection(0);
+    // 开启目标检测,4表示car
+    main_controller.startObjectDetection(4);
 
     // 发出提示５秒
     main_controller.sendBuzzerSignal(5);
@@ -52,8 +52,8 @@ int main(int argc, char **argv)
     // 使无人机追踪目标物
     main_controller.trackObject(way_points);
 
-    // 关闭目标检测,0表示car
-    main_controller.stopObjectDetection(0);
+    // 关闭目标检测
+    main_controller.stopObjectDetection();
 
     // 返回到起始点,降落到地面,关闭飞机
     main_controller.returnToOrigin();

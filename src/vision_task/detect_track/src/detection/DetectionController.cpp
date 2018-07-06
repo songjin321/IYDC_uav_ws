@@ -4,66 +4,26 @@
 
 #include "detection/DetectionController.h"
 #include <stdlib.h>
-DetectionController::DetectionController(DetectionAndTrackingLoop *car_dAt):
-        is_detect_car_(false),is_detect_medicalBag_(false),is_detect_blackCircle_(false),
-        is_detect_BackgroundObject_(false), car_dAt_(car_dAt), is_detect_yellowPerson_(false),
-	is_detect_redPerson_(false)
+DetectionController::DetectionController():
+detection_type_(DetectionType::None)
 {
-
 }
 bool DetectionController::controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                                    detect_track::ControlDetection::Response &res)
 {
-    switch(req.ControlType)
+    if (req.ControlType < 0 || req.ControlType > 7)
     {
-        case 0:
-            if(req.Start)
-            {
-                system("roslaunch competition_tasks find_object.launch object_name:=car &");
-                car_dAt_->beginDetection();
-                ROS_INFO("car detection begin");
-            } else{
-                car_dAt_->stopDetection();
-                system("pkill find_object_2d");
-                ROS_INFO("car detection stop");
-            }
-            is_detect_car_ = req.Start;
-            break;
-        case 1:
-            if(req.Start)
-            {
-                if(!is_detect_medicalBag_)
-                {
-                    is_detect_medicalBag_ = true;
-                    system("roslaunch competition_tasks find_object.launch object_name:=medicalBag &");
-                }
-            } else
-            {
-                is_detect_medicalBag_ = false;
-                system("pkill find_object_2d");
-            }
-            ROS_INFO("medical bag detection state: %d", req.Start);
-            break;
-        case 2:
-            is_detect_BackgroundObject_ = req.Start;
-            ROS_INFO("Background object detection state: %d", req.Start);
-            break;
-        case 3:
-            is_detect_redPerson_ = req.Start;
-            ROS_INFO("red person detection state: %d", req.Start);
-            break;
-        case 4:
-            is_detect_blackCircle_ = req.Start;
-            ROS_INFO("black Circle detection state: %d", req.Start);
-            break;
-        case 5:
-            is_detect_yellowPerson_ = req.Start;
-            ROS_INFO("yellow person detection state: %d", req.Start);
-            break;
-        default:
-            ROS_INFO("no correspond detection type");
-            return false;
-            break;
+        ROS_INFO("no correspond detection type");
+        res.setOk = false;
+        return false;
     }
+    detection_type_ = static_cast<DetectionType>(req.ControlType);
+    ROS_INFO("detection type = %d", static_cast<int>(detection_type_));
+    if(detection_type_ == DetectionType::Car)
+    {
+        system("roslaunch competition_tasks find_object.launch object_name:=car &");
+        ROS_INFO("car detection begin");
+    }
+    res.setOk = true;
     return true;
 }

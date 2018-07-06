@@ -1,12 +1,12 @@
 # ControlType, the type of target that needs to be detected
-# 0: car
-# 1: medicalBag
-# 2: colorPerson
-# 3: redPerson
-# 4: blackCircle
-int8 ControlType
+# None = 0,
+# bluePerson = 1,
+# RedPerson = 2,
+# BlackCircle = 3,
+# Car = 4,
+# MedicalBag = 5,
+# YellowPerson = 6,
 
-# start/stop
-bool Start
+int8 ControlType
 ---------------
-bool isOk
+bool setOk

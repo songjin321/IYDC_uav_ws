@@ -266,13 +266,7 @@ void MainController::uav_pose_callback(const geometry_msgs::PoseStamped &msg) {
 
 void MainController::startObjectDetection(char detection_type) {
     detect_track::ControlDetection srv;
-    //# 0: car
-    //# 1: medicalBag
-    //# 2: BackgroundObject
-    //# 3: redPerson
-    //# 4: blackCircle
     srv.request.ControlType = detection_type;
-    srv.request.Start = true;
     if (detection_client.call(srv))
         ROS_INFO("detection start success");
     else {
@@ -280,10 +274,9 @@ void MainController::startObjectDetection(char detection_type) {
     }
 }
 
-void MainController::stopObjectDetection(char detection_type) {
+void MainController::stopObjectDetection() {
     detect_track::ControlDetection srv;
-    srv.request.ControlType = detection_type;
-    srv.request.Start = false;
+    srv.request.ControlType = 0;
     if (detection_client.call(srv))
         ROS_INFO("detection stop success");
     else {

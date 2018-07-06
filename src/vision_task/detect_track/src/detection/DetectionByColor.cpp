@@ -42,16 +42,22 @@ bool isSmaller(const std::vector<cv::Point> &s1, const std::vector<cv::Point> &s
 }
 
 //检测视野中第二大的区域（并检测第二大区域中心是否是蓝色）
-bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2, 
-                                              cv::Scalar hsv_background_l, cv::Scalar hsv_background_h)
+bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect &roi_1, cv::RotatedRect &roi_2,
+											  cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
+											  cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
 {    
      // 将RGB转化为HSV
 	cv::Mat hsvImg;
 	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
 
-	// HSV 阈值分割 
-	cv::Mat bw;
-	inRange(hsvImg, hsv_background_l, hsv_background_h, bw);
+	// HSV 阈值分割 (红色分成两个颜色）
+	cv::Mat mask1;
+	inRange(hsvImg, hsv_object_l1, hsv_object_h1, mask1);
+
+	cv::Mat mask2;
+	inRange(hsvImg, hsv_object_l2, hsv_object_h2, mask2);
+
+	cv::Mat bw = mask1 | mask2;
 
 	// 进行腐蚀消除一部分噪点 
 	cv::Mat erodeImg;
@@ -251,7 +257,7 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
                                         cv::Scalar hsv_object_l1, cv::Scalar hsv_object_h1,
                                         cv::Scalar hsv_object_l2, cv::Scalar hsv_object_h2)
 {
-        // 将RGB转化为HSV
+	// 将RGB转化为HSV
 	cv::Mat hsvImg;
 	cv::cvtColor(sceneImg, hsvImg, CV_BGR2HSV);
 

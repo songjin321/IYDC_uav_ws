@@ -17,14 +17,14 @@ int main(int argc, char **argv)
     ROS_INFO("task_1_x = %.3f, task_1_y = %.3f, task_1_z = %.3f",task1_x, task1_y, task1_z);
     main_controller.start_to_goal(task1_x, task1_y, task1_z);
 
-    // 开启目标检测,2表示colorPerson
-    main_controller.startObjectDetection(2);
+    // 开启目标检测,1绿色背景上的目标物
+    main_controller.startObjectDetection(1);
 
     // 调整无人机的位置,位于小人正上方
     main_controller.adjustUavPosition(0,0);
 
     // 关闭目标检测,2表示colorPerson
-    main_controller.stopObjectDetection(2);
+    main_controller.stopObjectDetection();
 
     // 发出提示５秒
     main_controller.sendBuzzerSignal(5);

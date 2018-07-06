@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     main_controller.trackObject(way_points);
 
     // 关闭目标检测,2表示colorPerson
-    main_controller.stopObjectDetection(object_id);
+    main_controller.stopObjectDetection();
 
     // 返回到起始点,降落到地面,关闭飞机
     main_controller.returnToOrigin();
