@@ -7,6 +7,38 @@
 #include "CRC.h"
 #include "serial/serial.h"
 #include <stdio.h>
+#define CTLR_STAT_DEF_LENGTH 18
+typedef enum
+{
+    CATCHED_CATCHING			=0x00,
+    CATCHED_LOAD				=0x01,
+    CATCHED_EMPTY				=0x02,
+    CATCHED_OVERLOAD			=0x03,
+} CatchedTypeDef;
+typedef union
+{
+    struct
+    {
+        uint8_t singing:1;
+        uint8_t motion:2; //0:released; 1:catching; 2:stretching; 3: still
+        CatchedTypeDef catched:2; //when catching: 0:catching&&empty; 1:catched&&load; 2:catched&&empty
+    };
+    uint16_t val;
+} StatusCodeTypeDef;
+typedef union
+{
+    struct
+    {
+        uint32_t type0head;
+        int32_t position; //angle in 0.01 degree
+        float velocity;
+        float load;
+        StatusCodeTypeDef status_code;
+        uint16_t  crc;
+    };
+    uint8_t buf[CTLR_STAT_DEF_LENGTH]; //!< Union --> Byte<0-7>
+} CtlrStateTypeDef;
+
 class MySerial
 {
 public:
@@ -18,8 +50,7 @@ public:
     //0x04  让蜂鸣器响５秒
     //0x02  执行机构抓住
     //0x03  执行机构松开
-    //0x00  执行成功
-    //0x01  执行失败
+
     void write(uint8_t msg_type, double value)
     {
         uint8_t length = 14;
@@ -32,7 +63,7 @@ public:
         memcpy(&buff[12], &crc, 2);
         size_t bytes_wrote = serial.write(buff, length);
     }
-    bool read(uint8_t &msg_type, std::vector<double> &value)
+    bool read(CtlrStateTypeDef &return_value)
     {
         uint8_t length;
         uint8_t header[2] = {0x00, 0x00};
@@ -57,12 +88,8 @@ public:
             printf(" CRC not equal, CRC calculated is %x, get is %x\n", crc, crc_get);
             return false;
         }
-        msg_type = read_data[3];
-        printf(" msg_type = %d", msg_type);
-        for (int i = 4; i + 8 < length; i+=8)
-        {
-            value.push_back(*((float *)(&read_data[i])));
-        }
+        memcpy(return_value.buf, read_data, length);
+        return true;
     }
     serial::Serial serial;
     bool is_done=false;

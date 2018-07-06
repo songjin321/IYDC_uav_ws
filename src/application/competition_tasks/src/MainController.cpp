@@ -68,9 +68,7 @@ void MainController::uav_control_loop(int loop_rate) {
 }
 
 void MainController::start_to_goal(double x, double y, double z) {
-    flyFixedHeight(0.3);
-    flyFixedHeight(0.6);
-    flyFixedHeight(z);
+    flyFixedHeight(z, 0.1, 0.3);
     flyInPlane(x, y, 0.3, 0.3);
 }
 
@@ -319,7 +317,7 @@ void MainController::shutDownUav() {
 
 }
 
-void MainController::flyFixedHeight(double z, double precision) {
+void MainController::flyFixedHeight(double z, double precision, double velocity) {
     //　起飞到一定的高度, x和y不变, try to solve take off slow problem, increase precision
     goal.goal_pose.pose.position.z = z;
     goal.goal_pose.pose.position.x = uav_pose.pose.position.x;

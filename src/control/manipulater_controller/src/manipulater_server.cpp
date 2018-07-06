@@ -5,33 +5,26 @@
 #include "manipulater_controller/ControlManipulater.h"
 #include "MySerial.h"
 #include <thread>
+#include <MySerial.h>
+
 bool manipulater_server_callback(manipulater_controller::ControlManipulater::Request &req,
                             manipulater_controller::ControlManipulater::Response &res,
                             MySerial *my_serial)
 {
     my_serial->write(req.cmd, 0);
     ros::Time init_time = ros::Time::now();
-    uint8_t return_type;
-    std::vector<double> return_value;
+    CtlrStateTypeDef return_value;
     while(ros::Time::now() < init_time + ros::Duration(6))
     {
-        if (my_serial->read(return_type, return_value))
+        if (my_serial->read(return_value))
         {
-            switch(return_type)
-            {
-                case 0:
-                    ROS_INFO("is_done ok");
-                    return true;
-                case 1:
-                    ROS_INFO("is_done failed");
-                    return false;
-                default:
-                    break;
-            }
+            ROS_INFO("the state of singing: %d", return_value.status_code.singing);
+            ROS_INFO("the state of motion: %d", return_value.status_code.motion);
+            ROS_INFO("the state of catched: %d", return_value.status_code.catched);
         }
         usleep(50);
     }
-    ROS_ERROR("manipulater controller timeout 6s");
+    ROS_ERROR("manipulater controller timeout 8s");
     return false;
 }
 int main(int argc, char **argv)
@@ -42,7 +35,7 @@ int main(int argc, char **argv)
     // port, baudrate, timeout in milliseconds
     std::string com_name;
     int baud;
-    nh.param<std::string>("COM_dev",com_name,"/dev/ttyUSB0");
+    nh.param<std::string>("COM_dev",com_name,"/dev/manipulater");
     nh.param<int>("baud_rate",baud, 115200);
     MySerial my_serial(com_name, static_cast<uint32_t >(baud));
     if(!my_serial.serial.isOpen())

@@ -7,17 +7,17 @@
 # 赛前准备
 ### **一定要确保此时的场景和实际比赛时的场景是一致的**
 ## 1.使用orbslam建立场景的地图
-- step0:source uav_ws/configure/run.sh载入一些方便使用的函数（在我们的小电脑上默认已经载入了）
+- step0:source uav_ws/configure/run.sh载入一些方便使用的函数，可以将这句写入.bashrc中（在我们的小电脑上默认已经载入了）
 - step1:将无人机放置到起点处，确保无人机的机头方向朝向正前方
 - step2:上电，外接显示器和鼠标，打开一个终端，输入rgbd,启动深度相机.在另一个终端中输入orb_slam true(true表示打开显示界面，在远程调试的时候一定要false.因为远程不可以调用图形界面)
 - step3:缓慢的在场景中移动无人机，建立场景的一个完整的地图，建立完成后关闭程序，则地图自动保存 
 
 ## 2.配置目标检测任务的参数
 ### 启动
-1 测量用于目标检测的相机相对与无人的x和y偏移写入detect_track.launch中
+1 测量用于目标检测的相机相对与无人机的x和y偏移写入detect_track.launch中
 
 2 启动目标检测服务
-> roslaunch competition_tasks detect_test.launch 启动目标检测，点击图片中的相应位置可以在终端中看到hsv值
+> roslaunch competition_tasks detect_test.launch 启动目标检测服务，点击图片中的相应位置可以在终端中看到hsv值
 
 detection_controller_server服务：
 
@@ -32,6 +32,8 @@ ControlType:目标检测的物体类型
 
 3 监视检测到的目标相对于无人机位置
 > rostopic echo /object_pose 显示目标物相对无人机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
+
+4 source configure/run.sh
 
 ### 任务1:
 - 检测蓝色小人，检测方法为检测绿色背景中的物体
@@ -98,6 +100,7 @@ ControlType:目标检测的物体类型
 > roslaunch competition_tasks others.launch
 
 > rostopic echo /mavros/local_position/pose
+
 ### 任务1
 - 移动无人机，将无人机移动到任务1蓝色小人的正上方，将无人机此时的x和y坐标写入到task1.launch中,
 
@@ -125,12 +128,16 @@ ControlType:目标检测的物体类型
 - step4: roslaunch相对应的任务
 ## 任务1
 > roslaunch competition_tasks task1.launch
+
 ## 任务2
 > roslaunch competition_tasks task2.launch
+
 ## 任务3
 > roslaunch competition_tasks task3.launch
+
 ## 任务4
 > roslaunch competition_tasks task4.launch
+
 ## 注意事项
 每次重新启动一个任务时，最好将others.launch重启
 
@@ -143,3 +150,7 @@ ControlType:目标检测的物体类型
 - orb_slam定位模式刚起来能否定位上，或者slam模式是否需要动一下飞机
 - manipulater_controller 的返回值读取和使用launch绑定串口，将其写入other.launch
 - 将每个任务的各个位置和无人机运动的速度和步长弄成参数
+
+## 说明
+- 当使用速度控制时,步长就失去了意义
+- 默认步长为0.1，所以想要飞机飞1m，设定值为1.1m

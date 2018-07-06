@@ -1,6 +1,10 @@
-# 2抓住
-# 3松开
-# 4蜂鸣器
+# 1舵机松弛 release
+# 2舵机抱死不动 still
+# 3抓取 catch
+# 4松开 stretch
+# 5唱歌 singing
 uint8 cmd
 ---
-bool is_done
+uint8 singing
+uint8 motion
+uint8 catched
