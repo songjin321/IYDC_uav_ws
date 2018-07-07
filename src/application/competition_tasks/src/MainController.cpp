@@ -66,8 +66,8 @@ void MainController::uav_control_loop(int loop_rate) {
         rate.sleep();
     }
 }
-void MainController::init()
-{
+
+void MainController::init() {
     goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
 }
@@ -103,17 +103,17 @@ void MainController::adjustUavPosition(double delta_x, double delta_y, double z_
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if (is_objectPose_updated) {
             is_objectPose_updated = false;
-            object_2_uav_x_real = object_2_uav_x*(uav_pose.pose.position.z-z_to_ground);
-            object_2_uav_y_real = object_2_uav_y*(uav_pose.pose.position.z-z_to_ground);
-            object_uav_dis = sqrt(pow(object_2_uav_x_real,2) + pow(object_2_uav_x_real,2));
+            object_2_uav_x_real = object_2_uav_x * (uav_pose.pose.position.z - z_to_ground);
+            object_2_uav_y_real = object_2_uav_y * (uav_pose.pose.position.z - z_to_ground);
+            object_uav_dis = sqrt(pow(object_2_uav_x_real, 2) + pow(object_2_uav_x_real, 2));
             ROS_INFO("try to adjust uav position, the position of object relative to uav, "
                      "x = %.3f, y = %.3f", object_2_uav_x_real, object_2_uav_y_real);
             //　assum the yaw of uav is not zero
             double yaw = RosMath::getYawFromPoseStamp(uav_pose);
             goal.goal_pose.pose.position.x = uav_pose.pose.position.x +
-                    object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
+                                             object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
             goal.goal_pose.pose.position.y = uav_pose.pose.position.y +
-                    object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
+                                             object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
         }
             // wait for object detection begin, let uav hover
         else {
@@ -162,7 +162,7 @@ bool MainController::uav_hover(double x, double y, double radiu) {
     return false;
 }
 
-void MainController::trackObject(const std::vector<WayPoint> way_points) {
+void MainController::trackObject(const std::vector <WayPoint> way_points) {
     // 如果没有追踪上就往原点飞
     // 让飞机飞到原点即可停止
     double uav2origin = 10000000;
@@ -184,36 +184,32 @@ void MainController::trackObject(const std::vector<WayPoint> way_points) {
             // step1: find two wayPoints closest to uav;
             int index = 0;
             double dis_min = 100000;
-            for(int i = 0; i < way_points.size(); i++)
-            {
+            for (int i = 0; i < way_points.size(); i++) {
                 double dis_x = way_points[i].x - uav_pose.pose.position.x;
                 double dis_y = way_points[i].y - uav_pose.pose.position.y;
                 double distance = sqrt(dis_x * dis_x + dis_y * dis_y);
-                if (distance < dis_min)
-                {
+                if (distance < dis_min) {
                     dis_min = distance;
                     index = i;
                 }
             }
             ROS_INFO("closest wayPoint index = %d, dis_min = %.3f", index, dis_min);
-            if (index == 0)
-            {
+            if (index == 0) {
                 goal.goal_pose.pose.position.x = way_points[1].x;
                 goal.goal_pose.pose.position.y = way_points[1].y;
-            }else if (index == way_points.size()) {
-                goal.goal_pose.pose.position.x = (way_points.end()-1)->x;
-                goal.goal_pose.pose.position.y = (way_points.end()-1)->y;
-            }else if(dis_min < 0.2){
-                goal.goal_pose.pose.position.x = way_points[index+1].x;
-                goal.goal_pose.pose.position.y = way_points[index+1].y;
-            }else if(pow(way_points[index-1].x - uav_pose.pose.position.x, 2)
-                     + pow(way_points[index-1].y - uav_pose.pose.position.y ,2) >
-                    pow(way_points[index+1].x - uav_pose.pose.position.x, 2)
-                    + pow(way_points[index+1].y - uav_pose.pose.position.y ,2))
-            {
-                goal.goal_pose.pose.position.x = way_points[index+1].x;
-                goal.goal_pose.pose.position.y = way_points[index+1].y;
-            }else{
+            } else if (index == way_points.size()) {
+                goal.goal_pose.pose.position.x = (way_points.end() - 1)->x;
+                goal.goal_pose.pose.position.y = (way_points.end() - 1)->y;
+            } else if (dis_min < 0.2) {
+                goal.goal_pose.pose.position.x = way_points[index + 1].x;
+                goal.goal_pose.pose.position.y = way_points[index + 1].y;
+            } else if (pow(way_points[index - 1].x - uav_pose.pose.position.x, 2)
+                       + pow(way_points[index - 1].y - uav_pose.pose.position.y, 2) >
+                       pow(way_points[index + 1].x - uav_pose.pose.position.x, 2)
+                       + pow(way_points[index + 1].y - uav_pose.pose.position.y, 2)) {
+                goal.goal_pose.pose.position.x = way_points[index + 1].x;
+                goal.goal_pose.pose.position.y = way_points[index + 1].y;
+            } else {
                 goal.goal_pose.pose.position.x = way_points[index].x;
                 goal.goal_pose.pose.position.y = way_points[index].y;
             }
@@ -276,31 +272,27 @@ bool MainController::catchObject() {
 bool MainController::stretchObject() {
     manipulater_controller::ControlManipulater srv;
     srv.request.cmd = 4;
-    for (int i=0; i < 3; i++)
-    {
-        if (manipulater_client.call(srv)) {
-            ROS_INFO("stretch object OK!");
-            return true;
-        } else {
-            ROS_INFO("stretch object failed!");
-        }
+    if (manipulater_client.call(srv)) {
+        ROS_INFO("stretch object OK!");
+        return true;
+    } else {
+        ROS_INFO("stretch object failed!");
     }
     return false;
 }
+
 bool MainController::sing() {
     manipulater_controller::ControlManipulater srv;
     srv.request.cmd = 5;
-    for (int i=0; i < 3; i++)
-    {
-        if (manipulater_client.call(srv)) {
-            ROS_INFO("bi .. Ok");
-            return true;
-        } else {
-            ROS_ERROR("bi .. failed");
-        }
+    if (manipulater_client.call(srv)) {
+        ROS_INFO("bi .. Ok");
+        return true;
+    } else {
+        ROS_ERROR("bi .. failed");
     }
     return false;
 }
+
 void MainController::shutDownUav() {
     //　TODO::关闭飞机
     mavros_msgs::CommandBool arm_cmd;
@@ -324,10 +316,9 @@ void MainController::flyFixedHeight(double z, double step_length, double precisi
 
     ros::Rate rate(10);
     int stable_count = 0;
-    while (stable_count < 10)
-    {
-        if(fabs(z - uav_pose.pose.position.z) < precision) stable_count++;
-        else stable_count=0;
+    while (stable_count < 10) {
+        if (fabs(z - uav_pose.pose.position.z) < precision) stable_count++;
+        else stable_count = 0;
         rate.sleep();
         // std::cout << "stable count = " << stable_count << std::endl;
     }
@@ -346,10 +337,9 @@ void MainController::flyInPlane(double x, double y, double step_length, double p
 
     ros::Rate rate(10);
     int stable_count = 0;
-    while (stable_count < 10)
-    {
-        if(RosMath::calDistance(x, uav_pose.pose.position.x, y, uav_pose.pose.position.y) < precision) stable_count++;
-        else stable_count=0;
+    while (stable_count < 10) {
+        if (RosMath::calDistance(x, uav_pose.pose.position.x, y, uav_pose.pose.position.y) < precision) stable_count++;
+        else stable_count = 0;
         rate.sleep();
         // std::cout << "stable count = " << stable_count << std::endl;
     }

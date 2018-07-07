@@ -19,7 +19,11 @@ int main(int argc, char **argv)
 
     ROS_INFO("task2_x = %.3f, task2_y = %.3f, task2_z = %.3f",task2_x, task2_y, task2_z);
 
+    // 初始化控制
     main_controller.init();
+
+    // 先直接将爪子抓紧,好放物体
+    main_controller.catchObject();
 
     // 起飞飞到目标点
     main_controller.start_to_goal(task2_x, task2_y, task2_z);

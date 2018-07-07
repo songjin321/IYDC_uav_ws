@@ -31,6 +31,9 @@ int main(int argc, char **argv)
     way_points.push_back(way_point3);
     way_points.push_back(origin_point);
 
+    // 初始化控制
+    main_controller.init();
+
     // 起飞飞到目标点
     main_controller.start_to_goal(task3_x, task3_y, task3_z);
 

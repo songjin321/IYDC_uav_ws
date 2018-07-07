@@ -17,6 +17,12 @@ int main(int argc, char **argv)
              "task4_medical_z = %.3f",
              task4_medical_x, task4_medical_y, task4_z, task4_medical_z);
 
+    // 初始化控制
+    main_controller.init();
+    
+    // 先松开爪子
+    main_controller.stretchObject();
+
     // 起飞飞到药品包的位置
     main_controller.start_to_goal(task4_medical_x, task4_medical_y, task4_z);
 

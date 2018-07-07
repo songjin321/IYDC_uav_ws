@@ -9,14 +9,15 @@ int main(int argc, char **argv)
 
     MainController main_controller("uav_controller_server");
 
-    // 起飞飞到目标点
     double task1_x, task1_y, task1_z;
     n.getParam("/task1_node/task1_x", task1_x);
     n.getParam("/task1_node/task1_y", task1_y);
     n.getParam("/task1_node/task1_z", task1_z);
     ROS_INFO("task_1_x = %.3f, task_1_y = %.3f, task_1_z = %.3f",task1_x, task1_y, task1_z);
 
+    // 初始化控制
     main_controller.init();
+
     // 起飞飞到目标点
     main_controller.start_to_goal(task1_x, task1_y, task1_z);
 
@@ -29,7 +30,7 @@ int main(int argc, char **argv)
     // 关闭目标检测,2表示colorPerson
     main_controller.stopObjectDetection();
 
-    // 发出提示５秒,失败重复,最多三次
+    // 发出提示５秒
     main_controller.sing();
 
     // 返回到起始点,降落到地面,关闭飞机
