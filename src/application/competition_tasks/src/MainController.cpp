@@ -86,6 +86,9 @@ void MainController::returnToOrigin() {
 
     // 降落
     flyFixedHeight(-0.05, 0.3, 0.1);
+
+    // close uav
+    shutDownUav();
 }
 
 void MainController::adjustUavPosition(double delta_x, double delta_y, double z_to_ground) {
@@ -111,9 +114,9 @@ void MainController::adjustUavPosition(double delta_x, double delta_y, double z_
             //　assum the yaw of uav is not zero
             double yaw = RosMath::getYawFromPoseStamp(uav_pose);
             goal.goal_pose.pose.position.x = uav_pose.pose.position.x +
-                                             object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
+                                             object_2_uav_x_real * cos(yaw) - object_2_uav_y_real * sin(yaw);
             goal.goal_pose.pose.position.y = uav_pose.pose.position.y +
-                                             object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
+                                             object_2_uav_x_real * sin(yaw) + object_2_uav_y_real * cos(yaw);;
         }
             // wait for object detection begin, let uav hover
         else {
@@ -180,9 +183,9 @@ void MainController::trackObject(const std::vector <WayPoint> way_points) {
             //　assum the yaw of uav is not zero
             double yaw = RosMath::getYawFromPoseStamp(uav_pose);
             goal.goal_pose.pose.position.x = uav_pose.pose.position.x +
-                                             object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
+                                             object_2_uav_x_real * cos(yaw) - object_2_uav_y_real * sin(yaw);
             goal.goal_pose.pose.position.y = uav_pose.pose.position.y +
-                                             object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
+                                             object_2_uav_x_real * sin(yaw) + object_2_uav_y_real * cos(yaw);;
             // fly to target point with 1m/s velocity
             goal.fly_vel = 1;
             goal.step_length = 0.5;
