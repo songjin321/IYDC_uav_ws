@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
     // 初始化控制
     main_controller.init();
-    
+
     // 先松开爪子
     main_controller.stretchObject();
 

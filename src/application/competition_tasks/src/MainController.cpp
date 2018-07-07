@@ -332,7 +332,7 @@ void MainController::flyInPlane(double x, double y, double step_length, double p
     goal.step_length = step_length;
 
     ROS_INFO("try to arrive at plane point x = %.3f, y = %.3f, z = %.3f, "
-             "precision = %.3f, step_length = %.3f", x, y, uav_pose.pose.position.z,
+             "precision = %.3f, step_length = %.3f", x, y, goal.goal_pose.pose.position.z,
              precision, step_length);
 
     ros::Rate rate(10);

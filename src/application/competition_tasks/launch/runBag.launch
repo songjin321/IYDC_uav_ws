@@ -1,9 +1,11 @@
 <launch>
     <arg name="step_length" default="0.5" />
-
     <include file="$(find simple_planner)/launch/position_line_planner.launch">
         <arg name="step_length" value="$(arg step_length)" />
     </include>
     <node name="uav_controller_server_node" pkg="uav_controller" type="uav_controller_server" output="screen"/>
-    <node name="detect_track_node" pkg="detect_track" type="detect_track_node" output="screen"/>
+    <!--node name="manipulater_server_node" pkg="manipulater_controller" type="manipulater_server" output="screen"/-->
+    <include file="$(find detect_track)/launch/detect_track.launch">
+        <arg name="is_show" value="1" />
+    </include>
 </launch>

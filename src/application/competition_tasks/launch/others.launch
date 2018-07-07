@@ -7,6 +7,7 @@
         <arg name="step_length" value="$(arg step_length)" />
     </include>
     <node name="uav_controller_server_node" pkg="uav_controller" type="uav_controller_server" output="screen"/>
+    <node name="manipulater_server_node" pkg="manipulater_controller" type="manipulater_server" output="screen"/>
     <include file="$(find map_world_convert)/launch/map_world_convert.launch"/>
     <include file="$(find mavros)/launch/px4.launch">
         <arg name="fcu_url" value="$(arg fcu_url)" />
