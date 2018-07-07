@@ -92,7 +92,7 @@ ControlType:目标检测的物体类型
 ## 4.设置四个任务点的位置
 
 ### 启动
-打开四个终端，分别输入以下指令
+使用terminator -l IYDC打开四个远程终端，分别输入以下指令
 > rgbd
 
 > orb_localization false
@@ -122,10 +122,18 @@ ControlType:目标检测的物体类型
 # 比赛
 
 ## 启动
-- step0: 无人机上电，飞控上电, 将无人放置到起点处
-- step1: 远程连接到无人机，启动相机，orbslam和other.launch
-- step3: rostopic echo 无人机位姿，和给的位姿， 检测目标物位置 
-- step4: roslaunch相对应的任务
+- step0: 无人机上电，飞控上电, 将无人放置到起点处，机头朝前
+- step1: 使用terminator -l IYDC打开四个远程终端，分别输入以下指令
+> rgbd
+
+> orb_localization false
+
+> roslaunch competition_tasks others.launch
+
+> rosservice call /manipulater_server "cmd: "
+- step3: 使用terminator -l monitor打开四个监视终端
+- step4: 在监视终端剩余的一个中roslaunch最终要执行的任务
+
 ## 任务1
 > roslaunch competition_tasks task1.launch
 
