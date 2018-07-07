@@ -7,7 +7,7 @@
 #include "CRC.h"
 #include "serial/serial.h"
 #include <stdio.h>
-#define CTLR_STAT_DEF_LENGTH 18
+#define CTLR_STAT_DEF_LENGTH 20
 typedef enum
 {
     CATCHED_CATCHING			=0x00,
