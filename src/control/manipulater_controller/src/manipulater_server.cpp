@@ -9,23 +9,40 @@
 #include <MySerial.h>
 CtlrStateTypeDef return_value;
 std::mutex mtx;
+bool is_begin_sing;
+bool is_begin_catch;
+bool is_begin_stretch;
+
 void serialRead(MySerial *my_serial)
 {
-    mtx.lock();
-    my_serial->read(return_value);
-    mtx.unlock();
+    while(1)
+    {
+        //mtx.lock();
+        my_serial->read(return_value);
+        if ( return_value.status_code.motion == 1)
+        {
+            is_begin_catch = true;
+        }
+        if ( return_value.status_code.motion == 2)
+        {
+            is_begin_stretch = true;
+        }
+        if ( return_value.status_code.singing == 1)
+        {
+            is_begin_sing = true;
+        }
+        //mtx.unlock();
+        usleep(10);
+    }
 }
 bool manipulater_server_callback(manipulater_controller::ControlManipulater::Request &req,
                             manipulater_controller::ControlManipulater::Response &res,
                             MySerial *my_serial)
 {
-    mtx.lock();
+    //mtx.lock();
     my_serial->write(req.cmd, 0);
-    mtx.unlock();
+    //mtx.unlock();
     int timeout = 7;
-    bool is_begin_sing;
-    bool is_begin_catch;
-    bool is_begin_stretch;
     ros::Time init_time = ros::Time::now();
     while(ros::Time::now() < init_time + ros::Duration(timeout))
     {
@@ -34,28 +51,21 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
         ROS_INFO("the state of catched: %d", return_value.status_code.catched);
 
         // catch completed return true
-        if ( return_value.status_code.motion == 1)
-        {
-            is_begin_catch = true;
-        }
-        if (req.cmd == 3 && return_value.status_code.motion == 3 && is_begin_catch)
+        if (req.cmd == 3 && return_value.status_code.motion == 3 && is_begin_catch && return_value.status_code.catched==1)
         {
             is_begin_catch = false;
             res.isOk = true;
             return true;
         }
-        if (return_value.status_code.catched != 0)
+        if (req.cmd == 3 && is_begin_catch && (return_value.status_code.catched == 2 || return_value.status_code.catched == 3))
         {
+            is_begin_catch = false;
             res.isOk = false;
             return false;
         }
 
         // stretch completed retrun true
-        if ( return_value.status_code.motion == 2)
-        {
-            is_begin_stretch = true;
-        }
-        if (req.cmd == 4 && return_value.status_code.motion == 0 && is_begin_stretch)
+        if (req.cmd == 4 && return_value.status_code.motion == 3 && is_begin_stretch)
         {
             is_begin_stretch = false;
             res.isOk = true;
@@ -63,10 +73,6 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
         }
 
         // sing completed return true
-        if ( return_value.status_code.singing == 1)
-        {
-            is_begin_sing = true;
-        }
         if (req.cmd == 5 && return_value.status_code.singing == 0 && is_begin_sing)
         {
             is_begin_sing = false;
@@ -74,9 +80,9 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
             return true;
         }
 
-        usleep(100);
+        usleep(500);
     }
-    ROS_WARN("manipulater controller timeout %ds", timeout);
+    ROS_INFO("manipulater controller timeout %ds", timeout);
     res.isOk = false;
     return false;
 }
