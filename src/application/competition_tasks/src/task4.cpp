@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     main_controller.shutDownUav();
 
     // 开始抓取医药包
-    main_controller.grabObject();
+    main_controller.catchObject();
 
     // similar to task2
     // 飞到遇险者上方
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     main_controller.flyFixedHeight(0.2);
 
     // 放置医药包
-    main_controller.releaseObject();
+    main_controller.stretchObject();
 
     // 升高到0.5m
     main_controller.flyFixedHeight(0.5);

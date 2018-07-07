@@ -74,7 +74,7 @@ void MainController::start_to_goal(double x, double y, double z) {
 
 void MainController::sendBuzzerSignal(int seconds) {
     manipulater_controller::ControlManipulater srv;
-    srv.request.cmd = 4;
+    srv.request.cmd = 5;
     if (manipulater_client.call(srv)) {
         ROS_INFO("bi bi bi bi bi bi bi bi.....");
     } else {
@@ -282,24 +282,24 @@ void MainController::stopObjectDetection() {
     }
 }
 
-void MainController::grabObject() {
+void MainController::catchObject() {
     manipulater_controller::ControlManipulater srv;
-    srv.request.cmd = 2;
+    srv.request.cmd = 3;
     if (manipulater_client.call(srv)) {
-        ROS_INFO("grab object OK!");
+        ROS_INFO("catch object OK!");
     } else {
-        ROS_INFO("grab object failed!");
+        ROS_INFO("catch object failed!");
     }
 
 }
 
-void MainController::releaseObject() {
+void MainController::stretchObject() {
     manipulater_controller::ControlManipulater srv;
-    srv.request.cmd = 3;
+    srv.request.cmd = 4;
     if (manipulater_client.call(srv)) {
-        ROS_INFO("release object OK!");
+        ROS_INFO("stretch object OK!");
     } else {
-        ROS_INFO("release object failed!");
+        ROS_INFO("stretch object failed!");
     }
 
 }

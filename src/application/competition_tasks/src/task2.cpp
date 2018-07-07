@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     main_controller.flyFixedHeight(0.2);
 
     // 投递食物箱
-    main_controller.releaseObject();
+    main_controller.stretchObject();
     sleep(5);
 
     // 升高到task2_z

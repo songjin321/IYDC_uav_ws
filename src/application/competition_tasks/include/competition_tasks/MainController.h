@@ -61,12 +61,12 @@ public:
     /*
      * 抓取医药包
      */
-    void grabObject();
+    void catchObject();
 
     /*
      * 松开抓取到的物体
      */
-    void releaseObject();
+    void stretchObject();
 
     /*
      * 控制无人机在目标物体的正上方.且机头方向对齐

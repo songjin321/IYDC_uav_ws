@@ -5,6 +5,4 @@
 # 5唱歌 singing
 uint8 cmd
 ---
-uint8 singing
-uint8 motion
-uint8 catched
+bool isOk
