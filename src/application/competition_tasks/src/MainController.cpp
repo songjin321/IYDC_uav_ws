@@ -85,7 +85,7 @@ void MainController::returnToOrigin() {
     flyInPlane(0.0, 0.0, 0.3, 0.3);
 
     // 降落
-    flyFixedHeight(-0.05);
+    flyFixedHeight(-0.05, 0.3, 0.1);
 }
 
 void MainController::adjustUavPosition(double delta_x, double delta_y, double z_to_ground) {
