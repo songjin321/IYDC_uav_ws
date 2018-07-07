@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
                 case DetectionType::None:
                     car_dAt.stopDetection();
                     system("pkill find_object_2d");
-                    ROS_INFO("all detection stopped");
+                    //ROS_INFO("all detection stopped");
                     break;
                 case DetectionType::bluePerson:
                     // 检测最大和次大轮廓
