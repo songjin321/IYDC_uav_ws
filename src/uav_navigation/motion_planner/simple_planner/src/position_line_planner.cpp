@@ -24,8 +24,8 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
         //　规划的点的时间怎么确定
         planned_pose.pose.position.x = req.start.pose.position.x + i*dx/steps;
         planned_pose.pose.position.y = req.start.pose.position.y + i*dy/steps;
-        //planned_pose.pose.position.z = req.start.pose.position.z + i*dz/steps;
-        planned_pose.pose.position.z = req.goal.pose.position.z;
+        planned_pose.pose.position.z = req.start.pose.position.z + i*dz/steps;
+        //planned_pose.pose.position.z = req.goal.pose.position.z;
         res.plan.poses.push_back(planned_pose);
     }
     planned_pose.pose.position = req.goal.pose.position;

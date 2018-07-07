@@ -62,7 +62,7 @@ void FlyToGoalActionServer::executeCB(const uav_controller::FlyToGoalGoalConstPt
 
         double current_yaw = RosMath::getYawFromPoseStamp(current_pose);
         double current_destination_yaw = RosMath::getYawFromPoseStamp(current_destination_pose);
-	// std::cout << "z = " << current_pose.pose.position.z << std::endl;
+	    // std::cout << "z = " << current_pose.pose.position.z << std::endl;
         if (RosMath::calDistance(current_destination_pose, current_pose) < 0.01)
  //              fabs(current_yaw - current_destination_yaw) < 30.0/180.0*3.14 )
         {

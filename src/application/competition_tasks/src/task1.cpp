@@ -15,19 +15,22 @@ int main(int argc, char **argv)
     n.getParam("/task1_node/task1_y", task1_y);
     n.getParam("/task1_node/task1_z", task1_z);
     ROS_INFO("task_1_x = %.3f, task_1_y = %.3f, task_1_z = %.3f",task1_x, task1_y, task1_z);
+
+    main_controller.init();
+    // 起飞飞到目标点
     main_controller.start_to_goal(task1_x, task1_y, task1_z);
 
     // 开启目标检测,1绿色背景上的目标物
     main_controller.startObjectDetection(1);
 
     // 调整无人机的位置,位于小人正上方
-    main_controller.adjustUavPosition(0,0);
+    main_controller.adjustUavPosition(0,0,0);
 
     // 关闭目标检测,2表示colorPerson
     main_controller.stopObjectDetection();
 
-    // 发出提示５秒
-    main_controller.sendBuzzerSignal(5);
+    // 发出提示５秒,失败重复,最多三次
+    main_controller.sing();
 
     // 返回到起始点,降落到地面,关闭飞机
     main_controller.returnToOrigin();

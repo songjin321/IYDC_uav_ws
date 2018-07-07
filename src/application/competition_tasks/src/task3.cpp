@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(1);
 
     // 调整无人机的位置,位于小人正上方
-    main_controller.adjustUavPosition(0,0);
+    main_controller.adjustUavPosition(0,0,0);
 
     // 关闭目标检测
     main_controller.stopObjectDetection();
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(4);
 
     // 发出提示５秒
-    main_controller.sendBuzzerSignal(5);
+    main_controller.sing();
 
     // 使无人机追踪目标物
     main_controller.trackObject(way_points);

@@ -33,10 +33,16 @@ class MainController
 public:
     MainController(std::string uav_controller_server_name);
 
+    void init();
     /*
      * 起飞飞到目标点
      */
     void start_to_goal(double x, double y, double z);
+
+    /*
+     * 返回原点
+     */
+    void returnToOrigin();
 
     /*
      * 开启目标检测
@@ -49,34 +55,24 @@ public:
     void stopObjectDetection();
 
     /*
-     * 返回原点
-     */
-    void returnToOrigin();
-
-    /*
      * 控制蜂鸣器响
      */
-    void sendBuzzerSignal(int seconds);
+    bool sing();
 
     /*
      * 抓取医药包
      */
-    void catchObject();
+    bool catchObject();
 
     /*
      * 松开抓取到的物体
      */
-    void stretchObject();
+    bool stretchObject();
 
     /*
-     * 控制无人机在目标物体的正上方.且机头方向对齐
+     * 控制无人机的位置,距离目标物delta_x,delta_y, 目标物距离地面距离：z_to_ground
      */
-    void adjustUavPose();
-
-    /*
-     * 控制无人机的位置,距离目标物delta_x,delta_y
-     */
-    void adjustUavPosition(double delta_x, double delta_y);
+    void adjustUavPosition(double delta_x, double delta_y, double z_to_ground);
 
     /*
      * 控制无人机跟随目标运动
@@ -84,12 +80,12 @@ public:
     void trackObject(const std::vector<WayPoint> way_points);
 
     /*
-     * 飞到固定的高度,要保证不在水平面移动, no step length, no path planning in height direction
+     * 飞到固定的高度,维持目标位置不变
      */
-    void flyFixedHeight(double z, double preicision=0.1, double velocity=-1);
+    void flyFixedHeight(double z, double step_length = 0.1, double precision = 0.1, double velocity = -1);
 
     /*
-     * 让飞机在平面进行平移,维持高度不变
+     * 让飞机在平面进行平移,维持目标高度不变
      */
     void flyInPlane(double x, double y, double precision=0.1, double step_length = 0.1);
 
@@ -131,6 +127,8 @@ private:
     double object_uav_dis;
 
     bool wait_task_over();
+
+    // parameters
 };
 
 

@@ -66,77 +66,54 @@ void MainController::uav_control_loop(int loop_rate) {
         rate.sleep();
     }
 }
-
-void MainController::start_to_goal(double x, double y, double z) {
-    flyFixedHeight(z, 0.1, 0.3);
-    flyInPlane(x, y, 0.3, 0.3);
+void MainController::init()
+{
+    goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
+    goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
 }
 
-void MainController::sendBuzzerSignal(int seconds) {
-    manipulater_controller::ControlManipulater srv;
-    srv.request.cmd = 5;
-    if (manipulater_client.call(srv)) {
-        ROS_INFO("bi bi bi bi bi bi bi bi.....");
-    } else {
-        ROS_ERROR("bi .. failed");
-    }
+void MainController::start_to_goal(double x, double y, double z) {
+    // 起飞
+    flyFixedHeight(z, 0.3, 0.1);
+
+    // 飞到目标点
+    flyInPlane(x, y, 0.3, 0.3);
 }
 
 void MainController::returnToOrigin() {
     //　返回到原点上方
     flyInPlane(0.0, 0.0, 0.3, 0.3);
 
-    // 降落 three step
-    flyFixedHeight(0.6);
-    flyFixedHeight(0.3);
+    // 降落
     flyFixedHeight(-0.05);
-
-    // 关闭飞机
-    shutDownUav();
 }
 
-void MainController::adjustUavPose() {
-    while (!is_objectPose_updated) {
-        ros::Rate rate(30);
-        ros::spinOnce();
-        rate.sleep();
-    }
-    //　仅仅只使用第一次检测到的目标物的位置
-    is_objectPose_updated = false;
-    std::cout << "try to adjust the pose of uav" << std::endl;
-    // 飞到需要调整的位置和姿态
-    double current_z = goal.goal_pose.pose.position.z;
-    goal.goal_pose = object_pose;
-    goal.goal_pose.pose.position.z = current_z;
-
-    goal.fly_type = "line_planner_server";
-    goal.fly_vel = -1;
-    ac.sendGoal(goal);
-    ac.waitForResult();
-    ROS_INFO("adjustUavPose OK");
-}
-
-void MainController::adjustUavPosition(double delta_x, double delta_y) {
-    object_uav_dis = 1000000;
+void MainController::adjustUavPosition(double delta_x, double delta_y, double z_to_ground) {
+    double object_uav_dis = 1000000;
+    double object_2_uav_x_real;
+    double object_2_uav_y_real;
     ros::Rate rate(10);
     int stable_count = 0;
     while (stable_count < 20) {
-        if (object_uav_dis < 0.07) 
-	{
-            ROS_INFO("object_uav_dis = %.3f", object_uav_dis);
-            ROS_INFO("stable count = %d", stable_count);   
+        if (object_uav_dis < 0.07) {
+            // ROS_INFO("object_uav_dis = %.3f", object_uav_dis);
+            ROS_INFO("stable count = %d", stable_count);
             stable_count++;
-	}
-        else stable_count = 0;
+        } else stable_count = 0;
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if (is_objectPose_updated) {
             is_objectPose_updated = false;
-            ROS_INFO("try to adjust the position of uav, the position of object relative to uav, x = %.3f, y = %.3f",
-                     object_2_uav_x, object_2_uav_y);
-
-            //　assum the yaw of uav is zero
-            goal.goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
-            goal.goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
+            object_2_uav_x_real = object_2_uav_x*(uav_pose.pose.position.z-z_to_ground);
+            object_2_uav_y_real = object_2_uav_y*(uav_pose.pose.position.z-z_to_ground);
+            object_uav_dis = sqrt(pow(object_2_uav_x_real,2) + pow(object_2_uav_x_real,2));
+            ROS_INFO("try to adjust uav position, the position of object relative to uav, "
+                     "x = %.3f, y = %.3f", object_2_uav_x_real, object_2_uav_y_real);
+            //　assum the yaw of uav is not zero
+            double yaw = RosMath::getYawFromPoseStamp(uav_pose);
+            goal.goal_pose.pose.position.x = uav_pose.pose.position.x +
+                    object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
+            goal.goal_pose.pose.position.y = uav_pose.pose.position.y +
+                    object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
         }
             // wait for object detection begin, let uav hover
         else {
@@ -194,14 +171,14 @@ void MainController::trackObject(const std::vector<WayPoint> way_points) {
         // 0.2s 控制飞机运动一次
         if (is_objectPose_updated) {
             // 飞到目标物的位置　可以尝试控制速度加快飞机的运动,时刻改变飞行目标
-            goal.goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x;
-            goal.goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y;
+            goal.goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x * uav_pose.pose.position.z;
+            goal.goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y * uav_pose.pose.position.z;
             // fly to target point with 1m/s velocity
             goal.fly_vel = 1;
             goal.step_length = 0.5;
             is_objectPose_updated = false;
             ROS_INFO("try to track the obejct, the position of object relative to uav, x = %.3f, y = %.3f",
-                     object_2_uav_x, object_2_uav_y);
+                     object_2_uav_x * uav_pose.pose.position.z, object_2_uav_y * uav_pose.pose.position.z);
         } else {
             //　fly along way points, assume the all waypoints organized from far to close.
             // step1: find two wayPoints closest to uav;
@@ -248,13 +225,15 @@ void MainController::trackObject(const std::vector<WayPoint> way_points) {
         uav2origin = RosMath::calDistance(uav_pose.pose.position.x, 0, uav_pose.pose.position.y, 0);
         rate.sleep();
     }
+
+    // reset fly_vel
+    goal.fly_vel = -1;
 }
 
 void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg) {
     object_pose = msg;
     object_2_uav_x = object_pose.pose.position.x;
     object_2_uav_y = object_pose.pose.position.y;
-    object_uav_dis = sqrt(object_2_uav_x * object_2_uav_x + object_2_uav_y * object_2_uav_y);
     is_objectPose_updated = true;
 }
 
@@ -282,28 +261,46 @@ void MainController::stopObjectDetection() {
     }
 }
 
-void MainController::catchObject() {
+bool MainController::catchObject() {
     manipulater_controller::ControlManipulater srv;
     srv.request.cmd = 3;
     if (manipulater_client.call(srv)) {
         ROS_INFO("catch object OK!");
+        return true;
     } else {
         ROS_INFO("catch object failed!");
+        return false;
     }
-
 }
 
-void MainController::stretchObject() {
+bool MainController::stretchObject() {
     manipulater_controller::ControlManipulater srv;
     srv.request.cmd = 4;
-    if (manipulater_client.call(srv)) {
-        ROS_INFO("stretch object OK!");
-    } else {
-        ROS_INFO("stretch object failed!");
+    for (int i=0; i < 3; i++)
+    {
+        if (manipulater_client.call(srv)) {
+            ROS_INFO("stretch object OK!");
+            return true;
+        } else {
+            ROS_INFO("stretch object failed!");
+        }
     }
-
+    return false;
 }
-
+bool MainController::sing() {
+    manipulater_controller::ControlManipulater srv;
+    srv.request.cmd = 5;
+    for (int i=0; i < 3; i++)
+    {
+        if (manipulater_client.call(srv)) {
+            ROS_INFO("bi .. Ok");
+            return true;
+        } else {
+            ROS_ERROR("bi .. failed");
+        }
+    }
+    return false;
+}
 void MainController::shutDownUav() {
     //　TODO::关闭飞机
     mavros_msgs::CommandBool arm_cmd;
@@ -317,35 +314,45 @@ void MainController::shutDownUav() {
 
 }
 
-void MainController::flyFixedHeight(double z, double precision, double velocity) {
-    //　起飞到一定的高度, x和y不变, try to solve take off slow problem, increase precision
+void MainController::flyFixedHeight(double z, double step_length, double precision, double velocity) {
+    //　起飞到一定的高度, x和y不变
     goal.goal_pose.pose.position.z = z;
-    goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
-    goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
-    ros::Rate rate(10);
-    while (fabs(z - uav_pose.pose.position.z) > precision) {
-        //ROS_INFO("try to arrive at height %.3f meters", z);
-        rate.sleep();
-    }
-    ROS_INFO("try to arrive at height %.3f, the actual height of uav is %.3f meters", z, uav_pose.pose.position.z);
-}
-
-void MainController::flyInPlane(double x, double y, double precision, double step_length) {
-    // 高度和姿态不变,做平面运动
-    goal.goal_pose.pose.position.x = x;
-    goal.goal_pose.pose.position.y = y;
-    goal.goal_pose.pose.position.z = uav_pose.pose.position.z;
-    std::cout << "planer height = " << goal.goal_pose.pose.position.z << std::endl;
+    goal.fly_vel = velocity;
     goal.step_length = step_length;
+    ROS_INFO("try to arrive at height %.3f meters, step_length = %.3f, "
+             "precision = %.3f, velocity = %.3f", z, step_length, precision, velocity);
+
     ros::Rate rate(10);
     int stable_count = 0;
     while (stable_count < 10)
     {
-        if(RosMath::calDistance(x, uav_pose.pose.position.x, y, uav_pose.pose.position.y, goal.goal_pose.pose.position.z, uav_pose.pose.position.z) < precision) stable_count++;
+        if(fabs(z - uav_pose.pose.position.z) < precision) stable_count++;
         else stable_count=0;
         rate.sleep();
-        // std::cout << "fdsn stable count = " << stable_count << std::endl;
+        // std::cout << "stable count = " << stable_count << std::endl;
     }
-    ROS_INFO("try to arrive at plane point x = %.3f, y = %.3f, the position of uav:x = %.3f, y = %.3f, z = %.3f", x, y,
+    ROS_INFO("arrive at goal height, the actual height of uav is %.3f meters", uav_pose.pose.position.z);
+}
+
+void MainController::flyInPlane(double x, double y, double step_length, double precision) {
+    // 高度和姿态不变,做平面运动
+    goal.goal_pose.pose.position.x = x;
+    goal.goal_pose.pose.position.y = y;
+    goal.step_length = step_length;
+
+    ROS_INFO("try to arrive at plane point x = %.3f, y = %.3f, z = %.3f, "
+             "precision = %.3f, step_length = %.3f", x, y, uav_pose.pose.position.z,
+             precision, step_length);
+
+    ros::Rate rate(10);
+    int stable_count = 0;
+    while (stable_count < 10)
+    {
+        if(RosMath::calDistance(x, uav_pose.pose.position.x, y, uav_pose.pose.position.y) < precision) stable_count++;
+        else stable_count=0;
+        rate.sleep();
+        // std::cout << "stable count = " << stable_count << std::endl;
+    }
+    ROS_INFO("arrive at goal plane point, the position of uav:x = %.3f, y = %.3f, z = %.3f",
              uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z);
 }

@@ -1,16 +1,13 @@
 <launch>
     <node name="task4_node" pkg="competition_tasks" type="task4" output="screen">
-		<param name="task4_person_x" value="0" type="double"/>
-		<param name="task4_person_y" value="0" type="double"/>
-		<param name="task4_person_z" value="1.5" type="double"/>
         <param name="task4_medical_x" value="0" type="double"/>
 		<param name="task4_medical_y" value="0" type="double"/>
-		<param name="task4_medical_z" value="1.5" type="double"/>
+		<param name="task4_medical_z" value="0.15" type="double"/>
+        <param name="task4_z" value="1" type="double"/>
+		<param name="task4_person_x" value="0" type="double"/>
+		<param name="task4_person_y" value="0" type="double"/>
+		<param name="task4_place_x" value="1.5" type="double"/>
+		<param name="task4_place_y" value="1.5" type="double"/>
+        <param name="task4_place_z" value="0.15" type="double"/>
 	</node>
-    <node name="find_object_2d" pkg="find_object_2d" type="find_object_2d" output="log">
-        <remap from="image" to="/usb_cam/image_rect_color"/>
-        <param name="gui" value="false" type="bool"/>
-        <param name="objects_path" value="~/Project/uav_ws/src/application/competition_tasks/object_template/medicalBag" type="str"/>
-        <param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
-    </node>
 </launch>
