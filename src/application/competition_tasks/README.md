@@ -14,7 +14,8 @@
 
 ## 2.配置目标检测任务的参数
 ### 启动
-1 测量用于目标检测的相机相对与无人机的x和y偏移写入detect_track.launch中
+1 测量用于目标检测的相机相对与无人机的x和y偏移写入
+MainController.h中
 
 2 启动目标检测服务
 > roslaunch competition_tasks detect_test.launch 启动目标检测服务，点击图片中的相应位置可以在终端中看到hsv值
@@ -31,7 +32,7 @@ ControlType:目标检测的物体类型
 - YellowPerson = 6,
 
 3 监视检测到的目标相对于无人机位置
-> rostopic echo /object_pose 显示目标物相对无人机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
+> rostopic echo /object_pose 显示目标物相对相机的位置.计算时机头方向为x，y轴向左,默认认为相机与物体距离为1m.如果检测到相对应的物体就会发布，否则就不发布
 
 4 source configure/run.sh
 
@@ -124,13 +125,15 @@ ControlType:目标检测的物体类型
 ## 启动
 - step0: 无人机上电，飞控上电, 将无人放置到起点处，机头朝前
 - step1: 使用terminator -l IYDC打开四个远程终端，分别输入以下指令
-> rgbd
 
-> orb_localization false
+> rgbd 启动rgbd相机
+
+> orb_localization false 或者 orb_slam false
 
 > roslaunch competition_tasks others.launch
 
-> rosservice call /manipulater_server "cmd: "
+> record_bag
+
 - step3: 使用terminator -l monitor打开四个监视终端
 - step4: 在监视终端剩余的一个中roslaunch最终要执行的任务
 

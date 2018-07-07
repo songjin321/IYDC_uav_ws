@@ -129,6 +129,8 @@ private:
     bool wait_task_over();
 
     // parameters
+    double x_cam2body = 0;
+    double y_cam2body = 0.23;
 };
 
 

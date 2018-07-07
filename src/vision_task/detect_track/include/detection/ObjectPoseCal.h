@@ -17,8 +17,7 @@
 class ObjectPoseCal
 {
 public:
-    ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name, 
-                             double x_cam2body, double y_cam2body);
+    ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name);
     void cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr camera_info);
     void publishPose();
     void calculatePoseFromBox(const cv::Rect_<float> &box);
@@ -30,9 +29,6 @@ private:
     ros::Subscriber cameraInfo_sub_;
     geometry_msgs::PoseStamped object_pose_;
     double fx,fy,cx,cy;
-
-    // camera coordinate in body frame
-    double x_cam2body_, y_cam2body_;
 };
 #endif //DETECT_TRACK_OBJECTPOSEPUB_H
 

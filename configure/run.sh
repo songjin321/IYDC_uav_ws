@@ -29,11 +29,15 @@ uav_test()
     gnome-terminal -e 'roslaunch competition_tasks   test.launch'
     orb_slam
 }
+record_bag()
+{
+    rosbag record /mavros/setpoint_position/local /mavros/local_position/pose /object_pos
+}
 topic_show()
 {
     gnome-terminal -e 'rostopic echo /mavros/setpoint_position/local'
     gnome-terminal -e 'rostopic echo /mavros/local_position/pose'
-    gnome-terminal -e 'rostopic echo /mavros/mocap/pose'
+    gnome-terminal -e 'rostopic echo /object_pose'
 }
 set_detection()
 {

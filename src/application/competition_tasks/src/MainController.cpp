@@ -103,8 +103,8 @@ void MainController::adjustUavPosition(double delta_x, double delta_y, double z_
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if (is_objectPose_updated) {
             is_objectPose_updated = false;
-            object_2_uav_x_real = object_2_uav_x * (uav_pose.pose.position.z - z_to_ground);
-            object_2_uav_y_real = object_2_uav_y * (uav_pose.pose.position.z - z_to_ground);
+            object_2_uav_x_real = object_2_uav_x * (uav_pose.pose.position.z - z_to_ground) + x_cam2body;
+            object_2_uav_y_real = object_2_uav_y * (uav_pose.pose.position.z - z_to_ground) + y_cam2body;
             object_uav_dis = sqrt(pow(object_2_uav_x_real, 2) + pow(object_2_uav_x_real, 2));
             ROS_INFO("try to adjust uav position, the position of object relative to uav, "
                      "x = %.3f, y = %.3f", object_2_uav_x_real, object_2_uav_y_real);
@@ -166,19 +166,27 @@ void MainController::trackObject(const std::vector <WayPoint> way_points) {
     // 如果没有追踪上就往原点飞
     // 让飞机飞到原点即可停止
     double uav2origin = 10000000;
+    double object_2_uav_x_real;
+    double object_2_uav_y_real;
     ros::Rate rate(20);
     while (uav2origin > 0.3) {
         // 0.2s 控制飞机运动一次
         if (is_objectPose_updated) {
             // 飞到目标物的位置　可以尝试控制速度加快飞机的运动,时刻改变飞行目标
-            goal.goal_pose.pose.position.x = uav_pose.pose.position.x + object_2_uav_x * uav_pose.pose.position.z;
-            goal.goal_pose.pose.position.y = uav_pose.pose.position.y + object_2_uav_y * uav_pose.pose.position.z;
+            object_2_uav_x_real = object_2_uav_x * uav_pose.pose.position.z + x_cam2body;
+            object_2_uav_y_real = object_2_uav_y * uav_pose.pose.position.z + y_cam2body;
+            ROS_INFO("try to adjust uav position, the position of object relative to uav, "
+                     "x = %.3f, y = %.3f", object_2_uav_x_real, object_2_uav_y_real);
+            //　assum the yaw of uav is not zero
+            double yaw = RosMath::getYawFromPoseStamp(uav_pose);
+            goal.goal_pose.pose.position.x = uav_pose.pose.position.x +
+                                             object_2_uav_x_real * cos(yaw) - object_2_uav_x_real * sin(yaw);
+            goal.goal_pose.pose.position.y = uav_pose.pose.position.y +
+                                             object_2_uav_x_real * sin(yaw) + object_2_uav_x_real * cos(yaw);;
             // fly to target point with 1m/s velocity
             goal.fly_vel = 1;
             goal.step_length = 0.5;
             is_objectPose_updated = false;
-            ROS_INFO("try to track the obejct, the position of object relative to uav, x = %.3f, y = %.3f",
-                     object_2_uav_x * uav_pose.pose.position.z, object_2_uav_y * uav_pose.pose.position.z);
         } else {
             //　fly along way points, assume the all waypoints organized from far to close.
             // step1: find two wayPoints closest to uav;
