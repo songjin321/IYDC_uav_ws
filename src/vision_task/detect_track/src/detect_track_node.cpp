@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     //
     DetectionAndTrackingLoop car_dAt(&car_detector);
 
-    // detection controller, server
+    // detection controller server
     DetectionController detection_controller;
 
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
