@@ -95,10 +95,11 @@ int main(int argc, char **argv) {
                     break;
                 case DetectionType::RedPerson:
                     if (color_detector.detectPureObject(frame, r_box,
-                                                        cv::Scalar(0, 50, 50),
-                                                        cv::Scalar(10, 255, 255),
-                                                        cv::Scalar(160, 50, 50),
-                                                        cv::Scalar(180, 255, 255))) {
+                                                        cv::Scalar(100, 20, 50),
+                                                        cv::Scalar(130, 255, 255)))
+                                                      //cv::Scalar(160, 50, 50),
+                                                      //cv::Scalar(180, 255, 255))) 
+                    {
                         //ROS_INFO("detected red Person!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
                         object_pose.publishPose();
@@ -127,10 +128,10 @@ int main(int argc, char **argv) {
                 case DetectionType::MedicalBag:
                     // 检测最大和次大轮廓
                     is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
-                                                                             cv::Scalar(0, 50, 50),
-                                                                             cv::Scalar(10, 255, 255),
-                                                                             cv::Scalar(160, 50, 50),
-                                                                             cv::Scalar(180, 255, 255));
+                                                                             cv::Scalar(100, 20, 50),
+                                                                             cv::Scalar(130, 255, 255));
+                                                                             //cv::Scalar(160, 50, 50),
+                                                                             //cv::Scalar(180, 255, 255));
                     // 计算目标物的位置
                     if (is_detect_object) {
                         // ROS_INFO("detected medical bag!!!");
