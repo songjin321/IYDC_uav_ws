@@ -68,8 +68,12 @@ void MainController::uav_control_loop(int loop_rate) {
 }
 
 void MainController::init() {
-    goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
-    goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
+    origin_pose_x = uav_pose.pose.position.x;
+    origin_pose_y = uav_pose.pose.position.y;
+    origin_pose_z = uav_pose.pose.position.z;
+
+    goal.goal_pose.pose.position.x = origin_pose_x;
+    goal.goal_pose.pose.position.y = origin_pose_y;
     sing();
 }
 
@@ -107,9 +111,9 @@ void MainController::adjustUavPosition(double delta_x, double delta_y, double z_
         // 飞到需要调整的位置,假定相机安装在下方,相机ｘ方向和飞机ｘ方向重合,ｙ方向相反.
         if (is_objectPose_updated) {
             is_objectPose_updated = false;
-            object_2_uav_x_real = object_2_uav_x * (uav_pose.pose.position.z - z_to_ground) + x_cam2body;
-            object_2_uav_y_real = object_2_uav_y * (uav_pose.pose.position.z - z_to_ground) + y_cam2body;
-            object_uav_dis = sqrt(pow(object_2_uav_x_real, 2) + pow(object_2_uav_x_real, 2));
+            object_2_uav_x_real = object_2_uav_x * (uav_pose.pose.position.z - origin_pose_z - z_to_ground) + x_cam2body;
+            object_2_uav_y_real = object_2_uav_y * (uav_pose.pose.position.z - origin_pose_z - z_to_ground) + y_cam2body;
+            object_uav_dis = sqrt(pow(object_2_uav_x_real, 2) + pow(object_2_uav_y_real, 2));
             ROS_INFO("try to adjust uav position, the position of object relative to uav, "
                      "x = %.3f, y = %.3f", object_2_uav_x_real, object_2_uav_y_real);
             //　assum the yaw of uav is not zero
@@ -230,7 +234,7 @@ void MainController::trackObject(const std::vector <WayPoint> way_points) {
             ROS_INFO("track lost, fly along wayPoints, waypoint: x = %.3f, y = %.3f, velocity of uav: v = %.3f",
                      goal.goal_pose.pose.position.x, goal.goal_pose.pose.position.y, goal.fly_vel);
         }
-        uav2origin = RosMath::calDistance(uav_pose.pose.position.x, 0, uav_pose.pose.position.y, 0);
+        uav2origin = RosMath::calDistance(uav_pose.pose.position.x, origin_pose_x, uav_pose.pose.position.y, origin_pose_y);
         rate.sleep();
     }
 

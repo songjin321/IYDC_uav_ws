@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     main_controller.stopObjectDetection();
 
     // 逐渐下降到抓取台上
-    main_controller.flyFixedHeight(task4_medical_z,0.1,0.05);
+    main_controller.flyFixedHeight(task4_medical_z-0.2,0.5,0.05);
 
     // 关闭飞机
     // main_controller.shutDownUav();
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
             main_controller.stopObjectDetection();
 
             // 逐渐下降到抓取台上
-            main_controller.flyFixedHeight(task4_medical_z,0.1,0.05);
+            main_controller.flyFixedHeight(task4_medical_z-0.2,0.5,0.05);
         }
     }
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     main_controller.adjustUavPosition(0,0,task4_place_z);
 
     // 下降到放置台上
-    main_controller.flyFixedHeight(task4_place_z);
+    main_controller.flyFixedHeight(task4_place_z,0.5);
 
     // 放置医药包
     main_controller.stretchObject();

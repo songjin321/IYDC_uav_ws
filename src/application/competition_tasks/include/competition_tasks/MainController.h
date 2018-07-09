@@ -125,6 +125,9 @@ private:
     double object_2_uav_x;
     double object_2_uav_y;
     double object_uav_dis;
+    double origin_pose_x;
+    double origin_pose_y;
+    double origin_pose_z;
 
     bool wait_task_over();
 
