@@ -240,8 +240,10 @@ void MainController::trackObject(const std::vector <WayPoint> way_points) {
 
 void MainController::object_pose_callback(const geometry_msgs::PoseStamped &msg) {
     object_pose = msg;
-    object_2_uav_x = object_pose.pose.position.x;
-    object_2_uav_y = object_pose.pose.position.y;
+    // need use a low pass filter to deal with object_2_uav
+    double filer_ratio = 0.05;
+    object_2_uav_x = object_2_uav_x * filer_ratio + object_pose.pose.position.x * (1-filer_ratio);
+    object_2_uav_y = object_2_uav_y * filer_ratio + object_pose.pose.position.y * (1-filer_ratio);
     is_objectPose_updated = true;
 }
 
