@@ -176,6 +176,19 @@ int main(int argc, char **argv) {
                             line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0));
                     }
                     break;
+                case DetectionType::PlacePlatform:
+                    if (color_detector.detectPureObject(frame, r_box,
+                                                        cv::Scalar(0, 0, 150),
+                                                        cv::Scalar(180, 50, 255))) {
+                        // ROS_INFO("detected white place platform!!!");
+                        object_pose.calculatePoseFromRotatedBox(r_box);
+                        object_pose.publishPose();
+                        cv::Point2f vertices[4];
+                        r_box.points(vertices);
+                        for (int i = 0; i < 4; i++)
+                            line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0));
+                    }
+                    break;
             }
             if (atoi(argv[1]) == 1) {
                 // convert image from RGB to HSV

@@ -11,7 +11,7 @@ detection_type_(DetectionType::None),car_dAt_(p_car_dAt)
 bool DetectionController::controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                                    detect_track::ControlDetection::Response &res)
 {
-    if (req.ControlType < 0 || req.ControlType > 7)
+    if (req.ControlType < 0 || req.ControlType > 8)
     {
         ROS_INFO("no correspond detection type");
         res.setOk = false;

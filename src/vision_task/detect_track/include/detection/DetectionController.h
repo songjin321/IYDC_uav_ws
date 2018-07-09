@@ -16,7 +16,8 @@ enum class DetectionType{
     BlackCircle = 3,
     Car = 4,
     MedicalBag = 5,
-    YellowPerson = 6
+    YellowPerson = 6,
+    PlacePlatform = 7
 };
 class DetectionController
 {
