@@ -5,13 +5,22 @@
 #include "detection/DetectionAndTrackingLoop.h"
 #include <opencv2/tracking.hpp>
 
-DetectionAndTrackingLoop::DetectionAndTrackingLoop(DetectionBase *detector) :
-        state(State::wait),detector(detector)
+DetectionAndTrackingLoop::DetectionAndTrackingLoop(DetectionBase *p_detector) :
+        state(State::wait),detector(p_detector)
 {
     tracker = cv::TrackerKCF::create();
     std::cout << "wait for start signal" << std::endl;
 }
-
+DetectionAndTrackingLoop::DetectionAndTrackingLoop() :
+        state(State::wait),detector(nullptr)
+{
+    tracker = cv::TrackerKCF::create();
+    std::cout << "wait for start signal" << std::endl;
+};
+void DetectionAndTrackingLoop::setDetector(DetectionBase *p_detector)
+{
+    detector = p_detector;
+}
 DetectionAndTrackingLoop::~DetectionAndTrackingLoop()
 {
     delete detector;
@@ -29,10 +38,10 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
             if(tracker->init(frame, r_box.boundingRect2f()))
             {
                 state = tracking;
-                std::cout << "tracker init success, try to tracking" << std::endl;
+                std::cerr << "tracker init success, try to tracking" << std::endl;
                 return true;
             } else{
-                std::cout << "tracker init failed" << std::endl;
+                std::cerr << "tracker init failed" << std::endl;
             }
         }
     }
@@ -40,8 +49,14 @@ bool DetectionAndTrackingLoop::detectFrame(cv::Mat &frame, cv::Rect2d &box)
     {
         if(!tracker->update(frame, box))
         {
-            state = detection;
-            std::cout << "track lost, begin detect Object" << std::endl;
+            if(is_car_using_feature)
+            {
+                state = detection;
+                std::cerr << "track lost, begin detect Object" << std::endl;
+            } else{
+                state = wait;
+                std::cerr << "track lost, because detection by color, so it will not restart";
+            }
 
         } else{
             // std::cout << "tracking......" << std::endl;

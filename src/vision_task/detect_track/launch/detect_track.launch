@@ -4,5 +4,6 @@
     <node name="detect_track_node" pkg="detect_track" type="detect_track_node" args="$(arg is_show)" output="screen">
         <param name="h_low_greenBG" value="40"/>
         <param name="h_high_greenBG" value="80"/>
+        <param name="is_car_using_feature" value="false" type="bool"/>
     </node>
 </launch>

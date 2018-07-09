@@ -21,10 +21,12 @@ enum class DetectionType{
 class DetectionController
 {
 public:
-    DetectionController();
+    DetectionController(DetectionAndTrackingLoop* p_car_dAt);
     bool controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                   detect_track::ControlDetection::Response &res);
     DetectionType detection_type_;
+private:
+    DetectionAndTrackingLoop* car_dAt_;
 };
 
 

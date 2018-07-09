@@ -53,12 +53,14 @@ ControlType:目标检测的物体类型
 将无人机逐渐移动到同心圆上方，观察/object_pose是否正确.
 
 ### 任务3:
-- 检测小车，检测方法为检测绿色背景中的物体 
-> set_detection 1
+- 可以设置使用sift或者基于颜色来检测小车，修改detect_track.launch中的is_car_using_feature，默认使用sift进行检测
 
-- 检测小车，sift检测
+- 检测小车
 > set_detection 4
 
+- 如果选择使用颜色检测默认设置H_green:40~80,S_green:50~255，V_green:50~255.如果无法检测到绿色，可以用鼠标点击绿色部分查看hsv值.修改DetectionByColor::detect中的hsv参数.
+
+- 如果选择使用sift检测
 使用find_object软件将物体的模板存储在application/competition_tasks/object_template/car/car.png中
 
 ### 任务4: 
@@ -72,6 +74,10 @@ ControlType:目标检测的物体类型
 
 默认设置H_yellow:10~30,S_yellow:50~255,V_yellow:50~255.如果无法检测到黄色，可以用鼠标点击黄色部分查看hsv值.修改源代码
 
+- 检测红色的药瓶放置台，检测方法为检测纯红色的物体
+> set_detection 2 将无人机逐渐移动到纯红色的遇险者上方，观察/object_pose是否正确.
+
+默认设置H_red:160~10,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改源代码
 ## 3.测试执行机构是否正常
 #### 使用前准备
 绑定串口到/dev/manipulater
