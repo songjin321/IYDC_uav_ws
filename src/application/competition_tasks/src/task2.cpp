@@ -21,7 +21,6 @@ int main(int argc, char **argv)
 
     // 初始化控制
     main_controller.init();
-    main_controller.sing();
     
     // 先直接将爪子抓紧,好放物体
     main_controller.catchObject();

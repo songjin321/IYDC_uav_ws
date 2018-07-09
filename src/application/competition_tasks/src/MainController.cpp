@@ -70,6 +70,7 @@ void MainController::uav_control_loop(int loop_rate) {
 void MainController::init() {
     goal.goal_pose.pose.position.x = uav_pose.pose.position.x;
     goal.goal_pose.pose.position.y = uav_pose.pose.position.y;
+    sing();
 }
 
 void MainController::start_to_goal(double x, double y, double z) {
