@@ -16,15 +16,18 @@ enum class DetectionType{
     BlackCircle = 3,
     Car = 4,
     MedicalBag = 5,
-    YellowPerson = 6
+    YellowPerson = 6,
+    PlacePlatform = 7
 };
 class DetectionController
 {
 public:
-    DetectionController();
+    DetectionController(DetectionAndTrackingLoop* p_car_dAt);
     bool controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                   detect_track::ControlDetection::Response &res);
     DetectionType detection_type_;
+private:
+    DetectionAndTrackingLoop* car_dAt_;
 };
 
 

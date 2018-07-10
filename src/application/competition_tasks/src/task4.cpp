@@ -100,8 +100,8 @@ int main(int argc, char **argv)
     // 调整无人机的位置,位于药品放置区中心
     main_controller.flyInPlane(task4_place_x, task4_place_y);
 
-    // 开启目标检测,2表示redPerson
-    main_controller.startObjectDetection(2);
+    // 开启目标检测,7表示放置台
+    main_controller.startObjectDetection(7);
 
     // 调整无人机的位置,位于放置台正上方
     main_controller.adjustUavPosition(0,0,task4_place_z);

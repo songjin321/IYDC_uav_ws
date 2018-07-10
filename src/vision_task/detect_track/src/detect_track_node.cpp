@@ -26,8 +26,10 @@ int main(int argc, char **argv) {
     // hue and saturation value of green background
     int h_low_greenBG;
     int h_high_greenBG;
+    bool is_car_using_feature;
     nh.param<int>("/detect_track_node/h_low_greenBG", h_low_greenBG, 40);
     nh.param<int>("/detect_track_node/h_high_greenBG", h_high_greenBG, 80);
+    nh.param<bool>("/detect_track_node/is_car_using_feature", is_car_using_feature, true);
 
     // capture image
     RosImageToMat imageToMat("/usb_cam/image_rect_color", nh);
@@ -40,11 +42,20 @@ int main(int argc, char **argv) {
     DetectionByFeature car_detector;
     DetectionByColor color_detector;
 
-    //
-    DetectionAndTrackingLoop car_dAt(&car_detector);
+    // we can track car using color detection
+    DetectionAndTrackingLoop car_dAt;
+    if (is_car_using_feature)
+    {
+        car_dAt.setDetector(&car_detector);
+        ROS_INFO("will detect car by feature");
+    } else{
+        car_dAt.setDetector(&color_detector);
+        ROS_INFO("will detect car by color");
+    }
+    car_dAt.is_car_using_feature = is_car_using_feature;
 
     // detection controller server
-    DetectionController detection_controller;
+    DetectionController detection_controller(&car_dAt);
 
     ros::ServiceServer service = nh.advertiseService("detection_controller_server",
                                                      &DetectionController::controlDetectionCallback,
@@ -117,7 +128,6 @@ int main(int argc, char **argv) {
                     }
                     break;
                 case DetectionType::Car:
-                    car_dAt.beginDetection();
                     if (car_dAt.detectFrame(frame, box)) {
                         // 如果检测成功,必定会发布object_pose
                         object_pose.calculatePoseFromBox(box);
@@ -159,6 +169,19 @@ int main(int argc, char **argv) {
                                                         cv::Scalar(10, 50, 50),
                                                         cv::Scalar(30, 255, 255))) {
                         // ROS_INFO("detected yellow person!!!");
+                        object_pose.calculatePoseFromRotatedBox(r_box);
+                        object_pose.publishPose();
+                        cv::Point2f vertices[4];
+                        r_box.points(vertices);
+                        for (int i = 0; i < 4; i++)
+                            line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0));
+                    }
+                    break;
+                case DetectionType::PlacePlatform:
+                    if (color_detector.detectPureObject(frame, r_box,
+                                                        cv::Scalar(0, 0, 150),
+                                                        cv::Scalar(180, 50, 255))) {
+                        // ROS_INFO("detected white place platform!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
                         object_pose.publishPose();
                         cv::Point2f vertices[4];

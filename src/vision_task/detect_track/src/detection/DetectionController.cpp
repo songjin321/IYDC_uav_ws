@@ -4,14 +4,14 @@
 
 #include "detection/DetectionController.h"
 #include <stdlib.h>
-DetectionController::DetectionController():
-detection_type_(DetectionType::None)
+DetectionController::DetectionController(DetectionAndTrackingLoop* p_car_dAt):
+detection_type_(DetectionType::None),car_dAt_(p_car_dAt)
 {
 }
 bool DetectionController::controlDetectionCallback(detect_track::ControlDetection::Request &req,
                                                    detect_track::ControlDetection::Response &res)
 {
-    if (req.ControlType < 0 || req.ControlType > 7)
+    if (req.ControlType < 0 || req.ControlType > 8)
     {
         ROS_INFO("no correspond detection type");
         res.setOk = false;
@@ -21,8 +21,10 @@ bool DetectionController::controlDetectionCallback(detect_track::ControlDetectio
     ROS_INFO("detection type = %d", static_cast<int>(detection_type_));
     if(detection_type_ == DetectionType::Car)
     {
-        system("roslaunch competition_tasks find_object.launch object_name:=car &");
+        car_dAt_->beginDetection();
         ROS_INFO("car detection begin");
+        if (car_dAt_->is_car_using_feature)
+            system("roslaunch competition_tasks find_object.launch object_name:=car &");
     }
     res.setOk = true;
     return true;
