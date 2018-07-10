@@ -133,7 +133,7 @@ private:
 
     // parameters
     double x_cam2body = 0;
-    double y_cam2body = 0.23;
+    double y_cam2body = 0.15;
 };
 
 
