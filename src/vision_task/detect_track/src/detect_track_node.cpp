@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
                     if (is_detect_object) {
                         //ROS_INFO("detected blue person!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::Point2f vertices[4];
                         r_box.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
                                abs(r_box_1.size.area() - (frame.rows * frame.cols)) > 3000) {
                         //ROS_INFO("detected green background!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box_1);
-                        object_pose.publishPose();
+                        object_pose.publishPose(0);
                         cv::Point2f vertices[4];
                         r_box_1.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
                     {
                         //ROS_INFO("detected red Person!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::Point2f vertices[4];
                         r_box.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
                 case DetectionType::BlackCircle:
                     if (color_detector.detectBlackCircle(frame, black_center)) {
                         object_pose.calculatePoseFromPoint(black_center);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::circle(frame, black_center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
                     }
                     break;
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
                     if (car_dAt.detectFrame(frame, box)) {
                         // 如果检测成功,必定会发布object_pose
                         object_pose.calculatePoseFromBox(box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::rectangle(frame, box, CV_RGB(255, 0, 0));
                     }
                     break;
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
                     if (is_detect_object) {
                         // ROS_INFO("detected medical bag!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::Point2f vertices[4];
                         r_box.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
                                abs(r_box_1.size.area() - (frame.rows * frame.cols)) > 3000) {
                         // ROS_INFO("detected red background!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box_1);
-                        object_pose.publishPose();
+                        object_pose.publishPose(0);
                         cv::Point2f vertices[4];
                         r_box_1.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
                                                         cv::Scalar(30, 255, 255))) {
                         // ROS_INFO("detected yellow person!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::Point2f vertices[4];
                         r_box.points(vertices);
                         for (int i = 0; i < 4; i++)
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
                                                         cv::Scalar(180, 50, 255))) {
                         // ROS_INFO("detected white place platform!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
-                        object_pose.publishPose();
+                        object_pose.publishPose(1);
                         cv::Point2f vertices[4];
                         r_box.points(vertices);
                         for (int i = 0; i < 4; i++)

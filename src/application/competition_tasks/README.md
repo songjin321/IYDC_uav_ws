@@ -64,10 +64,10 @@ ControlType:目标检测的物体类型
 使用find_object软件将物体的模板存储在application/competition_tasks/object_template/car/car.png中
 
 ### 任务4: 
-- 检测医药包，检测方法为检测红色背景中的物体
+- 检测医药包，检测方法为检测白色背景中的物体
 > set_detection 5 将无人机逐渐移动到医药包上方，观察/object_pose是否正确.
 
-默认设置H_red:160~10,S_red:50~255,V_red:50~255.如果无法检测到红色，可以用鼠标点击红色部分查看hsv值.修改源代码
+默认设置H_white:0~180,S_white:0~50,V_white:150~255.如果无法检测到医药包，可以用鼠标点击白色部分查看hsv值.修改源代码
 
 - 检测黄色小人，检测方法为检测纯黄色物体
 > set_detection 6 将无人机逐渐移动到四号黄色遇险者上方，观察/object_pose是否正确.

@@ -19,7 +19,9 @@ class ObjectPoseCal
 public:
     ObjectPoseCal(const std::string &camera_info_name, const std::string &publish_pose_name);
     void cameraInfoCallBack(sensor_msgs::CameraInfoConstPtr camera_info);
-    void publishPose();
+
+    // 0->background 1->object
+    void publishPose(int object_type);
     void calculatePoseFromBox(const cv::Rect_<float> &box);
     void calculatePoseFromRotatedBox(const cv::RotatedRect &box);
     void calculatePoseFromPoint(const cv::Point2f &center);
