@@ -140,8 +140,6 @@ int main(int argc, char **argv) {
                     is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
                                                                              cv::Scalar(100, 20, 50),
                                                                              cv::Scalar(130, 255, 255));
-                                                                             //cv::Scalar(160, 50, 50),
-                                                                             //cv::Scalar(180, 255, 255));
                     // 计算目标物的位置
                     if (is_detect_object) {
                         // ROS_INFO("detected medical bag!!!");
@@ -179,8 +177,8 @@ int main(int argc, char **argv) {
                     break;
                 case DetectionType::PlacePlatform:
                     if (color_detector.detectPureObject(frame, r_box,
-                                                        cv::Scalar(0, 0, 150),
-                                                        cv::Scalar(180, 50, 255))) {
+                                                        cv::Scalar(100, 20, 50),
+                                                        cv::Scalar(130, 255, 255))) {
                         // ROS_INFO("detected white place platform!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
                         object_pose.publishPose(1);

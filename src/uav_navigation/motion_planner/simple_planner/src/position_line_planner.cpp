@@ -13,7 +13,7 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
     res.plan.header = req.start.header;
 
     // Guaranteed posture is unchanged
-    geometry_msgs::PoseStamped planned_pose = req.start;
+    geometry_msgs::PoseStamped planned_pose = req.goal;
     planned_pose.header.frame_id = "local";
 
     // let tolerance as step length
