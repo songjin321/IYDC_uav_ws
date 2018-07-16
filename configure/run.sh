@@ -31,13 +31,16 @@ uav_test()
 }
 record_bag()
 {
-    rosbag record /mavros/setpoint_position/local /mavros/local_position/pose /object_pos
+    rosbag record /mavros/setpoint_position/local /mavros/local_position/pose /object_pose
 }
 topic_show()
 {
-    gnome-terminal -e 'rostopic echo /mavros/setpoint_position/local'
-    gnome-terminal -e 'rostopic echo /mavros/local_position/pose'
-    gnome-terminal -e 'rostopic echo /object_pose'
+case $1 in
+1) rostopic echo /mavros/local_position/pose;;
+2) rostopic echo /mavros/setpoint_position/local;;
+3) rostopic echo /vision_pose_map/pose;;
+4) rostopic echo /object_pose;;
+esac
 }
 set_detection()
 {

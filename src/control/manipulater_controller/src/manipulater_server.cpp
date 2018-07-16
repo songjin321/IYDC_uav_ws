@@ -47,8 +47,6 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
     while(ros::Time::now() < init_time + ros::Duration(timeout))
     {
         ROS_INFO("the state of singing: %d", return_value.status_code.singing);
-        ROS_INFO("the state of motion: %d", return_value.status_code.motion);
-        ROS_INFO("the state of catched: %d", return_value.status_code.catched);
 
         // catch completed return true
         if (req.cmd == 3 && return_value.status_code.motion == 3 && is_begin_catch && return_value.status_code.catched==1)
@@ -59,6 +57,9 @@ bool manipulater_server_callback(manipulater_controller::ControlManipulater::Req
         }
         if (req.cmd == 3 && is_begin_catch && (return_value.status_code.catched == 2 || return_value.status_code.catched == 3))
         {
+            ROS_INFO("the state of motion: %d", return_value.status_code.motion);
+            ROS_INFO("the state of catched: %d", return_value.status_code.catched);
+            ROS_INFO("catch failed!");
             is_begin_catch = false;
             res.isOk = false;
             return false;

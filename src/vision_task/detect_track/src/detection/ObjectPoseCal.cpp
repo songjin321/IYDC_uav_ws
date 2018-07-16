@@ -43,6 +43,6 @@ void ObjectPoseCal::calculatePoseFromRotatedBox(const cv::RotatedRect &box)
 // 0->background 1->object
 void ObjectPoseCal::publishPose(int object_type)
 {
-    object_pose_.pose.position.z == object_type;
+    object_pose_.pose.position.z = object_type;
     pub_pose_.publish(object_pose_);
 }

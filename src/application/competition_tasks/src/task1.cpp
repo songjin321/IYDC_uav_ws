@@ -25,7 +25,10 @@ int main(int argc, char **argv)
     main_controller.startObjectDetection(1);
 
     // 调整无人机的位置,位于小人正上方
-    main_controller.adjustUavPosition(0,0,0);
+   if(!main_controller.adjustUavPosition(0,0))
+   {
+       main_controller.flyInPlane(task1_x, task1_y, 0.3, 0.1);
+   }
 
     // 关闭目标检测,2表示colorPerson
     main_controller.stopObjectDetection();

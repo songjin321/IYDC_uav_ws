@@ -29,7 +29,7 @@ bool calLinePath(nav_msgs::GetPlan::Request  &req,
         res.plan.poses.push_back(planned_pose);
     }
     planned_pose.pose.position = req.goal.pose.position;
-    planned_pose.pose.orientation = req.start.pose.orientation;
+    planned_pose.pose.orientation = req.goal.pose.orientation;
     res.plan.poses.push_back(planned_pose);
     return true;
 }

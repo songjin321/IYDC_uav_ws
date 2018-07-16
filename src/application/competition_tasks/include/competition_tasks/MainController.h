@@ -72,7 +72,7 @@ public:
     /*
      * 控制无人机的位置,距离目标物delta_x,delta_y, 目标物距离地面距离：z_to_ground
      */
-    void adjustUavPosition(double delta_x, double delta_y, double z_to_ground);
+    bool adjustUavPosition(double delta_x, double delta_y, double z_to_ground = 0, double precision = 0.1, int stable_number = 10, bool is_always_hover = true);
 
     /*
      * 控制无人机跟随目标运动
@@ -82,13 +82,14 @@ public:
     /*
      * 飞到固定的高度,维持目标位置不变
      */
-    void flyFixedHeight(double z, double step_length = 0.1, double precision = 0.1, double velocity = -1);
+    void flyFixedHeight(double z, double step_length = 0.1, double precision = 0.1, double velocity = -1, int stable_number = 10);
 
     /*
      * 让飞机在平面进行平移,维持目标高度不变
      */
     void flyInPlane(double x, double y, double precision=0.1, double step_length = 0.1);
 
+    void stablePlane(double precision);
     /*
      * let uav hover
      */
@@ -125,15 +126,17 @@ private:
     double object_2_uav_x;
     double object_2_uav_y;
     double object_uav_dis;
+    double uav_goal_dis;
     double origin_pose_x;
     double origin_pose_y;
     double origin_pose_z;
 
     bool wait_task_over();
-
+    bool is_object;
     // parameters
     double x_cam2body = 0;
     double y_cam2body = 0.15;
+    //double y_cam2body = 0.23;
 };
 
 

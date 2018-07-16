@@ -1,13 +1,13 @@
 <launch>
     <node name="task4_node" pkg="competition_tasks" type="task4" output="screen">
-        <param name="task4_medical_x" value="2.0" type="double"/>
-	<param name="task4_medical_y" value="0" type="double"/>
-	<param name="task4_medical_z" value="0" type="double"/>
+        <param name="task4_medical_x" value="1.87" type="double"/>
+	<param name="task4_medical_y" value="-0.25" type="double"/>
+        <param name="task4_medical_z" value="0.05" type="double"/>
         <param name="task4_z" value="0.8" type="double"/>
 	<param name="task4_person_x" value="0" type="double"/>
 	<param name="task4_person_y" value="0" type="double"/>
-	<param name="task4_place_x" value="2.0" type="double"/>
-	<param name="task4_place_y" value="1.3" type="double"/>
-        <param name="task4_place_z" value="0" type="double"/>
+	<param name="task4_place_x" value="1.96" type="double"/>
+	<param name="task4_place_y" value="0.98" type="double"/>
+        <param name="task4_place_z" value="0.17" type="double"/>
     </node>
 </launch>

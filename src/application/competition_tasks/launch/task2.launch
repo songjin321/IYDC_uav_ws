@@ -1,10 +1,10 @@
 <launch>
     <node name="task2_node" pkg="competition_tasks" type="task2" output="screen">
-		<param name="task2_x" value="2.17" type="double"/>
-		<param name="task2_y" value="0" type="double"/>
-		<param name="task2_z" value="1" type="double"/>
-		<param name="task2_circle_x" value="1.5" type="double"/>
-		<param name="task2_circle_y" value="1" type="double"/>
+		<param name="task2_x" value="2" type="double"/>
+		<param name="task2_y" value="-0.8" type="double"/>
+		<param name="task2_z" value="0.9" type="double"/>
+		<param name="task2_circle_x" value="2" type="double"/>
+		<param name="task2_circle_y" value="0" type="double"/>
                 <param name="task2_circle_z" value="0.4" type="double"/>
     </node>
 </launch>

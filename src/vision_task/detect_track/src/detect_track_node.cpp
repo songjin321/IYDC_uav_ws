@@ -106,10 +106,10 @@ int main(int argc, char **argv) {
                     break;
                 case DetectionType::RedPerson:
                     if (color_detector.detectPureObject(frame, r_box,
-                                                        cv::Scalar(100, 20, 50),
-                                                        cv::Scalar(130, 255, 255)))
-                                                      //cv::Scalar(160, 50, 50),
-                                                      //cv::Scalar(180, 255, 255))) 
+                                                        cv::Scalar(0, 35, 50),
+                                                        cv::Scalar(10, 255, 255),
+                                                        cv::Scalar(160, 35, 50),
+                                                        cv::Scalar(180, 255, 255))) 
                     {
                         //ROS_INFO("detected red Person!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
                 case DetectionType::MedicalBag:
                     // 检测最大和次大轮廓
                     is_detect_object = color_detector.detectBackgroundObject(frame, r_box_1, r_box,
-                                                                             cv::Scalar(100, 20, 50),
-                                                                             cv::Scalar(130, 255, 255));
+                                                                             cv::Scalar(14, 30, 30),
+                                                                             cv::Scalar(35, 255, 255));
                     // 计算目标物的位置
                     if (is_detect_object) {
-                        // ROS_INFO("detected medical bag!!!");
+                        //ROS_INFO("detected medical bag!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
                         object_pose.publishPose(1);
                         cv::Point2f vertices[4];
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
                             line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 0));
                     } else if (r_box_1.size.area() > 5000 &&
                                abs(r_box_1.size.area() - (frame.rows * frame.cols)) > 3000) {
-                        // ROS_INFO("detected red background!!!");
+                        //ROS_INFO("detected background!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box_1);
                         object_pose.publishPose(0);
                         cv::Point2f vertices[4];
@@ -177,8 +177,8 @@ int main(int argc, char **argv) {
                     break;
                 case DetectionType::PlacePlatform:
                     if (color_detector.detectPureObject(frame, r_box,
-                                                        cv::Scalar(100, 20, 50),
-                                                        cv::Scalar(130, 255, 255))) {
+                                                        cv::Scalar(14, 30, 30),
+                                                        cv::Scalar(35, 255, 255))) {
                         // ROS_INFO("detected white place platform!!!");
                         object_pose.calculatePoseFromRotatedBox(r_box);
                         object_pose.publishPose(1);
@@ -203,8 +203,3 @@ int main(int argc, char **argv) {
         rate.sleep();
     }
 }
-
-void detectionBackGroundObject() {
-
-}
-

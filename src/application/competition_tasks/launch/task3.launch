@@ -1,13 +1,13 @@
 <launch>
     <node name="task3_node" pkg="competition_tasks" type="task3" output="screen">
-	<param name="task3_x" value="1.5" type="double"/>
-	<param name="task3_y" value="-0.5" type="double"/>
-	<param name="task3_z" value="0.1" type="double"/>
-	<param name="wayPoint1_x" value="1.5" type="double"/>
-	<param name="wayPoint1_y" value="0.5" type="double"/>
-	<param name="wayPoint2_x" value="1" type="double"/>
-	<param name="wayPoint2_y" value="0.5" type="double"/>
-	<param name="wayPoint3_x" value="0.5" type="double"/>
-	<param name="wayPoint3_y" value="0" type="double"/>
+	<param name="task3_x" value="2.2" type="double"/>
+	<param name="task3_y" value="-0.25" type="double"/>
+        <param name="task3_z" value="0.7" type="double"/>
+	<param name="wayPoint1_x" value="2.6" type="double"/>
+	<param name="wayPoint1_y" value="1.24" type="double"/>
+	<param name="wayPoint2_x" value="1.32" type="double"/>
+	<param name="wayPoint2_y" value="1.41" type="double"/>
+	<param name="wayPoint3_x" value="0.94" type="double"/>
+	<param name="wayPoint3_y" value="-0.07" type="double"/>
     </node>
 </launch>

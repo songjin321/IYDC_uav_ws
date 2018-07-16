@@ -67,7 +67,7 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
     cv::Mat dilateImg;
     cv::erode(erodeImg, dilateImg, element);
 
-    // cv::imshow("dilateImg", dilateImg);
+    //cv::imshow("dilateImg", dilateImg);
     // 查找轮廓
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
@@ -155,6 +155,8 @@ bool DetectionByColor::detectBackgroundObject(cv::Mat &sceneImg, cv::RotatedRect
                     return false;
                 }
                 */
+                if (largest_area_2 < 300)
+                    return false;
                 return true;
 
             } else {
@@ -257,6 +259,7 @@ bool DetectionByColor::detectPureObject(cv::Mat &sceneImg, cv::RotatedRect &roi,
     cv::Mat dilateImg;
     cv::dilate(erodeImg, dilateImg, element);
 
+    // cv::imshow("dilateImg", dilateImg);
     // 查找轮廓
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
